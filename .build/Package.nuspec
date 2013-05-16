@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>SignalR.EventAggregatorProxy</id>
+    <version>1.0</version>
+    <authors>Anders Malmgren</authors>
+    <owners>Anders Malmgren</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>A Event Aggregator proxy for SignalR</description>
+    <releaseNotes>First version.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>SignalR EventAggregator</tags>
+    <dependencies>
+      <dependency id="Microsoft.AspNet.SignalR" version="1.1.0" />
+    </dependencies>
+  </metadata>
+</package>

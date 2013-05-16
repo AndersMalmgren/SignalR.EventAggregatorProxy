@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Start">
+  <PropertyGroup>
+  </PropertyGroup>
+  
+  <UsingTask
+        TaskName="CompressorTask"
+        AssemblyFile="Yahoo.Yui.Compressor.MsBuildTask.dll"></UsingTask>
+
+  <Import Project="get_git_version.proj" />
+
+  <Target Name="Start">
+    <CallTarget Targets="DeleteOutput"/>
+    <CallTarget Targets="DeleteNugetFolder"/>
+    <CallTarget Targets="Build"/>
+    <CallTarget Targets="CopyOutput"/>
+
+    <CallTarget Targets="GetGitVersion"/>
+
+    <CallTarget Targets="MinimizeJS"/>
+
+    <CallTarget Targets="CopyFiles"/>
+    <CallTarget Targets="Pack"/>
+  </Target>
+
+  <Target Name="DeleteOutput">
+    <RemoveDir Directories="$(BuildDir)" />
+  </Target>
+
+  <Target Name="DeleteNugetFolder">
+    <RemoveDir Directories="$(NugetFolder)"/>
+  </Target>
+
+  <Target Name="Build">
+    <MSBuild Projects="..\SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
+  </Target>
+
+  <Target Name="CopyOutput">
+    <ItemGroup>
+      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.dll">
+      </ReleaseFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net40\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(BuildDir)" />
+  </Target>
+
+  <Target Name="GetGitVersion">
+    <GitVersion>
+      <Output PropertyName="GitCommitCount" TaskParameter="CommitCount" />
+    </GitVersion>
+    <PropertyGroup>
+      <Version>$(MajorVersion).$(GitCommitCount).0</Version>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="MinimizeJS">
+
+    <ItemGroup>
+      <JavaScriptFiles Include="..\SignalR.EventAggregatorProxy.Client.JS\jquery.signalR.eventAggregator.js;"/>
+    </ItemGroup>
+
+    <MakeDir Directories="$(NugetFolder)\content\scripts"/>
+
+    <Copy SourceFiles="@(JavaScriptFiles)" DestinationFiles="@(JavaScriptFiles -> '$(NugetFolder)\content\scripts\jquery.signalR.eventAggregator-$(Version).js')"/>
+
+    <CompressorTask
+        JavaScriptCompressionType="YuiStockCompression"
+        JavaScriptFiles="@(JavaScriptFiles)"
+        ObfuscateJavaScript="True"
+        PreserveAllSemicolons="True"
+        DisableOptimizations="Nope"
+        EncodingType="Default"
+        DeleteJavaScriptFiles="false"
+        LineBreakPosition="-1"
+        JavaScriptOutputFile="$(NugetFolder)\content\scripts\jquery.signalR.eventAggregator-$(Version).min.js"
+        LoggingType="ALittleBit"
+        ThreadCulture="en-US"
+        IsEvalIgnored="false" />    
+  </Target>
+
+  <Target Name="CopyFiles">
+    <ItemGroup>
+      <SpecFile Include="*.nuspec;*.txt">
+      </SpecFile>
+    </ItemGroup>
+    <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <Target Name="Pack">
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.nuspec -version $(Version)"/>
+  </Target>
+</Project>

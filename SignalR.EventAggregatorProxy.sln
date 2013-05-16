@@ -16,6 +16,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Client.JS", "SignalR.EventAggregatorProxy.Client.JS\SignalR.EventAggregatorProxy.Client.JS.csproj", "{DAA8EEF7-9893-4410-87D4-39F770DB26F6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{7598615F-6AF9-41D6-9089-6E9DB38128AA}"
+	ProjectSection(SolutionItems) = preProject
+		.build\build_output.proj = .build\build_output.proj
+		.build\create_nuget_package.cmd = .build\create_nuget_package.cmd
+		.build\EcmaScript.NET.modified.dll = .build\EcmaScript.NET.modified.dll
+		.build\get_git_version.proj = .build\get_git_version.proj
+		.build\git.exe = .build\git.exe
+		.build\libiconv-2.dll = .build\libiconv-2.dll
+		.build\Package.nuspec = .build\Package.nuspec
+		.build\readme.txt = .build\readme.txt
+		.build\write_VersionInfo.proj = .build\write_VersionInfo.proj
+		.build\Yahoo.Yui.Compressor.dll = .build\Yahoo.Yui.Compressor.dll
+		.build\Yahoo.Yui.Compressor.MsBuildTask.dll = .build\Yahoo.Yui.Compressor.MsBuildTask.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

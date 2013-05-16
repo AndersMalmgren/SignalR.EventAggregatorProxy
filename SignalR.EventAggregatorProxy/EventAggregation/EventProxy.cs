@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
@@ -30,15 +31,15 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             eventAggregator.Subscribe(Handle);
         }
 
-        public void Subscribe(string connectionId, string typeName, dynamic constraint)
+        public void Subscribe(HubCallerContext context, string typeName, dynamic constraint)
         {
             var type = typeFinder.GetType(typeName);
-            subscriptions[type].Add(new Subscription(connectionId, type, constraint));
-            if (!userSubscriptions.ContainsKey(connectionId))
+            subscriptions[type].Add(new Subscription(context.ConnectionId, context.User.Identity.Name, constraint));
+            if (!userSubscriptions.ContainsKey(context.ConnectionId))
             {
-                userSubscriptions[connectionId] = new List<Type>();
+                userSubscriptions[context.ConnectionId] = new List<Type>();
             }
-            userSubscriptions[connectionId].Add(type);
+            userSubscriptions[context.ConnectionId].Add(type);
         }
 
         public void UnsubscribeConnection(string connectionId)
@@ -75,7 +76,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
             foreach (var subscription in subscriptions[eventType])
             {
-                if (constraintHandler != null && !constraintHandler.Allow(message, null, subscription.Constraint))
+                if (constraintHandler != null && !constraintHandler.Allow(message, subscription.Username, subscription.Constraint))
                     continue;
 
                 var client = context.Clients.Client(subscription.ConnectionId);

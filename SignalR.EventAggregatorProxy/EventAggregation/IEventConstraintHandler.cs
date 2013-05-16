@@ -9,21 +9,21 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 {
     public interface IEventConstraintHandler
     {
-        bool Allow(object message, HubCallerContext context, dynamic constraint);
+        bool Allow(object message, string username, dynamic constraint);
     }
 
     public interface IEventConstraintHandler<T> : IEventConstraintHandler
     {
-        
-        bool Allow(T message, HubCallerContext context, dynamic constraint);
+
+        bool Allow(T message, string username, dynamic constraint);
     }
 
     public abstract class EventConstraintHandler<T> : IEventConstraintHandler<T>
     {
-        public bool Allow(object message, HubCallerContext context, dynamic constraint)
+        public bool Allow(object message, string username, dynamic constraint)
         {
-            return Allow((T) message, context, constraint);
+            return Allow((T)message, username, constraint);
         }
-        public abstract bool Allow(T message, HubCallerContext context, dynamic constraint);
+        public abstract bool Allow(T message, string username, dynamic constraint);
     }
 }

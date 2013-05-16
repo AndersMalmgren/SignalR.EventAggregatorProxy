@@ -19,7 +19,7 @@ namespace SignalR.EventAggregatorProxy.Hubs
 
         public void Subscribe(string type, dynamic contraint)
         {
-            eventProxy.Subscribe(Context.ConnectionId, type, contraint);
+            eventProxy.Subscribe(Context, type, contraint);
         }
 
         public void Unsubscribe(IEnumerable<string> types)

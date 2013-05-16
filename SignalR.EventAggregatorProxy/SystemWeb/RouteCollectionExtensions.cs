@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Routing;
 using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using Microsoft.AspNet.SignalR.SystemWeb.Infrastructure;
 using SignalR.EventAggregatorProxy.Event;
 
 namespace SignalR.EventAggregatorProxy.SystemWeb

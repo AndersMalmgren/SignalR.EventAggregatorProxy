@@ -9,15 +9,15 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 {
     public class Subscription
     {
-        public Subscription(string connectionId, Type eventType, dynamic constraint)
+        public Subscription(string connectionId, string username, dynamic constraint)
         {
             ConnectionId = connectionId;
-            EventType = eventType;
+            Username = username;
             Constraint = constraint;
         }
 
         public string ConnectionId { get; set; }
-        public Type EventType { get; set; }
+        public string Username { get; set; }
         public dynamic Constraint { get; set; }
     }
 }
