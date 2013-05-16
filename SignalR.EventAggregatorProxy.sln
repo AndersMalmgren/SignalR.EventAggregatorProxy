@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy", "SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj", "{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7B4FF0AB-3019-4682-9289-1F949307C65F}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5BCC75D3-B58D-4680-8886-63A73322D2AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests", "SignalR.EventAggregatorProxy.Tests\SignalR.EventAggregatorProxy.Tests.csproj", "{D448A946-04D1-4890-ADA5-D200F0005734}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Client.JS", "SignalR.EventAggregatorProxy.Client.JS\SignalR.EventAggregatorProxy.Client.JS.csproj", "{DAA8EEF7-9893-4410-87D4-39F770DB26F6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D448A946-04D1-4890-ADA5-D200F0005734}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D448A946-04D1-4890-ADA5-D200F0005734}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D448A946-04D1-4890-ADA5-D200F0005734}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D448A946-04D1-4890-ADA5-D200F0005734}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D448A946-04D1-4890-ADA5-D200F0005734} = {5BCC75D3-B58D-4680-8886-63A73322D2AD}
+	EndGlobalSection
+EndGlobal
