@@ -68,10 +68,13 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Boostrap\Bootstrapper.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />
     <Compile Include="EventAggregation\EventProxy.cs" />
     <Compile Include="EventAggregation\IEventConstraintHandler.cs" />
     <Compile Include="EventAggregation\Subscription.cs" />
+    <Compile Include="Event\BuildManagerAssemblyLocator.cs" />
+    <Compile Include="Event\IAssemblyLocator.cs" />
     <Compile Include="Event\ITypeFinder.cs" />
     <Compile Include="Event\TypeFinder.cs" />
     <Compile Include="Hubs\EventAggregatorProxyHub.cs" />

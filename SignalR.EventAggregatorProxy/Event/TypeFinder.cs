@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.SystemWeb.Infrastructure;
 using SignalR.EventAggregatorProxy.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Event
 {
     public class TypeFinder<TEvent> : ITypeFinder
     {
+        private readonly IAssemblyLocator assemblyLocator;
         private IDictionary<string, Type> types;
         private IDictionary<Type, Type> constraintHandlerTypes;
-
+        
         public TypeFinder()
         {
+            assemblyLocator = GlobalHost.DependencyResolver.Resolve<IAssemblyLocator>();
+
             InitEventTypes();
             InitConstraintHandlerTypes();
         }
@@ -23,7 +23,6 @@ namespace SignalR.EventAggregatorProxy.Event
         private void InitEventTypes()
         {
             var type = typeof (TEvent);
-            var assemblyLocator = new BuildManagerAssemblyLocator();
             types = assemblyLocator.GetAssemblies()
                                    .SelectMany(a => a.GetTypes())
                                    .Where(t => !t.IsAbstract && type.IsAssignableFrom(t))
@@ -33,7 +32,6 @@ namespace SignalR.EventAggregatorProxy.Event
         private void InitConstraintHandlerTypes()
         {
             var lookupType = typeof(IEventConstraintHandler<>);
-            var assemblyLocator = new BuildManagerAssemblyLocator();
             constraintHandlerTypes = assemblyLocator
                 .GetAssemblies()
                 .SelectMany(a => a.GetTypes())
