@@ -73,7 +73,7 @@
             }.bind(this));
         },
         onEvent: function(message) {
-            var type = SignalR.getEvent(message.type);
+            var type = signalR.getEvent(message.type);
             var event = new type();
             for (var member in message.event) {
                 event[member] = message.event[member];

@@ -1,5 +1,5 @@
 ﻿
-(function(SignalR, definitions) {
+(function(signalR, definitions) {
     var events = {};
     $.each(definitions, function(index, defintion) {
         var type = defintion.namespace + "." + defintion.name;
@@ -22,8 +22,8 @@
         return getClosure(root[part], namespace);
     }
 
-    SignalR.getEvent = function(type) {
+    signalR.getEvent = function(type) {
         return events[type];
     };
 
-})(window.SignalR = window.SignalR || {},  {{Data}});  
+})(window.signalR = window.signalR || {},  {{Data}});  
