@@ -8,13 +8,14 @@ using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;
 using SignalR.EventAggregatorProxy.Event;
+using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.ScriptProxy
 {
     public class ScriptHandler<TEvent> : IHttpHandler
     {
         private static string js;
-        private static DateTime scriptRendered;
+        private static DateTime scriptBuildDate;
 
         public ScriptHandler()
         {
@@ -29,7 +30,7 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
             var response = context.Response;
             response.ContentType = "text/javascript";
 
-            if (ClientCached(context, scriptRendered))
+            if (ClientCached(context, scriptBuildDate))
             {
                 response.StatusCode = 304;
                 response.StatusDescription = "Not Modified";
@@ -37,7 +38,7 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
                 return;
             }
 
-            response.Cache.SetLastModified(scriptRendered);
+            response.Cache.SetLastModified(scriptBuildDate);
 
             response.Write(js);
         }
@@ -50,7 +51,7 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
             var template = GetScriptTemplate();
 
             js = template.Replace("{{Data}}", Serialize(definitons));
-            scriptRendered = DateTime.Now;
+            scriptBuildDate = typeof(ScriptHandler<>).Assembly.GetBuildDate();
         }
 
         private string GetScriptTemplate()

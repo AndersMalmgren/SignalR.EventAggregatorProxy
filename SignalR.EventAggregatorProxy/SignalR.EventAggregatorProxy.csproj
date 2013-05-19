@@ -68,6 +68,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Boostrap\Bootstrapper.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />
     <Compile Include="EventAggregation\EventProxy.cs" />
