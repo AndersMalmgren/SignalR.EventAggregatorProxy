@@ -82,7 +82,7 @@
             this.eventAggregator.publish(event);
         },
         subscribe: function (eventType, constraint) {
-            if (eventType.proxyEvent !== true);
+            if (eventType.proxyEvent !== true) return;
 
             if (this.started === false) {
                 this.quedSubscriptions.push({ eventType: eventType, constraint: constraint });

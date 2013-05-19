@@ -1,12 +1,14 @@
 ﻿$.connection = {
     eventAggregatorProxyHub: {
-        client: {}
+        client: {},
+        server: {}
+        
     },
     hub: {
         start: function() {
             return {
-                done: function() {
-
+                done: function(callback) {
+                    callback();
                 }
             };
         }
