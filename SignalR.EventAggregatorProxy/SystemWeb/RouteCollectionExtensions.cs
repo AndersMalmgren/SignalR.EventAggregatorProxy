@@ -10,12 +10,13 @@ namespace SignalR.EventAggregatorProxy.SystemWeb
         public static void MapEventProxy<TEvent>(this RouteCollection routes)
         {
             var locator = new Lazy<ITypeFinder>(() => new TypeFinder<TEvent>());
-            GlobalHost.DependencyResolver.Register(typeof(ITypeFinder), () => locator.Value);
+            GlobalHost.DependencyResolver.Register(typeof (ITypeFinder), () => locator.Value);
 
             routes.Add(new Route(
                            "eventAggregation/events",
-                           new EventScriptRouteHandler<TEvent>()
-                           ));
+                           new RouteValueDictionary(),
+                           new RouteValueDictionary() {{"controller", string.Empty}},
+                           new EventScriptRouteHandler<TEvent>()));
         }
     }
 }
