@@ -51,7 +51,7 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
             var template = GetScriptTemplate();
 
             js = template.Replace("{{Data}}", Serialize(definitons));
-            scriptBuildDate = typeof(ScriptHandler<>).Assembly.GetBuildDate();
+            scriptBuildDate = types.Max(t => t.Assembly.GetBuildDate());
         }
 
         private string GetScriptTemplate()
@@ -89,7 +89,7 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
                 DateTime isModifiedSince;
                 if (DateTime.TryParse(header, out isModifiedSince))
                 {
-                    return isModifiedSince > contentModified;
+                    return isModifiedSince >= contentModified;
                 }
             }
 
