@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Start">
+  <PropertyGroup>
+  </PropertyGroup>
+
+  <Target Name="Start">
+    <CallTarget Targets="DeleteOutput"/>
+    <CallTarget Targets="DeleteNugetFolder"/>
+    <CallTarget Targets="Build"/>
+    <CallTarget Targets="CopyOutput"/>
+
+    <CallTarget Targets="CopyFiles"/>
+    <CallTarget Targets="Pack"/>
+
+    <CallTarget Targets="Deliver"/>
+  </Target>
+
+  <Target Name="DeleteOutput">
+    <RemoveDir Directories="$(BuildDir)" />
+  </Target>
+
+  <Target Name="DeleteNugetFolder">
+    <RemoveDir Directories="$(NugetFolder)"/>
+  </Target>
+
+  <Target Name="Build">
+    <MSBuild Projects="..\SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
+  </Target>
+
+  <Target Name="CopyOutput">
+    <ItemGroup>
+      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.Constraint.dll">
+      </ReleaseFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net40\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(BuildDir)" />
+  </Target>
+
+  <Target Name="CopyFiles">
+    <ItemGroup>
+      <SpecFile Include="ConstraintPackage.nuspec;">
+      </SpecFile>
+    </ItemGroup>
+    <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <Target Name="Pack">
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack ConstraintPackage.nuspec"/>
+  </Target>
+
+  <Target Name="Deliver">
+    <ItemGroup>
+      <DeliverFiles Include="$(NugetFolder)\*.nupkg">
+      </DeliverFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(DeliverFiles)" DestinationFiles="@(DeliverFiles -> '$(DeliverFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(NugetFolder)" />
+  </Target>
+</Project>

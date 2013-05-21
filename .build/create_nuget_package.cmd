@@ -4,4 +4,6 @@ rem go to current folder
 cd %~dp0
 
 msbuild write_VersionInfo.proj
-msbuild build_output.proj /property:BuildDir=..\Output /property:NugetFolder=..\NugetOutput
+msbuild build_output.proj /property:BuildDir=..\Output /property:NugetFolder=..\NugetOutput /property:DeliverFolder=..\Deliver
+
+msbuild build_constraint_output.proj /property:BuildDir=..\Output /property:NugetFolder=..\NugetOutput /property:DeliverFolder=..\Deliver

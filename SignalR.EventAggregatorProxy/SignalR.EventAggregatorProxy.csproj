@@ -72,7 +72,6 @@
     <Compile Include="Boostrap\Bootstrapper.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />
     <Compile Include="EventAggregation\EventProxy.cs" />
-    <Compile Include="EventAggregation\IEventConstraintHandler.cs" />
     <Compile Include="EventAggregation\Subscription.cs" />
     <Compile Include="Event\BuildManagerAssemblyLocator.cs" />
     <Compile Include="Event\IAssemblyLocator.cs" />
@@ -92,6 +91,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj">
+      <Project>{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}</Project>
+      <Name>SignalR.EventAggregatorProxy.Constraint</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

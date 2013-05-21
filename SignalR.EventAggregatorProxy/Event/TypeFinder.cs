@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNet.SignalR;
+using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Event

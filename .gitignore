@@ -109,4 +109,5 @@ UpgradeLog*.XML
 
 # Build
 NugetOutput
+Deliver
 VersionInfo.cs

@@ -21,6 +21,7 @@
 
     <CallTarget Targets="CopyFiles"/>
     <CallTarget Targets="Pack"/>
+    <CallTarget Targets="Deliver"/>
   </Target>
 
   <Target Name="DeleteOutput">
@@ -80,7 +81,7 @@
 
   <Target Name="CopyFiles">
     <ItemGroup>
-      <SpecFile Include="*.nuspec;*.txt">
+      <SpecFile Include="Package.nuspec;*.txt">
       </SpecFile>
     </ItemGroup>
     <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
@@ -88,5 +89,14 @@
 
   <Target Name="Pack">
     <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.nuspec -version $(Version)"/>
+  </Target>
+
+  <Target Name="Deliver">
+    <ItemGroup>
+      <DeliverFiles Include="$(NugetFolder)\*.nupkg">
+      </DeliverFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(DeliverFiles)" DestinationFiles="@(DeliverFiles -> '$(DeliverFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(NugetFolder)" />
   </Target>
 </Project>

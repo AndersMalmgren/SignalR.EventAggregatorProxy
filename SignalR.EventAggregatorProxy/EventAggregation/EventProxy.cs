@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json;
+using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.Hubs;
 

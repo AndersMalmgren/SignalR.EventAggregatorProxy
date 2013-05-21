@@ -18,6 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{7598615F-6AF9-41D6-9089-6E9DB38128AA}"
 	ProjectSection(SolutionItems) = preProject
+		.build\build_constraint_output.proj = .build\build_constraint_output.proj
 		.build\build_output.proj = .build\build_output.proj
 		.build\create_nuget_package.cmd = .build\create_nuget_package.cmd
 		.build\EcmaScript.NET.modified.dll = .build\EcmaScript.NET.modified.dll
@@ -30,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{759861
 		.build\Yahoo.Yui.Compressor.dll = .build\Yahoo.Yui.Compressor.dll
 		.build\Yahoo.Yui.Compressor.MsBuildTask.dll = .build\Yahoo.Yui.Compressor.MsBuildTask.dll
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Constraint", "SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj", "{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +52,10 @@ Global
 		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAA8EEF7-9893-4410-87D4-39F770DB26F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
