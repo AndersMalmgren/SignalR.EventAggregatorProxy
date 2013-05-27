@@ -92,9 +92,12 @@
         },
         unsubscribe: function (eventTypes) {
             var typeNames = $.map(eventTypes, function (eventType) {
+                if (eventType.proxyEvent !== true) return null;
                 return eventType.type;
             });
-            this.hub.server.unsubscribe(typeNames);
+            if (typeNames.length > 0) {
+                this.hub.server.unsubscribe(typeNames);
+            }
         }
     };
 

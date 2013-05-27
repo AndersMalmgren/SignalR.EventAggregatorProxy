@@ -12,11 +12,21 @@ test("When subscribing to client side event Issue #2", function () {
         ok(false, "Server side subscribe should not be called for client side events");
     };
 
-    signalR.eventAggregator.subscribe(new TestEvent(), function() {
+    signalR.eventAggregator.subscribe(TestEvent, function() {
     }, {});
     ok(true, "Server side subscribe was not called");
+
+    $.connection.eventAggregatorProxyHub.server.subscribe = null;
 });
 
+test("When unsubscribing to client side event Issue #5", function () {
+    var context = {};
+    $.connection.eventAggregatorProxyHub.server.unsubscribe = function () {
+        ok(false, "Server side unsubscribe should not be called for client side events");
+    };
 
-
-//subscribe
+    signalR.eventAggregator.subscribe(TestEvent, function () {
+    }, context);
+    signalR.eventAggregator.unsubscribe(context);
+    ok(true, "Server side unsubscribe was not called");
+});
