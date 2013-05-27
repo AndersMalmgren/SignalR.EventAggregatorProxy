@@ -33,8 +33,8 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 
         public void Subscribe(HubCallerContext context, string typeName, IEnumerable<string> genericArguments, dynamic constraint)
         {
-            var type = typeFinder.GetType(typeName);
-            var genericArgumentTypes = genericArguments.Select(Type.GetType).ToList();
+            var type = typeFinder.GetEventType(typeName);
+            var genericArgumentTypes = genericArguments.Select(typeFinder.GetType).ToList();
             subscriptions[type.GUID].Add(new Subscription(context.ConnectionId, context.User.Identity.Name, constraint, genericArgumentTypes));
             if (!userSubscriptions.ContainsKey(context.ConnectionId))
             {
@@ -58,7 +58,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 
         public void Unsubscribe(string connectionId, IEnumerable<EventType> typeNames)
         {
-            foreach (var type in typeNames.Select(t => new { Type = typeFinder.GetType(t.Type), ClientData = t }))
+            foreach (var type in typeNames.Select(t => new { Type = typeFinder.GetEventType(t.Type), ClientData = t }))
             {
                 if (userSubscriptions.ContainsKey(connectionId))
                 {
