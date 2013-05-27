@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.EventAggregation;
+using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Event
 {
@@ -27,7 +28,7 @@ namespace SignalR.EventAggregatorProxy.Event
             types = assemblyLocator.GetAssemblies()
                                    .SelectMany(a => a.GetTypes())
                                    .Where(t => !t.IsAbstract && type.IsAssignableFrom(t))
-                                   .ToDictionary(t => t.FullName, t => t);
+                                   .ToDictionary(t => t.GetFullNameWihoutGenerics(), t => t);
         }
 
         private void InitConstraintHandlerTypes()

@@ -47,7 +47,7 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
         {
             var types = GetEventTypes();
 
-            var definitons = types.Select(t => new { @namespace = t.Namespace, name = t.Name });
+            var definitons = types.Select(t => new { @namespace = t.Namespace, name = t.GetNameWihoutGenerics(), generic = t.ContainsGenericParameters });
             var template = GetScriptTemplate();
 
             js = template.Replace("{{Data}}", Serialize(definitons));

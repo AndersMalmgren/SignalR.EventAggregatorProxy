@@ -29,7 +29,7 @@ namespace SignalR.EventAggregatorProxy.Tests
     public class When_rendering_proxy_script
     {
         private string script;
-        private const string Expected = "[{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"NoMembersEvent\"},{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"MembersEvent\"}]";
+        private const string Expected = "[{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"NoMembersEvent\",\"generic\":false},{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"MembersEvent\",\"generic\":false}]";
 
         [TestInitialize]
         public void Context()

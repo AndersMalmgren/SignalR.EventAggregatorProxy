@@ -6,6 +6,15 @@
         var closure = getClosure(window, defintion.namespace.split("."));
         var $class = closure[defintion.name] = function() {
         };
+        
+        if (defintion.generic) {
+            $class.of = function() {
+                return {
+                    genericConstructor:  $class,
+                    genericArguments: mapArgumentsToArray(arguments)
+                };
+            };
+        }
         $class.type = type;
         $class.proxyEvent = true;
         events[type] = $class;
@@ -20,6 +29,13 @@
         root[part] = root[part] || {};
 
         return getClosure(root[part], namespace);
+    }
+    
+    function mapArgumentsToArray(genericArguments) {
+        //SignalR does not like function argument arrays so we clone it
+        return genericArguments != null ? $.map(genericArguments, function (value) {
+            return value;
+        }) : null;
     }
 
     signalR.getEvent = function(type) {

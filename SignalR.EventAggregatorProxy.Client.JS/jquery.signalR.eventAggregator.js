@@ -1,4 +1,4 @@
-﻿(function(signalR) {
+﻿(function(signalR, $) {
     signalR.EventAggregator = function (enableProxy) {
         if (enableProxy) {
             this.proxy = new Proxy(this);
@@ -7,6 +7,7 @@
 
     signalR.EventAggregator.prototype = function () {
         function getSubscribers(message, isInstance) {
+            message = message.genericConstructor || message;
             var constructor = isInstance ? message.constructor : message;
             if (constructor.__subscribers === undefined) {
                 constructor.__subscribers = [];
@@ -14,19 +15,31 @@
 
             return constructor.__subscribers;
         }
+        
+        function genericArgumentsCorrect(subscriber, genericArguments) {
+            if (subscriber.genericArguments == null) return true;
+            if (subscriber.genericArguments.length !== genericArguments.length) return false;
+
+            for (var i = 0; i < genericArguments.length; i++) {
+                if (subscriber.genericArguments[i] !== genericArguments[i]) return false;
+            }
+
+            return true;
+        }
 
         return {
             unsubscribe: function (context) {
                 $.each(context.__subscribedMessages, function () {
                     var index = -1;
-                    for (var j = 0; j < this.__subscribers.length; j++) {
-                        if (this.__subscribers[j].context == context) {
+                    var subscribers = (this.genericConstructor || this).__subscribers;
+                    for (var j = 0; j < subscribers.length; j++) {
+                        if (subscribers[j].context == context) {
                             index = j;
                             break;
                         }
                     }
                     if (index != -1) {
-                        this.__subscribers.splice(index, 1);
+                        subscribers.splice(index, 1);
                     }
                 });
                 if (this.proxy) {
@@ -40,16 +53,18 @@
                 context.__subscribedMessages.push(type);
 
                 var subscribers = getSubscribers.call(this, type, false);
-                subscribers.push({ handler: handler, context: context });
+                subscribers.push({ handler: handler, context: context, genericArguments: type.genericArguments });
                 
                 if (this.proxy) {
-                    this.proxy.subscribe(type, constraint);
+                    this.proxy.subscribe(type.genericConstructor || type, type.genericArguments, constraint);
                 }
             },
-            publish: function (message) {
+            publish: function (message, genericArguments) {
                 var subscribers = getSubscribers.call(this, message, true);
                 $.each(subscribers, function () {
-                    this.handler.call(this.context, message);
+                    if (genericArgumentsCorrect(this, genericArguments)) {
+                        this.handler.call(this.context, message);
+                    }
                 });
             }
         };
@@ -69,34 +84,37 @@
         onStarted: function() {
             this.started = true;
             $.each(this.quedSubscriptions, function(index, subscription) {
-                this.subscribe(subscription.eventType, subscription.constraint);
+                this.subscribe(subscription.eventType, subscription.genericArguments, subscription.constraint);
             }.bind(this));
         },
-        onEvent: function(message) {
+        onEvent: function (message) {
             var type = signalR.getEvent(message.type);
             var event = new type();
             for (var member in message.event) {
                 event[member] = message.event[member];
             }
 
-            this.eventAggregator.publish(event);
+            this.eventAggregator.publish(event, message.genericArguments);
         },
-        subscribe: function (eventType, constraint) {
+        subscribe: function (eventType, genericArguments, constraint) {
             if (eventType.proxyEvent !== true) return;
 
             if (this.started === false) {
-                this.quedSubscriptions.push({ eventType: eventType, constraint: constraint });
+                this.quedSubscriptions.push({ eventType: eventType, genericArguments: genericArguments, constraint: constraint });
             } else {
-                this.hub.server.subscribe(eventType.type, constraint);
+                this.hub.server.subscribe(eventType.type, genericArguments, constraint);
             }
         },
         unsubscribe: function (eventTypes) {
             var typeNames = $.map(eventTypes, function (eventType) {
-                return eventType.type;
-            });
+                return {
+                    type: (eventType.genericConstructor || eventType).type,
+                    genericArguments: eventType.genericArguments
+                };
+            }.bind(this));
             this.hub.server.unsubscribe(typeNames);
         }
     };
 
     signalR.eventAggregator = new signalR.EventAggregator(true);
-})(window.signalR = window.signalR || {});
+})(window.signalR = window.signalR || {}, jQuery);
