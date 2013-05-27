@@ -107,12 +107,17 @@
         },
         unsubscribe: function (eventTypes) {
             var typeNames = $.map(eventTypes, function (eventType) {
+                var constructor = eventType.genericConstructor || eventType;
+                if (constructor.proxyEvent !== true) return null;
+                
                 return {
-                    type: (eventType.genericConstructor || eventType).type,
+                    type: constructor.type,
                     genericArguments: eventType.genericArguments
                 };
             }.bind(this));
-            this.hub.server.unsubscribe(typeNames);
+            if (typeNames.length > 0) {
+                this.hub.server.unsubscribe(typeNames);
+            }
         }
     };
 
