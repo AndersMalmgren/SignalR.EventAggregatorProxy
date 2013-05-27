@@ -61,7 +61,7 @@ namespace SignalR.EventAggregatorProxy.Event
             {
                 if (!types.ContainsKey(typeName))
                 {
-                    types[typeName] = assemblyLocator.GetAssemblies().Select(a => a.GetType(typeName)).Single();
+                    types[typeName] = assemblyLocator.GetAssemblies().Select(a => a.GetType(typeName)).Single(t => t != null);
                 }
                 type = types[typeName];
             }
