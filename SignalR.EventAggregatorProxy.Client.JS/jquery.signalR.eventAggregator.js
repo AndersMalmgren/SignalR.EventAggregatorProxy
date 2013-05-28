@@ -77,17 +77,15 @@
         
         this.hub = $.connection.eventAggregatorProxyHub;
         this.hub.client.onEvent = this.onEvent.bind(this);
-        this.started = false;
-        this.quedSubscriptions = [];
+        this.queueSubscriptions = true;
+        this.queuedSubscriptions = [];
         $.connection.hub.start().done(this.onStarted.bind(this));
     };
 
     Proxy.prototype = {
-        onStarted: function() {
-            this.started = true;
-            $.each(this.quedSubscriptions, function(index, subscription) {
-                this.subscribe(subscription.eventType, subscription.genericArguments, subscription.constraint);
-            }.bind(this));
+        onStarted: function () {
+            this.queueSubscriptions = false;
+            this.sendSubscribeQueue();
         },
         onEvent: function (message) {
             var type = signalR.getEvent(message.type);
@@ -101,8 +99,8 @@
         subscribe: function (eventType, genericArguments, constraint) {
             if (eventType.proxyEvent !== true) return;
 
-            if (this.started === false) {
-                this.quedSubscriptions.push({ eventType: eventType, genericArguments: genericArguments, constraint: constraint });
+            if (this.queueSubscriptions) {
+                this.queuedSubscriptions.push({ eventType: eventType, genericArguments: genericArguments, constraint: constraint });
             } else {
                 this.hub.server.subscribe(eventType.type, genericArguments, constraint);
             }
@@ -116,9 +114,20 @@
                     type: constructor.type,
                     genericArguments: eventType.genericArguments
                 };
-            }.bind(this));
+            });
+            
             if (typeNames.length > 0) {
-                this.hub.server.unsubscribe(typeNames);
+                this.queueSubscriptions = true;
+                this.hub.server.unsubscribe(typeNames).done(function() {
+                    this.queueSubscriptions = false;
+                    this.sendSubscribeQueue();
+                }.bind(this));
+            }
+        },
+        sendSubscribeQueue: function () {
+            while (this.queuedSubscriptions.length > 0) {
+                var subscription = this.queuedSubscriptions.shift();
+                this.subscribe(subscription.eventType, subscription.genericArguments, subscription.constraint);
             }
         }
     };
