@@ -58,3 +58,31 @@ test("When unsubscribing a context that never were subscribed", function () {
 
     ok(true, "It should exit function call without exception");
 });
+
+test("When unsubscribing and subscribing directly after to server side events", function () {
+    var event = function() {
+
+    };
+    event.proxyEvent = true;
+    
+    var unsubscribeDone = false;
+    var doneCallback = null;
+
+    $.connection.eventAggregatorProxyHub.server.unsubscribe = function() {
+        return {
+            done: function(callback) {
+                doneCallback = callback;
+            }
+        };
+    };
+
+    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+        ok(unsubscribeDone, "It should not call subscribe while unsubscribe is working");
+    };
+
+    signalR.eventAggregator.proxy.unsubscribe([event]);
+    signalR.eventAggregator.proxy.subscribe(event);
+
+    unsubscribeDone = true;
+    doneCallback();
+});
