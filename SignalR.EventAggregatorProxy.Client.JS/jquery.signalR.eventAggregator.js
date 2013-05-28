@@ -29,6 +29,8 @@
 
         return {
             unsubscribe: function (context) {
+                if (context.__subscribedMessages === undefined) return;
+                
                 $.each(context.__subscribedMessages, function () {
                     var index = -1;
                     var subscribers = (this.genericConstructor || this).__subscribers;

@@ -47,3 +47,14 @@ test("When subscribing to client side event", function () {
     signalR.eventAggregator.unsubscribe(context);
     signalR.eventAggregator.publish(event);
 });
+
+test("When unsubscribing a context that never were subscribed", function () {
+    var context = {};
+    try {
+        signalR.eventAggregator.unsubscribe(context);
+    } catch (err) {
+        ok(false, "Should not crash");
+    }
+
+    ok(true, "It should exit function call without exception");
+});
