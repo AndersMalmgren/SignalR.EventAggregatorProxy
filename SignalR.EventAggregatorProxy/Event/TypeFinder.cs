@@ -71,7 +71,12 @@ namespace SignalR.EventAggregatorProxy.Event
 
         public Type GetConstraintHandlerType(Type type)
         {
-            return constraintHandlerTypes.ContainsKey(type) ? constraintHandlerTypes[type] : null;
+            if (!constraintHandlerTypes.ContainsKey(type))
+            {
+                var handler = constraintHandlerTypes.SingleOrDefault(kvp => kvp.Key.IsAssignableFrom(type)).Value;
+                constraintHandlerTypes[type] = handler;
+            }
+            return constraintHandlerTypes[type];
         }
     }
 }
