@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Start">
   <PropertyGroup>
+    <ReleaseNotes></ReleaseNotes>
+    <NugetFolder></NugetFolder>
+    <BuildDir></BuildDir>
+    <DeliverFolder></DeliverFolder>
   </PropertyGroup>
   
   <UsingTask
@@ -20,6 +24,7 @@
     <CallTarget Targets="MinimizeJS"/>
 
     <CallTarget Targets="CopyFiles"/>
+    <CallTarget Targets="PatchNuspec"/>
     <CallTarget Targets="Pack"/>
     <CallTarget Targets="Deliver"/>
   </Target>
@@ -85,6 +90,10 @@
       </SpecFile>
     </ItemGroup>
     <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <Target Name="PatchNuspec">
+    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
   </Target>
 
   <Target Name="Pack">

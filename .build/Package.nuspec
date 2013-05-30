@@ -9,6 +9,7 @@
     <projectUrl>https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Event Aggregator proxy for SignalR</description>
+    <releaseNotes></releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>SignalR EventAggregator</tags>
     <dependencies>
