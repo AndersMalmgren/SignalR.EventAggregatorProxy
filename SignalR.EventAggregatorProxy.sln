@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy", "SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj", "{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7B4FF0AB-3019-4682-9289-1F949307C65F}"
@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{759861
 	ProjectSection(SolutionItems) = preProject
 		.build\build_constraint_output.proj = .build\build_constraint_output.proj
 		.build\build_output.proj = .build\build_output.proj
+		.build\ConstraintPackage.nuspec = .build\ConstraintPackage.nuspec
 		.build\create_nuget_package.cmd = .build\create_nuget_package.cmd
 		.build\EcmaScript.NET.modified.dll = .build\EcmaScript.NET.modified.dll
 		.build\get_git_version.proj = .build\get_git_version.proj
