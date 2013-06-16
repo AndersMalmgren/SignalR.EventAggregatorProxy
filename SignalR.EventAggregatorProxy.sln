@@ -27,12 +27,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{759861
 		.build\libiconv-2.dll = .build\libiconv-2.dll
 		.build\Package.nuspec = .build\Package.nuspec
 		.build\readme.txt = .build\readme.txt
+		.build\versions.xml = .build\versions.xml
 		.build\write_VersionInfo.proj = .build\write_VersionInfo.proj
 		.build\Yahoo.Yui.Compressor.dll = .build\Yahoo.Yui.Compressor.dll
 		.build\Yahoo.Yui.Compressor.MsBuildTask.dll = .build\Yahoo.Yui.Compressor.MsBuildTask.dll
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Constraint", "SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj", "{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Client.DotNet", "SignalR.EventAggregatorProxy.Client.DotNet\SignalR.EventAggregatorProxy.Client.DotNet.csproj", "{CEDFD5F2-27BE-41A3-83D4-CBAFA24EBBEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +59,10 @@ Global
 		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEDFD5F2-27BE-41A3-83D4-CBAFA24EBBEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEDFD5F2-27BE-41A3-83D4-CBAFA24EBBEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEDFD5F2-27BE-41A3-83D4-CBAFA24EBBEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEDFD5F2-27BE-41A3-83D4-CBAFA24EBBEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

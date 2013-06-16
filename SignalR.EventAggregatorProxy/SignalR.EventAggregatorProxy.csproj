@@ -65,9 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\VersionInfo.cs">
-      <Link>VersionInfo.cs</Link>
-    </Compile>
     <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Boostrap\Bootstrapper.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />
@@ -81,6 +78,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Hubs\EventAggregatorProxyHub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="SystemWeb\EventScriptRouteHandler.cs" />
     <Compile Include="ScriptProxy\ScriptHandler.cs" />
     <Compile Include="SystemWeb\RouteCollectionExtensions.cs" />

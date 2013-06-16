@@ -5,21 +5,31 @@
     <NugetFolder></NugetFolder>
     <BuildDir></BuildDir>
     <DeliverFolder></DeliverFolder>
+    <Version></Version>
   </PropertyGroup>
   
   <UsingTask
         TaskName="CompressorTask"
         AssemblyFile="Yahoo.Yui.Compressor.MsBuildTask.dll"></UsingTask>
 
-  <Import Project="get_git_version.proj" />
+  <UsingTask
+        TaskName="VersionInfoTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <UsingTask
+        TaskName="CreateVersionInfoFileTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <!--<Import Project="get_git_version.proj" />-->
 
   <Target Name="Start">
     <CallTarget Targets="DeleteOutput"/>
     <CallTarget Targets="DeleteNugetFolder"/>
+    
+    <CallTarget Targets="GetGitVersion"/>
+    <CallTarget Targets="WriteVersionInfo"/>
     <CallTarget Targets="Build"/>
     <CallTarget Targets="CopyOutput"/>
-
-    <CallTarget Targets="GetGitVersion"/>
 
     <CallTarget Targets="MinimizeJS"/>
 
@@ -37,6 +47,16 @@
     <RemoveDir Directories="$(NugetFolder)"/>
   </Target>
 
+  <Target Name="GetGitVersion">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy">
+      <Output PropertyName="Version" TaskParameter="Version" />
+    </VersionInfoTask>
+  </Target>
+
+  <Target Name="WriteVersionInfo">
+    <CreateVersionInfoFileTask Version="$(Version)" VersionInfoFilePath="..\SignalR.EventAggregatorProxy\Properties\VersionInfo.cs" /> 
+  </Target>
+
   <Target Name="Build">
     <MSBuild Projects="..\SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
   </Target>
@@ -48,15 +68,6 @@
     </ItemGroup>
     <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net40\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <RemoveDir Directories="$(BuildDir)" />
-  </Target>
-
-  <Target Name="GetGitVersion">
-    <GitVersion>
-      <Output PropertyName="GitCommitCount" TaskParameter="CommitCount" />
-    </GitVersion>
-    <PropertyGroup>
-      <Version>$(MajorVersion).$(GitCommitCount).0</Version>
-    </PropertyGroup>
   </Target>
 
   <Target Name="MinimizeJS">

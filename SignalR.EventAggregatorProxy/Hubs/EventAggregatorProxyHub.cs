@@ -23,6 +23,11 @@ namespace SignalR.EventAggregatorProxy.Hubs
             eventProxy.Subscribe(Context, type, genericTypes ?? new string[0], contraint);
         }
 
+        public void Subscribe(string type, string[] genericTypes)
+        {
+            Subscribe(type, genericTypes, null);
+        }
+
         public void Unsubscribe(IEnumerable<EventType> types)
         {
             eventProxy.Unsubscribe(Context.ConnectionId, types);

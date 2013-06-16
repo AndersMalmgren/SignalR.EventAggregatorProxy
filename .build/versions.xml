@@ -1,0 +1,7 @@
+<ArrayOfVersion xmlns="http://schemas.datacontract.org/2004/07/GitVersionInfo.Model" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+  <Version>
+    <GitRevCount>25</GitRevCount>
+    <Major>0</Major>
+    <Minor>2</Minor>
+  </Version>
+</ArrayOfVersion>
