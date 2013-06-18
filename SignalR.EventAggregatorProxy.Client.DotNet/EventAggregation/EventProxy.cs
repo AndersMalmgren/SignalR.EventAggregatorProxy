@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using Newtonsoft.Json.Linq;
+using SignalR.EventAggregatorProxy.Client.Event;
 
 namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 {
     public class EventProxy<TProxyEvent>
     {
-        private readonly IEventAggregator<TProxyEvent> eventAggregator;
+        private readonly IEventAggregator eventAggregator;
         private bool queueSubscriptions = true;
         private readonly List<EventSubscriptionQueueItem> subscriptionQueue;
         private readonly IHubProxy proxy;
+        private readonly TypeFinder<TProxyEvent> typeFinder;
 
-        public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl)
+        public EventProxy(IEventAggregator eventAggregator, string hubUrl)
         {
+            typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<EventSubscriptionQueueItem>();
             this.eventAggregator = eventAggregator;
             var connection = new HubConnection(hubUrl);
@@ -51,11 +52,26 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         private void OnEvent(dynamic data)
         {
-            var eventType = typeof(TProxyEvent).Assembly.GetType(data.type.Value);
-            var e = data.@event as JObject;
-            var @event = e.ToObject(eventType);
-
+            var @event = ParseTypeData(data);
             eventAggregator.Publish(@event);
+        }
+
+        private object ParseTypeData(dynamic data)
+        {
+            var jObject = data as JObject;
+            var message = jObject.ToObject<Message>();
+
+            Type type = typeFinder.GetEventType(message.Type);
+            if (message.GenericArguments.Length > 0)
+            {
+                var genericArguments = message.GenericArguments
+                    .Select(typeFinder.GetType)
+                    .ToArray();
+
+                type = type.MakeGenericType(genericArguments);
+            }
+            
+            return (message.Event as JObject).ToObject(type);
         }
 
         private string GetNameWihoutGenerics(Type type)
@@ -69,6 +85,12 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             return name;
         }
 
+        public void Unsubscribe(IEnumerable<Type> types)
+        {
+            var unsubssciptions = types.Select(t => new { type = GetNameWihoutGenerics(t), genericArguments = t.GetGenericArguments().Select(ga => ga.FullName) });
+            proxy.Invoke("unsubscribe", unsubssciptions);
+        }
+
         private class EventSubscriptionQueueItem
         {
             public EventSubscriptionQueueItem(Type eventType, object constraint)
@@ -79,7 +101,13 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
             public Type EventType { get; set; }
             public Object Constraint { get; set; }
+        }
 
+        private class Message
+        {
+            public string Type { get; set; }
+            public object Event { get; set; }
+            public string[] GenericArguments { get; set; }
         }
     }
 }
