@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Start">
+  <PropertyGroup>
+    <ReleaseNotes></ReleaseNotes>
+    <NugetFolder></NugetFolder>
+    <BuildDir></BuildDir>
+    <DeliverFolder></DeliverFolder>
+    <Version></Version>
+  </PropertyGroup>
+  
+  <UsingTask
+        TaskName="VersionInfoTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <UsingTask
+        TaskName="CreateVersionInfoFileTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <Target Name="Start">
+    <CallTarget Targets="DeleteOutput"/>
+    <CallTarget Targets="DeleteNugetFolder"/>
+    
+    <CallTarget Targets="GetGitVersion"/>
+    <CallTarget Targets="WriteVersionInfo"/>
+    <CallTarget Targets="Build"/>
+    <CallTarget Targets="CopyOutput"/>
+
+    <CallTarget Targets="CopyFiles"/>
+    <CallTarget Targets="PatchNuspec"/>
+    <CallTarget Targets="Pack"/>
+    <CallTarget Targets="Deliver"/>
+  </Target>
+
+  <Target Name="DeleteOutput">
+    <RemoveDir Directories="$(BuildDir)" />
+  </Target>
+
+  <Target Name="DeleteNugetFolder">
+    <RemoveDir Directories="$(NugetFolder)"/>
+  </Target>
+
+  <Target Name="GetGitVersion">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.DotNet">
+      <Output PropertyName="Version" TaskParameter="Version" />
+    </VersionInfoTask>
+  </Target>
+
+  <Target Name="WriteVersionInfo">
+    <CreateVersionInfoFileTask Version="$(Version)" VersionInfoFilePath="..\SignalR.EventAggregatorProxy.Client.DotNet\Properties\VersionInfo.cs" /> 
+  </Target>
+
+  <Target Name="Build">
+    <MSBuild Projects="..\SignalR.EventAggregatorProxy.Client.DotNet\SignalR.EventAggregatorProxy.Client.DotNet.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
+  </Target>
+
+  <Target Name="CopyOutput">
+    <ItemGroup>
+      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.Client.dll">
+      </ReleaseFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net40\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(BuildDir)" />
+  </Target>
+
+  <Target Name="CopyFiles">
+    <ItemGroup>
+      <SpecFile Include="Package.DotNet.Client.nuspec;readme\SignalR.EventAggregatorProxy.Client.DotNet\readme.txt">
+      </SpecFile>
+    </ItemGroup>
+    <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <Target Name="PatchNuspec">
+    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.DotNet.Client.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
+  </Target>
+
+  <Target Name="Pack">
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.DotNet.Client.nuspec -version $(Version)"/>
+  </Target>
+
+  <Target Name="Deliver">
+    <ItemGroup>
+      <DeliverFiles Include="$(NugetFolder)\*.nupkg">
+      </DeliverFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(DeliverFiles)" DestinationFiles="@(DeliverFiles -> '$(DeliverFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(NugetFolder)" />
+  </Target>
+</Project>

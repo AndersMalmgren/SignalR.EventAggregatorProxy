@@ -19,17 +19,17 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{7598615F-6AF9-41D6-9089-6E9DB38128AA}"
 	ProjectSection(SolutionItems) = preProject
 		.build\build_constraint_output.proj = .build\build_constraint_output.proj
-		.build\build_output.proj = .build\build_output.proj
-		.build\ConstraintPackage.nuspec = .build\ConstraintPackage.nuspec
+		.build\build_dot_net_client_output.proj = .build\build_dot_net_client_output.proj
+		.build\build_server_output.proj = .build\build_server_output.proj
 		.build\create_nuget_package.cmd = .build\create_nuget_package.cmd
 		.build\EcmaScript.NET.modified.dll = .build\EcmaScript.NET.modified.dll
 		.build\get_git_version.proj = .build\get_git_version.proj
-		.build\git.exe = .build\git.exe
-		.build\libiconv-2.dll = .build\libiconv-2.dll
-		.build\Package.nuspec = .build\Package.nuspec
-		.build\readme.txt = .build\readme.txt
+		.build\Package.Constraint.nuspec = .build\Package.Constraint.nuspec
+		.build\Package.DotNet.Client.nuspec = .build\Package.DotNet.Client.nuspec
+		.build\Package.Server.nuspec = .build\Package.Server.nuspec
+		.build\SignalR.EventAggregatorProxy.Client.DotNet.txt = .build\SignalR.EventAggregatorProxy.Client.DotNet.txt
+		.build\SignalR.EventAggregatorProxy.txt = .build\SignalR.EventAggregatorProxy.txt
 		.build\versions.xml = .build\versions.xml
-		.build\write_VersionInfo.proj = .build\write_VersionInfo.proj
 		.build\Yahoo.Yui.Compressor.dll = .build\Yahoo.Yui.Compressor.dll
 		.build\Yahoo.Yui.Compressor.MsBuildTask.dll = .build\Yahoo.Yui.Compressor.MsBuildTask.dll
 	EndProjectSection

@@ -38,14 +38,14 @@
 
   <Target Name="CopyFiles">
     <ItemGroup>
-      <SpecFile Include="ConstraintPackage.nuspec;">
+      <SpecFile Include="Package.Constraint.nuspec;">
       </SpecFile>
     </ItemGroup>
     <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
   </Target>
 
   <Target Name="Pack">
-    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack ConstraintPackage.nuspec"/>
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.Constraint.nuspec"/>
   </Target>
 
   <Target Name="Deliver">
