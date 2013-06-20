@@ -25,9 +25,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
             connection.Start().ContinueWith(o =>
                 {
-                    queueSubscriptions = false;
-                    subscriptionQueue.ForEach(s => this.Subscribe(s.EventType, s.Constraint));
-                    subscriptionQueue.Clear();
+                    SendQueuedSubscriptions();
 
                     proxy.On<object>("onEvent", OnEvent);
                 });
@@ -88,7 +86,16 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         public void Unsubscribe(IEnumerable<Type> types)
         {
             var unsubssciptions = types.Select(t => new { type = GetNameWihoutGenerics(t), genericArguments = t.GetGenericArguments().Select(ga => ga.FullName) });
-            proxy.Invoke("unsubscribe", unsubssciptions);
+            queueSubscriptions = true;
+            proxy.Invoke("unsubscribe", unsubssciptions)
+                .ContinueWith(o => SendQueuedSubscriptions());
+        }
+
+        private void SendQueuedSubscriptions()
+        {
+            queueSubscriptions = false;
+            subscriptionQueue.ForEach(s => this.Subscribe(s.EventType, s.Constraint));
+            subscriptionQueue.Clear();
         }
 
         private class EventSubscriptionQueueItem
