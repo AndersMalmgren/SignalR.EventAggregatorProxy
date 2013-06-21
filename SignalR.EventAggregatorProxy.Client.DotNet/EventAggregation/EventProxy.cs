@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Principal;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using Newtonsoft.Json.Linq;
 using SignalR.EventAggregatorProxy.Client.Event;
@@ -15,14 +17,17 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly IHubProxy proxy;
         private readonly TypeFinder<TProxyEvent> typeFinder;
 
-        public EventProxy(IEventAggregator eventAggregator, string hubUrl)
+        public EventProxy(IEventAggregator eventAggregator, string hubUrl, Action<HubConnection> configureConnection = null)
         {
             typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<EventSubscriptionQueueItem>();
             this.eventAggregator = eventAggregator;
             var connection = new HubConnection(hubUrl);
-            proxy = connection.CreateHubProxy("EventAggregatorProxyHub");
+            if (configureConnection != null)
+                configureConnection(connection);
 
+            proxy = connection.CreateHubProxy("EventAggregatorProxyHub");
+            
             connection.Start().ContinueWith(o =>
                 {
                     SendQueuedSubscriptions();

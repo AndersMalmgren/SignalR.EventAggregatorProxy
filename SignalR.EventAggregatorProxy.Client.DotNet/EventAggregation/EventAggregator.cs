@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNet.SignalR.Client.Hubs;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 
@@ -32,9 +33,9 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     {
         private EventProxy<TProxyEvent> eventProxy;
 
-        public EventAggregator<TProxyEvent> Init(string hubUrl)
+        public EventAggregator<TProxyEvent> Init(string hubUrl, Action<HubConnection> configureConnection = null)
         {
-            eventProxy = new EventProxy<TProxyEvent>(this, hubUrl);
+            eventProxy = new EventProxy<TProxyEvent>(this, hubUrl, configureConnection);
             return this;
         }
 
