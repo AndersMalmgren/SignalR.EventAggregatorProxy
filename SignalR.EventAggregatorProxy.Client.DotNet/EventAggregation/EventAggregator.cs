@@ -35,6 +35,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         public EventAggregator<TProxyEvent> Init(string hubUrl, Action<HubConnection> configureConnection = null)
         {
+            if (eventProxy != null) throw new Exception("Event aggregator already initialized");
+
             eventProxy = new EventProxy<TProxyEvent>(this, hubUrl, configureConnection);
             return this;
         }
