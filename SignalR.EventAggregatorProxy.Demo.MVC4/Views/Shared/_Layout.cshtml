@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    @RenderBody()
+
+    @Scripts.Render("~/bundles/api")
+    @Scripts.Render("~/signalr/hubs")
+    @Scripts.Render("~/bundles/eventAggregator")
+    @Scripts.Render("~/eventAggregation/events")
+    @Scripts.Render("~/bundles/app")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

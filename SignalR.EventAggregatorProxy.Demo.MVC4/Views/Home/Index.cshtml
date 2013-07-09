@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>SignalR Demo</h2>
+
+<label>Message</label><input data-bind="value: text" type="text" />
+<div>
+    <button data-bind="click: fireStandardEvent">Fire standard event</button>
+    <button data-bind="click: fireGenericEvent">Fire generic event</button>
+    <button data-bind="click: fireConstrainedEvent">Fire constrained event (Message must be 'HelloWorld' for the event to fire on this client</button>
+</div>
+
+<h3>Events</h3>
+<div data-bind="foreach: events">
+    <div data-bind="text: ko.toJSON($data)"></div>
+</div>
