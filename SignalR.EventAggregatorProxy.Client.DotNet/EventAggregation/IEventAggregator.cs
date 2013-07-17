@@ -12,6 +12,6 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     {
         void Subscribe(object subsriber);
         void Publish<T>(T message) where T : class;
-        void Ubsubscribe(object subscriber);
+        void Unsubscribe(object subscriber);
     }
 }

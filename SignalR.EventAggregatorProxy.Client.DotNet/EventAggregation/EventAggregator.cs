@@ -23,7 +23,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                 .ForEach(s => s.Handle(message));
         }
 
-        public virtual void Ubsubscribe(object subscriber)
+        public virtual void Unsubscribe(object subscriber)
         {
             subscribers.Remove(subscriber);
         }
@@ -60,9 +60,9 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             }
         }
 
-        public override void Ubsubscribe(object subscriber)
+        public override void Unsubscribe(object subscriber)
         {
-            base.Ubsubscribe(subscriber);
+            base.Unsubscribe(subscriber);
 
             if (eventProxy != null)
             {
