@@ -34,11 +34,11 @@
 
         return {
             unsubscribe: function (context) {
-                if (context.__subscribedMessages === undefined) return;
+                if (context.__subscriptions === undefined) return;
 
-                $.each(context.__subscribedMessages, function () {
+                $.each(context.__subscriptions, function () {
                     var index = -1;
-                    var subscribers = (this.genericConstructor || this).__subscribers;
+                    var subscribers = (this.type.genericConstructor || this.type).__subscribers;
                     for (var j = 0; j < subscribers.length; j++) {
                         if (subscribers[j].context == context) {
                             index = j;
@@ -50,19 +50,21 @@
                     }
                 });
                 if (this.proxy) {
-                    this.proxy.unsubscribe(context.__subscribedMessages);
+                    this.proxy.unsubscribe(context.__subscriptions);
                 }
             },
             subscribe: function (type, handler, context, constraint) {
-                if (context.__subscribedMessages === undefined) {
-                    context.__subscribedMessages = [];
+                if (context.__subscriptions === undefined) {
+                    context.__subscriptions = [];
                 }
-                context.__subscribedMessages.push(type);
 
                 var constraintId = constraint ? this.constraintId++ : null;
 
                 var subscribers = getSubscribers.call(this, type, false);
-                subscribers.push({ handler: handler, context: context, genericArguments: type.genericArguments, constraintId: constraintId });
+                var subscription = { type: type, handler: handler, context: context, constraintId: constraintId };
+
+                context.__subscriptions.push(subscription);
+                subscribers.push(subscription);
 
                 if (this.proxy) {
                     this.proxy.subscribe(type.genericConstructor || type, type.genericArguments, constraint, constraintId);
@@ -113,13 +115,14 @@
             }
         },
         unsubscribe: function (eventTypes) {
-            var typeNames = $.map(eventTypes, function (eventType) {
-                var constructor = eventType.genericConstructor || eventType;
+            var typeNames = $.map(eventTypes, function (typeData) {
+                var constructor = typeData.type.genericConstructor || typeData.type;
                 if (constructor.proxyEvent !== true) return null;
 
                 return {
                     type: constructor.type,
-                    genericArguments: eventType.genericArguments
+                    genericArguments: typeData.type.genericArguments,
+                    id: typeData.constraintId
                 };
             });
 

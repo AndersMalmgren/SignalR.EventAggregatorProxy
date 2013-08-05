@@ -63,9 +63,9 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             {
                 if (userSubscriptions.ContainsKey(connectionId))
                 {
-                    userSubscriptions[connectionId].RemoveAll(s => s.EventType.GUID == type.Type.GUID && GenericArgumentsCorrect(s, type.ClientData.GenericArguments));
+                    userSubscriptions[connectionId].RemoveAll(s => s.EventType.GUID == type.Type.GUID && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && ConstraintIdCorrect(s, type.ClientData.ConstraintId));
                 }
-                subscriptions[type.Type.GUID].RemoveAll(s => s.ConnectionId == connectionId && GenericArgumentsCorrect(s, type.ClientData.GenericArguments));
+                subscriptions[type.Type.GUID].RemoveAll(s => s.ConnectionId == connectionId && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && ConstraintIdCorrect(s, type.ClientData.ConstraintId));
             }
         }
 
@@ -87,6 +87,11 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 var client = context.Clients.Client(subscription.ConnectionId);
                 client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
             }
+        }
+
+        private bool ConstraintIdCorrect(Subscription subscription, int? constraintId)
+        {
+            return subscription.ConstraintId == null || subscription.ConstraintId == constraintId;
         }
 
         private bool GenericArgumentsCorrect(Subscription subscription, string[] genericArguments)
