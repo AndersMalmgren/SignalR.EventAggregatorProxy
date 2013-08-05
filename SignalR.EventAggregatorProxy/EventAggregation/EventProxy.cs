@@ -16,7 +16,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
     {
         private readonly ITypeFinder typeFinder;
         private readonly IDictionary<Guid, List<Subscription>> subscriptions;
-        private readonly IDictionary<string, List<Type>> userSubscriptions;
+        private readonly IDictionary<string, List<Subscription>> userSubscriptions;
 
         public EventProxy()
         {
@@ -26,30 +26,31 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 .ListEventTypes()
                 .ToDictionary(t => t.GUID, t => new List<Subscription>());
 
-            userSubscriptions = new Dictionary<string, List<Type>>();
+            userSubscriptions = new Dictionary<string, List<Subscription>>();
 
             eventAggregator.Subscribe(Handle);
         }
 
-        public void Subscribe(HubCallerContext context, string typeName, IEnumerable<string> genericArguments, dynamic constraint)
+        public void Subscribe(HubCallerContext context, string typeName, IEnumerable<string> genericArguments, dynamic constraint, int? constraintId)
         {
             var type = typeFinder.GetEventType(typeName);
             var genericArgumentTypes = genericArguments.Select(typeFinder.GetType).ToList();
-            subscriptions[type.GUID].Add(new Subscription(context.ConnectionId, context.User.Identity.Name, constraint, genericArgumentTypes));
+            var subscription = new Subscription(type, context.ConnectionId, context.User.Identity.Name, constraint, constraintId, genericArgumentTypes);
+            subscriptions[type.GUID].Add(subscription);
             if (!userSubscriptions.ContainsKey(context.ConnectionId))
             {
-                userSubscriptions[context.ConnectionId] = new List<Type>();
+                userSubscriptions[context.ConnectionId] = new List<Subscription>();
             }
-            userSubscriptions[context.ConnectionId].Add(type);
+            userSubscriptions[context.ConnectionId].Add(subscription);
         }
 
         public void UnsubscribeConnection(string connectionId)
         {
             if (userSubscriptions.ContainsKey(connectionId))
             {
-                foreach (var type in userSubscriptions[connectionId])
+                foreach (var subscription in userSubscriptions[connectionId])
                 {
-                    var contexts = subscriptions[type.GUID];
+                    var contexts = subscriptions[subscription.EventType.GUID];
                     contexts.RemoveAll(c => c.ConnectionId == connectionId);
                 }
                 userSubscriptions.Remove(connectionId);
@@ -62,9 +63,9 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             {
                 if (userSubscriptions.ContainsKey(connectionId))
                 {
-                    userSubscriptions[connectionId].Remove(type.Type);
+                    userSubscriptions[connectionId].RemoveAll(s => s.EventType.GUID == type.Type.GUID && GenericArgumentsCorrect(s, type.ClientData.GenericArguments));
                 }
-                subscriptions[type.Type.GUID].RemoveAll(s => s.ConnectionId == connectionId && GenericArgumentsCorrect(s, type.ClientData.genericArguments));
+                subscriptions[type.Type.GUID].RemoveAll(s => s.ConnectionId == connectionId && GenericArgumentsCorrect(s, type.ClientData.GenericArguments));
             }
         }
 
@@ -84,7 +85,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                     continue;
 
                 var client = context.Clients.Client(subscription.ConnectionId);
-                client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments));
+                client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
             }
         }
 
@@ -110,11 +111,12 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 
         private class Message
         {
-            public Message(string type, object @event, string[] genericArguments)
+            public Message(string type, object @event, string[] genericArguments, int? constraintId)
             {
                 Type = type;
                 Event = @event;
                 GenericArguments = genericArguments;
+                ConstraintId = constraintId;
             }
 
             [JsonProperty("type")]
@@ -123,6 +125,9 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             public object Event { get; set; }
             [JsonProperty("genericArguments")]
             public string[] GenericArguments  { get; set; }
+            [JsonProperty("id")]
+            public int? ConstraintId { get; set; }
+
         }
     }
 }

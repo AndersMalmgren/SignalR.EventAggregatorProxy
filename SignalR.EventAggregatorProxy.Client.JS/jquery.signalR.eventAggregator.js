@@ -1,5 +1,6 @@
-﻿(function(signalR, $) {
+﻿(function (signalR, $) {
     signalR.EventAggregator = function (enableProxy) {
+        this.constraintId = 0;
         if (enableProxy) {
             this.proxy = new Proxy(this);
         }
@@ -15,7 +16,7 @@
 
             return constructor.__subscribers;
         }
-        
+
         function genericArgumentsCorrect(subscriber, genericArguments) {
             if (subscriber.genericArguments == null) return true;
             if (subscriber.genericArguments.length !== genericArguments.length) return false;
@@ -27,10 +28,14 @@
             return true;
         }
 
+        function checkConstraintId(subscriber, constraintId) {
+            return constraintId == null || (subscriber.constraintId === constraintId);
+        }
+
         return {
             unsubscribe: function (context) {
                 if (context.__subscribedMessages === undefined) return;
-                
+
                 $.each(context.__subscribedMessages, function () {
                     var index = -1;
                     var subscribers = (this.genericConstructor || this).__subscribers;
@@ -54,27 +59,29 @@
                 }
                 context.__subscribedMessages.push(type);
 
+                var constraintId = constraint ? this.constraintId++ : null;
+
                 var subscribers = getSubscribers.call(this, type, false);
-                subscribers.push({ handler: handler, context: context, genericArguments: type.genericArguments });
-                
+                subscribers.push({ handler: handler, context: context, genericArguments: type.genericArguments, constraintId: constraintId });
+
                 if (this.proxy) {
-                    this.proxy.subscribe(type.genericConstructor || type, type.genericArguments, constraint);
+                    this.proxy.subscribe(type.genericConstructor || type, type.genericArguments, constraint, constraintId);
                 }
             },
-            publish: function (message, genericArguments) {
+            publish: function (message, genericArguments, constraintId) {
                 var subscribers = getSubscribers.call(this, message, true);
                 $.each(subscribers, function () {
-                    if (genericArgumentsCorrect(this, genericArguments)) {
+                    if (genericArgumentsCorrect(this, genericArguments) && checkConstraintId(this, constraintId)) {
                         this.handler.call(this.context, message);
                     }
                 });
             }
         };
-    }();
+    } ();
 
     var Proxy = function (eventAggregator) {
         this.eventAggregator = eventAggregator;
-        
+
         this.hub = $.connection.eventAggregatorProxyHub;
         this.hub.client.onEvent = this.onEvent.bind(this);
         this.queueSubscriptions = true;
@@ -94,40 +101,40 @@
                 event[member] = message.event[member];
             }
 
-            this.eventAggregator.publish(event, message.genericArguments);
+            this.eventAggregator.publish(event, message.genericArguments, message.id);
         },
-        subscribe: function (eventType, genericArguments, constraint) {
+        subscribe: function (eventType, genericArguments, constraint, constraintId) {
             if (eventType.proxyEvent !== true) return;
 
             if (this.queueSubscriptions) {
-                this.queuedSubscriptions.push({ eventType: eventType, genericArguments: genericArguments, constraint: constraint });
+                this.queuedSubscriptions.push({ eventType: eventType, genericArguments: genericArguments, constraint: constraint, constraintId: constraintId });
             } else {
-                this.hub.server.subscribe(eventType.type, genericArguments, constraint);
+                this.hub.server.subscribe(eventType.type, genericArguments, constraint, constraintId);
             }
         },
         unsubscribe: function (eventTypes) {
             var typeNames = $.map(eventTypes, function (eventType) {
                 var constructor = eventType.genericConstructor || eventType;
                 if (constructor.proxyEvent !== true) return null;
-                
+
                 return {
                     type: constructor.type,
                     genericArguments: eventType.genericArguments
                 };
             });
-            
+
             if (typeNames.length > 0) {
                 this.queueSubscriptions = true;
-                this.hub.server.unsubscribe(typeNames).done(function() {
+                this.hub.server.unsubscribe(typeNames).done(function () {
                     this.queueSubscriptions = false;
                     this.sendSubscribeQueue();
-                }.bind(this));
+                } .bind(this));
             }
         },
         sendSubscribeQueue: function () {
             while (this.queuedSubscriptions.length > 0) {
                 var subscription = this.queuedSubscriptions.shift();
-                this.subscribe(subscription.eventType, subscription.genericArguments, subscription.constraint);
+                this.subscribe(subscription.eventType, subscription.genericArguments, subscription.constraint, subscription.constraintId);
             }
         }
     };

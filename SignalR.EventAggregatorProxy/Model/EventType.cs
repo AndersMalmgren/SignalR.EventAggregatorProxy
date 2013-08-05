@@ -11,6 +11,6 @@ namespace SignalR.EventAggregatorProxy.Model
         [JsonProperty("type")]
         public string Type { get; set; }
         [JsonProperty("genericArguments")]
-        public string[] genericArguments { get; set; }
+        public string[] GenericArguments { get; set; }
     }
 }

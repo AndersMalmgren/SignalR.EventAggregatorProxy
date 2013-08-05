@@ -18,14 +18,14 @@ namespace SignalR.EventAggregatorProxy.Hubs
             eventProxy = new EventProxy();
         }
 
-        public void Subscribe(string type, string[] genericTypes, dynamic contraint)
+        public void Subscribe(string type, string[] genericTypes, dynamic contraint, int? constraintId)
         {
-            eventProxy.Subscribe(Context, type, genericTypes ?? new string[0], contraint);
+            eventProxy.Subscribe(Context, type, genericTypes ?? new string[0], contraint, constraintId);
         }
 
         public void Subscribe(string type, string[] genericTypes)
         {
-            Subscribe(type, genericTypes, null);
+            Subscribe(type, genericTypes, null, null);
         }
 
         public void Unsubscribe(IEnumerable<EventType> types)
