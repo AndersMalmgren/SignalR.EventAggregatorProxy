@@ -60,17 +60,18 @@ test("When unsubscribing a context that never were subscribed", function () {
 });
 
 test("When unsubscribing and subscribing directly after to server side events", function () {
-    var event = function() {
+    var event = function () {
 
     };
     event.proxyEvent = true;
-    
+    var eventData = { type: event };
+
     var unsubscribeDone = false;
     var doneCallback = null;
 
-    $.connection.eventAggregatorProxyHub.server.unsubscribe = function() {
+    $.connection.eventAggregatorProxyHub.server.unsubscribe = function () {
         return {
-            done: function(callback) {
+            done: function (callback) {
                 doneCallback = callback;
             }
         };
@@ -80,7 +81,7 @@ test("When unsubscribing and subscribing directly after to server side events", 
         ok(unsubscribeDone, "It should not call subscribe while unsubscribe is working");
     };
 
-    signalR.eventAggregator.proxy.unsubscribe([event]);
+    signalR.eventAggregator.proxy.unsubscribe([eventData]);
     signalR.eventAggregator.proxy.subscribe(event);
 
     unsubscribeDone = true;
