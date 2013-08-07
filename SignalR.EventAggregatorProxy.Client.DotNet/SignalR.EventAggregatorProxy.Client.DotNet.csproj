@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constraint\ConstraintInfo.cs" />
+    <Compile Include="Constraint\ConstraintInfoExtensions.cs" />
     <Compile Include="EventAggregation\EventAggregator.cs" />
     <Compile Include="EventAggregation\EventProxy.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />

@@ -18,10 +18,20 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         public void Publish<T>(T message) where T : class
         {
-            subscribers
-                .OfType<IHandle<T>>()
+            Publish(ListSubscribers(message), message);
+        }
+
+        protected virtual void Publish<T>(IEnumerable<IHandle<T>> filteredSubscribers,  T message) where T : class
+        {
+            filteredSubscribers
                 .ForEach(s => s.Handle(message));
         }
+
+        protected IEnumerable<IHandle<T>> ListSubscribers<T>(T message) where T : class
+        {
+            return subscribers
+                .OfType<IHandle<T>>();
+        } 
 
         public virtual void Unsubscribe(object subscriber)
         {
@@ -32,6 +42,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     public class EventAggregator<TProxyEvent> : EventAggregator, IEventAggregator<TProxyEvent>
     {
         private EventProxy<TProxyEvent> eventProxy;
+        private readonly Dictionary<object, IEnumerable<IConstraintInfo>> constraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
 
         public EventAggregator<TProxyEvent> Init(string hubUrl, Action<HubConnection> configureConnection = null)
         {
@@ -51,23 +62,32 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             base.Subscribe(subscriber);
             if (eventProxy != null)
             {
+                constraints[subscriber] = constraintInfos;
                 var proxyEvents = GetProxyEventTypes(subscriber);
                 foreach (var proxyEvent in proxyEvents)
                 {
-                    var constraint = constraintInfos.FirstOrDefault(ci => ci.GetType().GetGenericArguments()[0] == proxyEvent);
-                    eventProxy.Subscribe(proxyEvent, constraint != null ? constraint.GetConstraint() : null);
+                    var constraintInfo = constraintInfos.GetConstraintInfo(proxyEvent);
+                    eventProxy.Subscribe(proxyEvent, constraintInfo != null ? constraintInfo.GetConstraint() : null, constraintInfo.GetConstraintId());
                 }
             }
         }
 
+        public void Publish<T>(T message, int? constraintId) where T : class
+        {
+            var subscribers = ListSubscribers(message)
+                .Where(s => !constraintId.HasValue || constraints[s].Any(c => c.Id == constraintId));
+
+            Publish(subscribers, message);
+        }
+       
         public override void Unsubscribe(object subscriber)
         {
             base.Unsubscribe(subscriber);
-
             if (eventProxy != null)
             {
+                constraints.Remove(subscriber);
                 var proxyEvents = GetProxyEventTypes(subscriber);
-                eventProxy.Unsubscribe(proxyEvents);
+                eventProxy.Unsubscribe(proxyEvents, constraints[subscriber]);
             }
         }
 

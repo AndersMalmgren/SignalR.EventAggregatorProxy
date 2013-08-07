@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
 
 namespace SignalR.EventAggregatorProxy.Client.Constraint
@@ -9,14 +6,17 @@ namespace SignalR.EventAggregatorProxy.Client.Constraint
     public interface IConstraintInfo
     {
         object GetConstraint();
+        int Id { get; }
     }
 
     public class ConstraintInfo<TEvent, TConstraint> : IConstraintInfo
     {
         public TConstraint Constraint { get; set; }
+        private static int counter;
 
         public ConstraintInfo(TConstraint constraint)
         {
+            Id = counter++;
             Constraint = constraint;
         }
 
@@ -24,5 +24,7 @@ namespace SignalR.EventAggregatorProxy.Client.Constraint
         {
             return Constraint;
         }
+
+        public int Id { get; private set; }
     }
 }

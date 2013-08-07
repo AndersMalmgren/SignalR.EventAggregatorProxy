@@ -6,6 +6,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     public interface IEventAggregator<TProxyEvent> : IEventAggregator
     {
         void Subscribe(object subscriber, IEnumerable<IConstraintInfo> constraintInfos);
+        void Publish<T>(T message, int? constraintId) where T : class;
     }
 
     public interface IEventAggregator
