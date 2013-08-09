@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using Microsoft.AspNet.SignalR.Infrastructure;
 using Newtonsoft.Json;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
@@ -74,7 +75,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             var eventType = message.GetType();
             var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
 
-            var context = GlobalHost.ConnectionManager.GetHubContext<EventAggregatorProxyHub>();
+            var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
             var constraintHandlerType = typeFinder.GetConstraintHandlerType(eventType);
             var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
             foreach (var subscription in subscriptions[eventType.GUID])
