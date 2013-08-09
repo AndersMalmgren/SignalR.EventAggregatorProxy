@@ -65,8 +65,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ConcurrencyTests.cs" />
     <Compile Include="ScriptHandlerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test.cs" />
     <Compile Include="TypeFinderTests.cs" />
   </ItemGroup>
   <ItemGroup>

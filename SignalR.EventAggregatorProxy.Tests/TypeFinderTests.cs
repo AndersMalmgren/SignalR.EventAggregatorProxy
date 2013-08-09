@@ -12,17 +12,14 @@ using SignalR.EventAggregatorProxy.Event;
 namespace SignalR.EventAggregatorProxy.Tests
 {
     [TestClass]
-    public class When_trying_to_find_a_constraint_handler_for_a_generic_event
+    public class When_trying_to_find_a_constraint_handler_for_a_generic_event : Test
     {
         [TestInitialize]
         public void Context()
         {
             GenericEventConstraintHandler.Called = false;
 
-            var assemblyLocator = MockRepository.GenerateMock<IAssemblyLocator>();
-            assemblyLocator.Expect(x => x.GetAssemblies()).Return(new[] {Assembly.GetExecutingAssembly()});
-
-            GlobalHost.DependencyResolver.Register(typeof (IAssemblyLocator), () => assemblyLocator);
+            WhenCalling<IAssemblyLocator>(x => x.GetAssemblies()).Return(new[] {Assembly.GetExecutingAssembly()});
 
             var typeFinder = new TypeFinder<TestEventBase>();
             var type = typeof(OuterGeneric<EntityOne>);

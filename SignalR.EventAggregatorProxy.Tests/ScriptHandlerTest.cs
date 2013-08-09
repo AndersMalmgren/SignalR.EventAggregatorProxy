@@ -26,7 +26,7 @@ namespace SignalR.EventAggregatorProxy.Tests
 
 
     [TestClass]
-    public class When_rendering_proxy_script
+    public class When_rendering_proxy_script : Test
     {
         private string script;
         private const string Expected = "[{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"NoMembersEvent\",\"generic\":false},{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"MembersEvent\",\"generic\":false}]";
@@ -34,10 +34,8 @@ namespace SignalR.EventAggregatorProxy.Tests
         [TestInitialize]
         public void Context()
         {
-            var typeFinder = MockRepository.GenerateMock<ITypeFinder>();
-            typeFinder.Stub(x => x.ListEventTypes()).Return(new[] {typeof (NoMembersEvent), typeof (MembersEvent)});
+            WhenCalling<ITypeFinder>(x => x.ListEventTypes()).Return(new[] {typeof (NoMembersEvent), typeof (MembersEvent)});
 
-            GlobalHost.DependencyResolver.Register(typeof(ITypeFinder), () => typeFinder);
             var handler = new ScriptHandler<TestEventBase>();
             var context = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
