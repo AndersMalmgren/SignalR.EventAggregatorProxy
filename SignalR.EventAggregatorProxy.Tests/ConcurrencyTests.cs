@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading;
@@ -22,11 +23,14 @@ namespace SignalR.EventAggregatorProxy.Tests
         private AutoResetEvent reset;
         private bool failed = false;
         private ConcurrentBag<string> ids;
+        private ConcurrentBag<object> events;
+        private TimeSpan benchmarkTime = TimeSpan.FromSeconds(20);
             
         [TestInitialize]
         public void Context()
         {
             ids = new ConcurrentBag<string>();
+            events = new ConcurrentBag<object>();
             reset = new AutoResetEvent(false);
             var running = true;
             var count = 0;
@@ -45,12 +49,7 @@ namespace SignalR.EventAggregatorProxy.Tests
             });
             WhenAccessing<IRequest, IPrincipal>(x => x.User).Return(Thread.CurrentPrincipal);
 
-            var client = new Client(() => { 
-                count++;
-                if (count == 5000)
-                    reset.Set();
-
-            });
+            var client = new Client(events);
 
             WhenCalling<IHubConnectionContext>(x => x.Client(Arg<string>.Is.Anything)).Return(client);
             WhenAccessing<IHubContext, IHubConnectionContext>(x => x.Clients).Return(Get<IHubConnectionContext>());
@@ -59,19 +58,27 @@ namespace SignalR.EventAggregatorProxy.Tests
 
             var eventProxy = new EventProxy();
 
+            //for (var i = 0; i < 100; i++)
+            //{
+            //    eventProxy.Subscribe(CreateHubContext(), typeName, new string[0], null, null);
+            //}
 
             FailIfThreadCrashes(() => eventProxy.Subscribe(CreateHubContext(), typeName, new string[0], null, null));
             FailIfThreadCrashes(() =>
                 {
+                    if (ids.Count < 100) return;
+
                     string id;
                     if (ids.TryTake(out id))
                     {
                         eventProxy.Unsubscribe(id, typeNames);
                     }
-                    
+
                 });
             FailIfThreadCrashes(() =>
                 {
+                    if (ids.Count < 100) return;
+
                     string id;
                     if (ids.TryTake(out id))
                     {
@@ -80,9 +87,18 @@ namespace SignalR.EventAggregatorProxy.Tests
                 });
 
             FailIfThreadCrashes(() => handler(new MembersEvent()));
+            FailIfThreadCrashes(() => handler(new MembersEvent()));
+            FailIfThreadCrashes(() => handler(new MembersEvent()));
+            FailIfThreadCrashes(() => handler(new MembersEvent()));
+
+            var timer = new System.Timers.Timer(benchmarkTime.TotalMilliseconds);
+            timer.Elapsed += (s, e) => reset.Set();
+            var start = DateTime.Now;
+            timer.Start();
 
             reset.WaitOne();
             running = false;
+            Console.WriteLine("Catched events: {0} in {1}", events.Count, DateTime.Now - start);
         }
         
         private HubCallerContext CreateHubContext()
@@ -120,24 +136,19 @@ namespace SignalR.EventAggregatorProxy.Tests
                 }
             });
         }
-
-        private void FailIfThreadCrashes<T>(Func<T> func)
-        {
-            FailIfThreadCrashes(() => { var x = func(); });
-        }
-
+        
         public class Client
         {
-            private readonly Action callback;
+            private readonly ConcurrentBag<object> events;
 
-            public Client(Action callback)
+            public Client(ConcurrentBag<object> events)
             {
-                this.callback = callback;
+                this.events = events;
             }
 
             public void onEvent(object message)
             {
-                callback();
+                events.Add(message);
             }
         }
     }
