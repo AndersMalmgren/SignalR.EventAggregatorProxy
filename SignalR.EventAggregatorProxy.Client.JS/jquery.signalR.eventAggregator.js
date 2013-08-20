@@ -108,10 +108,10 @@
         subscribe: function (eventType, genericArguments, constraint, constraintId) {
             if (eventType.proxyEvent !== true) return;
 
-            if (this.queueSubscriptions) {
-                this.queuedSubscriptions.push({ eventType: eventType, genericArguments: genericArguments, constraint: constraint, constraintId: constraintId });
-            } else {
-                this.hub.server.subscribe(eventType.type, genericArguments, constraint, constraintId);
+            this.queuedSubscriptions.push({ type: eventType.type, genericArguments: genericArguments, constraint: constraint, constraintId: constraintId });
+            if (!this.queueSubscriptions) {
+                clearTimeout(this.throttleTimer);
+                this.throttleTimer = setTimeout(this.sendSubscribeQueue.bind(this), 1);
             }
         },
         unsubscribe: function (eventTypes) {
@@ -135,10 +135,9 @@
             }
         },
         sendSubscribeQueue: function () {
-            while (this.queuedSubscriptions.length > 0) {
-                var subscription = this.queuedSubscriptions.shift();
-                this.subscribe(subscription.eventType, subscription.genericArguments, subscription.constraint, subscription.constraintId);
-            }
+            var temp = this.queuedSubscriptions;
+            this.queuedSubscriptions = [];
+            this.hub.server.subscribe(temp);
         }
     };
 

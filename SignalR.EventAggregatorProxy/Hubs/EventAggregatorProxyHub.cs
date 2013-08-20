@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.EventAggregation;
+using SignalR.EventAggregatorProxy.Extensions;
 using SignalR.EventAggregatorProxy.Model;
 
 namespace SignalR.EventAggregatorProxy.Hubs
@@ -18,14 +19,10 @@ namespace SignalR.EventAggregatorProxy.Hubs
             eventProxy = new EventProxy();
         }
 
-        public void Subscribe(string type, string[] genericTypes, dynamic contraint, int? constraintId)
+        public void Subscribe(IEnumerable<SubscriptionDto> subscriptions)
         {
-            eventProxy.Subscribe(Context, type, genericTypes ?? new string[0], contraint, constraintId);
-        }
-
-        public void Subscribe(string type, string[] genericTypes)
-        {
-            Subscribe(type, genericTypes, null, null);
+            subscriptions
+                .ForEach(s => eventProxy.Subscribe(Context, s.Type, s.GenericArguments ?? new string[0], s.Constraint, s.ConstraintId));
         }
 
         public void Unsubscribe(IEnumerable<EventType> types)
