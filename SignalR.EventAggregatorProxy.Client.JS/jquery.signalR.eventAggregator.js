@@ -54,16 +54,15 @@
                 }
             },
             subscribe: function (type, handler, context, constraint) {
-                if (context.__subscriptions === undefined) {
-                    context.__subscriptions = [];
-                }
+                this.prepareContext(context);
+                var subscriptions = context.__getSubscriptions();
 
                 var constraintId = constraint ? this.constraintId++ : null;
 
                 var subscribers = getSubscribers.call(this, type, false);
                 var subscription = { type: type, handler: handler, context: context, constraintId: constraintId };
 
-                context.__subscriptions.push(subscription);
+                subscriptions.push(subscription);
                 subscribers.push(subscription);
 
                 if (this.proxy) {
@@ -77,6 +76,15 @@
                         this.handler.call(this.context, message);
                     }
                 });
+            },
+            prepareContext: function (context) {
+                if (context.__getSubscriptions === undefined) {
+                    var subscriptions = [];
+
+                    context.__getSubscriptions = function () {
+                        return subscriptions;
+                    };
+                }
             }
         };
     } ();
@@ -136,7 +144,7 @@
         },
         sendSubscribeQueue: function () {
             if (this.queuedSubscriptions.length === 0) return;
-            
+
             var temp = this.queuedSubscriptions;
             this.queuedSubscriptions = [];
             this.hub.server.subscribe(temp);

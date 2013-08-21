@@ -99,3 +99,38 @@ test("When not subscribing to any events from start", function () {
 
     ok(true, "Did not call subscribe");
 });
+
+asyncTest("When a third party lib is traversing object tree that has reference to eventAggregator", function () {
+    var traverse = function (obj) {
+        for (var member in obj) {
+            traverse(obj[member]);
+        }
+    };
+
+    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+    };
+
+    var event = function () {
+
+    };
+    event.proxyEvent = true;
+
+    var ViewModel = function () {
+        signalR.eventAggregator.subscribe(event, this.onEvent, this);
+        this.sub = event;
+        ko.validation.group(this, { observable: true, deep: true });
+    };
+
+    ViewModel.prototype = {
+        onEvent: function () {
+
+        }
+    };
+
+    var vm = new ViewModel();
+
+    setTimeout(function () {
+        start();
+    }, 5);
+
+});
