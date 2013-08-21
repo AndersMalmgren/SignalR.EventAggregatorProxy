@@ -87,3 +87,15 @@ test("When unsubscribing and subscribing directly after to server side events", 
     unsubscribeDone = true;
     doneCallback();
 });
+
+
+
+test("When not subscribing to any events from start", function () {
+    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+        ok(false, "Should not call subscribe");
+    };
+
+    var eventAggregator = new signalR.EventAggregator(true);
+
+    ok(true, "Did not call subscribe");
+});

@@ -135,6 +135,8 @@
             }
         },
         sendSubscribeQueue: function () {
+            if (this.queuedSubscriptions.length === 0) return;
+            
             var temp = this.queuedSubscriptions;
             this.queuedSubscriptions = [];
             this.hub.server.subscribe(temp);
