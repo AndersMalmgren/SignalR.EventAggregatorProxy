@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using Newtonsoft.Json.Linq;
 using SignalR.EventAggregatorProxy.Client.Constraint;
@@ -17,11 +18,16 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly List<Subscription> subscriptionQueue;
         private readonly IHubProxy proxy;
         private readonly TypeFinder<TProxyEvent> typeFinder;
+        private readonly Timer throttleTimer;
 
         public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl, Action<HubConnection> configureConnection = null)
         {
             typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<Subscription>();
+            throttleTimer = new Timer(1);
+            throttleTimer.AutoReset = false;
+            throttleTimer.Elapsed += (s, e) => SendQueuedSubscriptions();
+
             this.eventAggregator = eventAggregator;
             var connection = new HubConnection(hubUrl);
             if (configureConnection != null)
@@ -39,28 +45,18 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         public void Subscribe(IEnumerable<Subscription> subscriptions)
         {
-            if (queueSubscriptions)
+            subscriptionQueue.AddRange(subscriptions);
+            if (!queueSubscriptions)
             {
-                subscriptionQueue.AddRange(subscriptions);
-                return;
+                throttleTimer.Stop();
+                throttleTimer.Start();
             }
-
-            proxy.Invoke("subscribe", subscriptions.Select(s => new
-            {
-                Type = s.EventType.GetFullNameWihoutGenerics(),
-                GenericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName),
-                s.Constraint,
-                s.ConstraintId
-            }));
         }
 
         private void OnEvent(dynamic data)
         {   
             var jObject = data as JObject;
             var message = jObject.ToObject<Message>();
-
-            System.Diagnostics.Debug.WriteLine(message.Type);
-
             var @event = ParseTypeData(message);
             eventAggregator.Publish(@event, message.Id);
         }
@@ -91,8 +87,17 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private void SendQueuedSubscriptions()
         {
             queueSubscriptions = false;
-            Subscribe(subscriptionQueue);
+            var subscriptions = subscriptionQueue.Select(s => new
+                {
+                    Type = s.EventType.GetFullNameWihoutGenerics(),
+                    GenericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName),
+                    s.Constraint,
+                    s.ConstraintId
+                }).ToList();
             subscriptionQueue.Clear();
+
+            if (subscriptions.Any())
+                proxy.Invoke("subscribe", subscriptions);
         }
 
         private class Message
