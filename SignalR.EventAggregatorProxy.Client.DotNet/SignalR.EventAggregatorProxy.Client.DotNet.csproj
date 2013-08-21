@@ -57,6 +57,7 @@
     <Compile Include="Event\TypeFinder.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Model\Subscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventAggregation\WeakReferenceList.cs" />
     <Compile Include="Properties\VersionInfo.cs" />

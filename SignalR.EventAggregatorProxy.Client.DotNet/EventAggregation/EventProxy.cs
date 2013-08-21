@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Security.Principal;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using Newtonsoft.Json.Linq;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Event;
+using SignalR.EventAggregatorProxy.Client.Extensions;
+using Subscription = SignalR.EventAggregatorProxy.Client.Model.Subscription;
 
 namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 {
@@ -14,14 +14,14 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     {
         private readonly IEventAggregator<TProxyEvent> eventAggregator;
         private bool queueSubscriptions = true;
-        private readonly List<EventSubscriptionQueueItem> subscriptionQueue;
+        private readonly List<Subscription> subscriptionQueue;
         private readonly IHubProxy proxy;
         private readonly TypeFinder<TProxyEvent> typeFinder;
 
         public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl, Action<HubConnection> configureConnection = null)
         {
             typeFinder = new TypeFinder<TProxyEvent>();
-            subscriptionQueue = new List<EventSubscriptionQueueItem>();
+            subscriptionQueue = new List<Subscription>();
             this.eventAggregator = eventAggregator;
             var connection = new HubConnection(hubUrl);
             if (configureConnection != null)
@@ -37,21 +37,21 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                 });
         }
 
-        public void Subscribe(Type eventType, object constraint, int? constraintId)
+        public void Subscribe(IEnumerable<Subscription> subscriptions)
         {
             if (queueSubscriptions)
             {
-                subscriptionQueue.Add(new EventSubscriptionQueueItem(eventType, constraint, constraintId));
+                subscriptionQueue.AddRange(subscriptions);
                 return;
             }
 
-            var typeName = GetNameWihoutGenerics(eventType);
-            var genericArguments = eventType.GetGenericArguments().Select(ga => ga.FullName);
-            var args = new List<object> { typeName, genericArguments };
-            if (constraint != null)
-                args.AddRange(new[] { constraint, constraintId });
-
-            proxy.Invoke("subscribe", args.ToArray());
+            proxy.Invoke("subscribe", subscriptions.Select(s => new
+            {
+                Type = s.EventType.GetFullNameWihoutGenerics(),
+                GenericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName),
+                s.Constraint,
+                s.ConstraintId
+            }));
         }
 
         private void OnEvent(dynamic data)
@@ -79,22 +79,10 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             
             return (message.Event as JObject).ToObject(type);
         }
-
-        private string GetNameWihoutGenerics(Type type)
-        {
-            var name = type.FullName;
-            if (type.IsGenericType)
-            {
-                return name.Substring(0, name.IndexOf("`", StringComparison.Ordinal));
-            }
-
-            return name;
-        }
         
-
         public void Unsubscribe(IEnumerable<Type> types, IEnumerable<IConstraintInfo> constraintInfos)
         {
-            var unsubssciptions = types.Select(t => new { type = GetNameWihoutGenerics(t), genericArguments = t.GetGenericArguments().Select(ga => ga.FullName), id = constraintInfos.GetConstraintId(t) });
+            var unsubssciptions = types.Select(t => new { type = t.GetFullNameWihoutGenerics(), genericArguments = t.GetGenericArguments().Select(ga => ga.FullName), id = constraintInfos.GetConstraintId(t) });
             queueSubscriptions = true;
             proxy.Invoke("unsubscribe", unsubssciptions)
                 .ContinueWith(o => SendQueuedSubscriptions());
@@ -103,22 +91,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private void SendQueuedSubscriptions()
         {
             queueSubscriptions = false;
-            subscriptionQueue.ForEach(s => this.Subscribe(s.EventType, s.Constraint, s.ConstraintId));
+            Subscribe(subscriptionQueue);
             subscriptionQueue.Clear();
-        }
-
-        private class EventSubscriptionQueueItem
-        {
-            public EventSubscriptionQueueItem(Type eventType, object constraint, int? constraintId)
-            {
-                EventType = eventType;
-                Constraint = constraint;
-                ConstraintId = constraintId;
-            }
-
-            public Type EventType { get; set; }
-            public Object Constraint { get; set; }
-            public int? ConstraintId { get; set; }
         }
 
         private class Message

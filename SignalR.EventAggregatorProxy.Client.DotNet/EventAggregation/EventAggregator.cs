@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Extensions;
+using Subscription = SignalR.EventAggregatorProxy.Client.Model.Subscription;
 
 namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 {
@@ -64,11 +65,11 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             {
                 constraints[subscriber] = constraintInfos;
                 var proxyEvents = GetProxyEventTypes(subscriber);
-                foreach (var proxyEvent in proxyEvents)
-                {
-                    var constraintInfo = constraintInfos.GetConstraintInfo(proxyEvent);
-                    eventProxy.Subscribe(proxyEvent, constraintInfo != null ? constraintInfo.GetConstraint() : null, constraintInfo.GetConstraintId());
-                }
+                var subscriptions = proxyEvents
+                    .Select(pe => new Subscription(pe, constraintInfos.GetConstraint(pe), constraintInfos.GetConstraintId(pe)))
+                    .ToList();
+
+                eventProxy.Subscribe(subscriptions);
             }
         }
 
