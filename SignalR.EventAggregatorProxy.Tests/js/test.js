@@ -103,7 +103,11 @@ test("When not subscribing to any events from start", function () {
 asyncTest("When a third party lib is traversing object tree that has reference to eventAggregator", function () {
     var traverse = function (obj) {
         for (var member in obj) {
-            traverse(obj[member]);
+            var child = obj[member];
+
+            if (child !== null && typeof child === "object") {
+                traverse(obj[member]);
+            }
         }
     };
 
@@ -117,8 +121,7 @@ asyncTest("When a third party lib is traversing object tree that has reference t
 
     var ViewModel = function () {
         signalR.eventAggregator.subscribe(event, this.onEvent, this);
-        this.sub = event;
-        ko.validation.group(this, { observable: true, deep: true });
+        traverse(this);
     };
 
     ViewModel.prototype = {
