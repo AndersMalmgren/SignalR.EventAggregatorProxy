@@ -131,6 +131,8 @@ asyncTest("When a third party lib is traversing object tree that has reference t
 
     setTimeout(function () {
         start();
+
+        ok("It should not overflow stack");
     }, 5);
 
 });

@@ -34,9 +34,10 @@
 
         return {
             unsubscribe: function (context) {
-                if (context.__subscriptions === undefined) return;
+                if (context.__getSubscriptions === undefined) return;
+                var subscriptions = context.__getSubscriptions();
 
-                $.each(context.__subscriptions, function () {
+                $.each(subscriptions, function () {
                     var index = -1;
                     var subscribers = (this.type.genericConstructor || this.type).__subscribers;
                     for (var j = 0; j < subscribers.length; j++) {
@@ -50,13 +51,11 @@
                     }
                 });
                 if (this.proxy) {
-                    this.proxy.unsubscribe(context.__subscriptions);
+                    this.proxy.unsubscribe(subscriptions);
                 }
             },
             subscribe: function (type, handler, context, constraint) {
-                this.prepareContext(context);
-                var subscriptions = context.__getSubscriptions();
-
+                var subscriptions = this.prepareContext(context);
                 var constraintId = constraint ? this.constraintId++ : null;
 
                 var subscribers = getSubscribers.call(this, type, false);
@@ -85,6 +84,8 @@
                         return subscriptions;
                     };
                 }
+
+                return context.__getSubscriptions();
             }
         };
     } ();
