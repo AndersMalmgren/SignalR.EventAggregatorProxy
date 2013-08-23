@@ -2,21 +2,32 @@ window.TestEvent = function() {
 
 };
 
+throttleTest = function (name, setup) {
+    asyncTest(name, function () {
+        var throttleAssert = setup();
+        setTimeout(function () {
+            start();
+            if (throttleAssert) {
+                throttleAssert();
+            } else {
+                ok(true);
+            }
+        }, 5);
+    });
+};
+
 test("Event aggregator class should have correct casing on closure (signalR) Issue #1 ", function () {
     ok(window.signalR !== undefined);
     ok(window.signalR.eventAggregator !== undefined);
 });
 
-test("When subscribing to client side event Issue #2", function () {
+throttleTest("When subscribing to client side event Issue #2", function () {
     $.connection.eventAggregatorProxyHub.server.subscribe = function () {
         ok(false, "Server side subscribe should not be called for client side events");
     };
 
     signalR.eventAggregator.subscribe(TestEvent, function() {
     }, {});
-    ok(true, "Server side subscribe was not called");
-
-    $.connection.eventAggregatorProxyHub.server.subscribe = null;
 });
 
 test("When unsubscribing to client side event Issue #5", function () {
@@ -59,7 +70,7 @@ test("When unsubscribing a context that never were subscribed", function () {
     ok(true, "It should exit function call without exception");
 });
 
-test("When unsubscribing and subscribing directly after to server side events", function () {
+throttleTest("When unsubscribing and subscribing directly after to server side events", function () {
     var event = function () {
 
     };
@@ -84,8 +95,10 @@ test("When unsubscribing and subscribing directly after to server side events", 
     signalR.eventAggregator.proxy.unsubscribe([eventData]);
     signalR.eventAggregator.proxy.subscribe(event);
 
-    unsubscribeDone = true;
-    doneCallback();
+    return function() {
+        unsubscribeDone = true;
+        doneCallback();
+    };
 });
 
 
@@ -100,7 +113,7 @@ test("When not subscribing to any events from start", function () {
     ok(true, "Did not call subscribe");
 });
 
-asyncTest("When a third party lib is traversing object tree that has reference to eventAggregator", function () {
+throttleTest("When a third party lib is traversing object tree that has reference to eventAggregator", function () {
     var traverse = function (obj) {
         for (var member in obj) {
             var child = obj[member];
@@ -131,11 +144,18 @@ asyncTest("When a third party lib is traversing object tree that has reference t
     };
 
     var vm = new ViewModel();
+});
 
-    setTimeout(function () {
-        start();
+throttleTest("When subscribing multiple times to same event - Issue #13", function () {
+    $.connection.eventAggregatorProxyHub.server.subscribe = function (s) {
+        equal(s.length, 1, "It should only subscribe once to same event");
+    };
 
-        ok("It should not overflow stack");
-    }, 5);
+    var event = function () {
+    };
+    event.proxyEvent = true;
+
+    for (var i = 0; i < 2; i++)
+        signalR.eventAggregator.subscribe(event, function () { }, {});
 
 });
