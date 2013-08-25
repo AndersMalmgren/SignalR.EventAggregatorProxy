@@ -17,12 +17,12 @@
             return constructor.__subscribers;
         }
 
-        function genericArgumentsCorrect(subscriber, genericArguments) {
-            if (subscriber.genericArguments == null) return true;
-            if (subscriber.genericArguments.length !== genericArguments.length) return false;
+        function genericArgumentsCorrect(ga1, ga2) {
+            if (ga1 == null) return true;
+            if (ga1.length !== ga2.length) return false;
 
-            for (var i = 0; i < genericArguments.length; i++) {
-                if (subscriber.genericArguments[i] !== genericArguments[i]) return false;
+            for (var i = 0; i < ga2.length; i++) {
+                if (ga1[i] !== ga2[i]) return false;
             }
 
             return true;
@@ -31,61 +31,123 @@
         function checkConstraintId(subscriber, constraintId) {
             return constraintId == null || (subscriber.constraintId === constraintId);
         }
+        
+        function getConstructor(type) {
+            return type.genericConstructor || type;
+        }
+        
+        function compareConstraint(c1, c2) {
+            if (c2 === undefined) return false;
+
+            for (var member in c1) {
+                var val1 = c1[member];
+                var val2 = c2[member];
+
+                var isObject = typeof val1 === "object";
+
+                if (val1 !== val2 && !isObject)
+                    return false;
+
+                if (isObject && !compareConstraint(val1, val2)) return false;
+            }
+
+            return true;
+        }
+
+
+        function prepareContext(context) {
+            if (context.__getSubscriptions === undefined) {
+                var subscriptions = [];
+
+                context.__getSubscriptions = function() {
+                    return subscriptions;
+                };
+            }
+            return context.__getSubscriptions();
+        }
+
+        function shouldProxySubscription(newSubscription) {
+            var subscribers = getSubscribers(newSubscription.type, false);
+            if (getConstructor(newSubscription.type).proxyEvent !== true) return false;
+
+            if (subscribers.length === 0) {
+                assignNewConstraintId.call(this, newSubscription);
+                return true;
+            }
+
+            if (subscribers.length > 0 && newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
+
+            var should = true;
+            $.each(subscribers, function() {
+                if ((newSubscription.type.genericArguments != null && genericArgumentsCorrect(newSubscription.type.genericArguments, this.type.genericArguments)) ||
+                    (newSubscription.constraint != null && compareConstraint(newSubscription.constraint, this.constraint))) {
+                    
+                    should = false;
+                    newSubscription.constraintId = this.constraintId;
+                }
+            });
+
+            if (should && newSubscription.constraint) {
+                assignNewConstraintId.call(this, newSubscription);
+            }
+
+            return should;
+        }
+
+        function assignNewConstraintId(subscription) {
+            subscription.constraintId = subscription.constraint ? this.constraintId++ : null;
+        }
 
         return {
             unsubscribe: function (context) {
                 if (context.__getSubscriptions === undefined) return;
                 var subscriptions = context.__getSubscriptions();
-
+                var acutalUnsubscriptions = [];
                 $.each(subscriptions, function () {
                     var index = -1;
-                    var subscribers = (this.type.genericConstructor || this.type).__subscribers;
+                    var subscribers = getConstructor(this.type).__subscribers;
                     for (var j = 0; j < subscribers.length; j++) {
-                        if (subscribers[j].context == context) {
+                        if (subscribers[j].context == context &&
+                            genericArgumentsCorrect(this.type.genericArguments, subscribers[j].type.genericArguments) &&
+                            checkConstraintId(this, subscribers[j].constraintId)) {
+
                             index = j;
                             break;
                         }
                     }
                     if (index != -1) {
-                        subscribers.splice(index, 1);
+                        var subscription = subscribers.splice(index, 1)[0];
+                        if (subscribers.length === 0) {
+                            acutalUnsubscriptions.push(subscription);
+                        }
                     }
+
                 });
                 if (this.proxy) {
-                    this.proxy.unsubscribe(subscriptions);
+                    this.proxy.unsubscribe(acutalUnsubscriptions);
                 }
             },
             subscribe: function (type, handler, context, constraint) {
-                var subscriptions = this.prepareContext(context);
-                var constraintId = constraint ? this.constraintId++ : null;
+                var subscriptions = prepareContext(context);
 
-                var subscribers = getSubscribers.call(this, type, false);
-                var subscription = { type: type, handler: handler, context: context, constraintId: constraintId };
+                var subscribers = getSubscribers(type, false);
+                var subscription = { type: type, handler: handler, context: context, constraint: constraint };
+                var shouldProxy = shouldProxySubscription.call(this, subscription);
 
                 subscriptions.push(subscription);
                 subscribers.push(subscription);
-
-                if (this.proxy) {
-                    this.proxy.subscribe(type.genericConstructor || type, type.genericArguments, constraint, constraintId);
+                
+                if (this.proxy && shouldProxy) {
+                    this.proxy.subscribe(getConstructor(type), type.genericArguments, constraint, subscription.constraintId);
                 }
             },
             publish: function (message, genericArguments, constraintId) {
                 var subscribers = getSubscribers.call(this, message, true);
                 $.each(subscribers, function () {
-                    if (genericArgumentsCorrect(this, genericArguments) && checkConstraintId(this, constraintId)) {
+                    if (genericArgumentsCorrect(this.genericArguments, genericArguments) && checkConstraintId(this, constraintId)) {
                         this.handler.call(this.context, message);
                     }
                 });
-            },
-            prepareContext: function (context) {
-                if (context.__getSubscriptions === undefined) {
-                    var subscriptions = [];
-
-                    context.__getSubscriptions = function () {
-                        return subscriptions;
-                    };
-                }
-
-                return context.__getSubscriptions();
             }
         };
     } ();
@@ -116,7 +178,7 @@
         },
         subscribe: function (eventType, genericArguments, constraint, constraintId) {
             if (eventType.proxyEvent !== true) return;
-
+            
             this.queuedSubscriptions.push({ type: eventType.type, genericArguments: genericArguments, constraint: constraint, constraintId: constraintId });
             if (!this.queueSubscriptions) {
                 clearTimeout(this.throttleTimer);
