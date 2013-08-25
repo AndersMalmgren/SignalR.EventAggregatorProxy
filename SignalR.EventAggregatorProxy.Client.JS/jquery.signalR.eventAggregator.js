@@ -144,7 +144,7 @@
             publish: function (message, genericArguments, constraintId) {
                 var subscribers = getSubscribers.call(this, message, true);
                 $.each(subscribers, function () {
-                    if (genericArgumentsCorrect(this.genericArguments, genericArguments) && checkConstraintId(this, constraintId)) {
+                    if (genericArgumentsCorrect(this.type.genericArguments, genericArguments) && checkConstraintId(this, constraintId)) {
                         this.handler.call(this.context, message);
                     }
                 });
