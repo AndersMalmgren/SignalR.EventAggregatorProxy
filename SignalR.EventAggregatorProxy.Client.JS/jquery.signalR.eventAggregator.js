@@ -102,7 +102,7 @@
             unsubscribe: function (context) {
                 if (context.__getSubscriptions === undefined) return;
                 var subscriptions = context.__getSubscriptions();
-                var acutalUnsubscriptions = [];
+                var actualUnsubscriptions = [];
                 $.each(subscriptions, function () {
                     var index = -1;
                     var subscribers = getConstructor(this.type).__subscribers;
@@ -118,13 +118,13 @@
                     if (index != -1) {
                         var subscription = subscribers.splice(index, 1)[0];
                         if (subscribers.length === 0) {
-                            acutalUnsubscriptions.push(subscription);
+                            actualUnsubscriptions.push(subscription);
                         }
                     }
 
                 });
                 if (this.proxy) {
-                    this.proxy.unsubscribe(acutalUnsubscriptions);
+                    this.proxy.unsubscribe(actualUnsubscriptions);
                 }
             },
             subscribe: function (type, handler, context, constraint) {
