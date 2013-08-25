@@ -32,6 +32,11 @@
             return constraintId == null || (subscriber.constraintId === constraintId);
         }
         
+        function compareSubscriptions(s1, s2) {
+            return genericArgumentsCorrect(s1.type.genericArguments, s2.type.genericArguments) &&
+                checkConstraintId(s1, s2.constraintId);
+        }
+        
         function getConstructor(type) {
             return type.genericConstructor || type;
         }
@@ -66,7 +71,7 @@
             return context.__getSubscriptions();
         }
 
-        function shouldProxySubscription(newSubscription) {
+        function shouldProxySubscribe(newSubscription) {
             var subscribers = getSubscribers(newSubscription.type, false);
             if (getConstructor(newSubscription.type).proxyEvent !== true) return false;
 
@@ -106,23 +111,29 @@
                 $.each(subscriptions, function () {
                     var index = -1;
                     var subscribers = getConstructor(this.type).__subscribers;
-                    for (var j = 0; j < subscribers.length; j++) {
-                        if (subscribers[j].context == context &&
-                            genericArgumentsCorrect(this.type.genericArguments, subscribers[j].type.genericArguments) &&
-                            checkConstraintId(this, subscribers[j].constraintId)) {
-
-                            index = j;
+                    for (var i = 0; i < subscribers.length; i++) {
+                        if (subscribers[i].context == context && compareSubscriptions(this, subscribers[i])) {
+                            index = i;
                             break;
                         }
                     }
                     if (index != -1) {
                         var subscription = subscribers.splice(index, 1)[0];
-                        if (subscribers.length === 0) {
+                        var found = false;
+                        for (var j = 0; j < subscribers.length; j++) {
+                            if (compareSubscriptions(subscription, subscribers[j])) {
+                                found = true;
+                                break;
+                            }
+
+                        }
+                        if (!found) {
                             actualUnsubscriptions.push(subscription);
                         }
                     }
 
                 });
+                
                 if (this.proxy) {
                     this.proxy.unsubscribe(actualUnsubscriptions);
                 }
@@ -132,7 +143,7 @@
 
                 var subscribers = getSubscribers(type, false);
                 var subscription = { type: type, handler: handler, context: context, constraint: constraint };
-                var shouldProxy = shouldProxySubscription.call(this, subscription);
+                var shouldProxy = shouldProxySubscribe.call(this, subscription);
 
                 subscriptions.push(subscription);
                 subscribers.push(subscription);

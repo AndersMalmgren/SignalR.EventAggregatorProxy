@@ -2,11 +2,14 @@ window.TestEvent = function() {
 
 };
 
-constructEvent = function(genericArgument, event, proxyEvent) {
-    event = event || (event || {}).contructor ||
-        function() {
-    };
-
+constructEvent = function (genericArgument, event, proxyEvent) {
+    if (event == null) {
+        event = function() {
+        };
+    } else {
+        event = event.genericConstructor || event;
+    }
+    
     var constructor = event;
 
     if (proxyEvent == null || proxyEvent === true) {
@@ -22,7 +25,7 @@ constructEvent = function(genericArgument, event, proxyEvent) {
 
     return genericArgument ? {
         event: event,
-        constructor: constructor
+        genericConstructor: constructor
     }  : event;
 };
 
@@ -272,11 +275,9 @@ multipleSameEventUnsubscriptionTest = function (name, genericArgument, constrain
 multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same event - Issue #1");
 multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same event and unsubscribing all - Issue #1", null, null, 2, 2);
 multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same generic event - Issue #1", "One", null);
-multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to event with different generic parameters - Issue #13", ["One", "Two"], null);
 multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same constrained event - Issue #13", null, { id: 1 });
-multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to event with different constraint - Issue #13", null, [{ id: 1 }, { id: 2 }]);
 
-throttleTest("When two context subcribe to different gengeric arguments of same event", function() {
+throttleTest("When two contexts subcribe to different generic arguments of same event", function() {
     expect(0);
     $.connection.eventAggregatorProxyHub.server.subscribe = function() {
     };
@@ -290,8 +291,39 @@ throttleTest("When two context subcribe to different gengeric arguments of same 
 
     var eventAggregator = new signalR.EventAggregator(true);
     eventAggregator.subscribe(eventOne.event, assert, {});
-    
+
     return function() {
         eventAggregator.publish(new eventOne.constructor(), eventTwo.event.genericArguments);
-    }
+    };
+});
+
+throttleTest("When two contexts subcribe to different generic arguments of same event and unsubscribes", function () {
+    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+    };
+    
+    $.connection.eventAggregatorProxyHub.server.unsubscribe = function (events) {
+        equal(events.length, 1, "It should only unsubscribe one event")
+        equal(events[0].genericArguments[0], "One", "It should unsubscribe event one");
+
+        return {
+            done: function(callback) {
+                callback();
+            }
+        };
+    };
+
+
+    var eventOne = constructEvent("One");
+    var eventTwo = constructEvent("Two", eventOne);
+
+    var instanceOne = {};
+    var instanceTwo = {};
+
+    var eventAggregator = new signalR.EventAggregator(true);
+    eventAggregator.subscribe(eventOne.event, function () {}, instanceOne);
+    eventAggregator.subscribe(eventTwo.event, function () {}, instanceTwo);
+
+    return function () {
+        eventAggregator.unsubscribe(instanceOne);
+    };
 });
