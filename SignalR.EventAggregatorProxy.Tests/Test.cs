@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Microsoft.AspNet.SignalR;
 using Rhino.Mocks;
 using Rhino.Mocks.Interfaces;
-using SignalR.EventAggregatorProxy.Event;
 
 namespace SignalR.EventAggregatorProxy.Tests
 {
@@ -22,15 +19,9 @@ namespace SignalR.EventAggregatorProxy.Tests
             return stub.Expect(action);
         }
 
-        public virtual T Get<T>() where T : class
-        {
-            return GlobalHost.DependencyResolver.GetService(typeof (T)) as T;
-        }
+        public abstract T Get<T>() where T : class;
 
-        public virtual void Register<T>(T stub)
-        {
-            GlobalHost.DependencyResolver.Register(typeof(T), () => stub);
-        }
+        public abstract void Register<T>(T stub);
 
         public T Mock<T>() where T : class
         {

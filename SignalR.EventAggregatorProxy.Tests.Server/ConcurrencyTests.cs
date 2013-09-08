@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading;
@@ -14,10 +13,10 @@ using SignalR.EventAggregatorProxy.EventAggregation;
 using SignalR.EventAggregatorProxy.Hubs;
 using SignalR.EventAggregatorProxy.Model;
 
-namespace SignalR.EventAggregatorProxy.Tests
+namespace SignalR.EventAggregatorProxy.Tests.Server
 {
     [TestClass]
-    public class When_concurrent_operations_are_performed_on_proxy_event : Test
+    public class When_concurrent_operations_are_performed_on_proxy_event : ServerTest
     {
         private bool running = true;
         private AutoResetEvent reset;

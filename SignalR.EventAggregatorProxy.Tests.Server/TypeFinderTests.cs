@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Reflection;
-using System.Text;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNet.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
 
-namespace SignalR.EventAggregatorProxy.Tests
+namespace SignalR.EventAggregatorProxy.Tests.Server
 {
     [TestClass]
-    public class When_trying_to_find_a_constraint_handler_for_a_generic_event : Test
+    public class When_trying_to_find_a_constraint_handler_for_a_generic_event : ServerTest
     {
         [TestInitialize]
         public void Context()

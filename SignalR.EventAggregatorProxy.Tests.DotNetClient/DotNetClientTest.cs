@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SignalR.EventAggregatorProxy.Client.Bootstrap;
+﻿using SignalR.EventAggregatorProxy.Client.Bootstrap;
 
-namespace SignalR.EventAggregatorProxy.Tests
+namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
-    public abstract class DotNetClientTest :Test
+    public abstract class DotNetClientTest : Test
     {
         public override T Get<T>()
         {

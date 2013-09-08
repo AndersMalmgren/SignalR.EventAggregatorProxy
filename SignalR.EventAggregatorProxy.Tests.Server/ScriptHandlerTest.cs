@@ -1,13 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Web;
-using Microsoft.AspNet.SignalR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
 using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.ScriptProxy;
 
-namespace SignalR.EventAggregatorProxy.Tests
+namespace SignalR.EventAggregatorProxy.Tests.Server
 {
     public abstract class TestEventBase
     {
@@ -26,10 +23,10 @@ namespace SignalR.EventAggregatorProxy.Tests
 
 
     [TestClass]
-    public class When_rendering_proxy_script : Test
+    public class When_rendering_proxy_script : ServerTest
     {
         private string script;
-        private const string Expected = "[{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"NoMembersEvent\",\"generic\":false},{\"namespace\":\"SignalR.EventAggregatorProxy.Tests\",\"name\":\"MembersEvent\",\"generic\":false}]";
+        private const string Expected = "[{\"namespace\":\"SignalR.EventAggregatorProxy.Tests.Server\",\"name\":\"NoMembersEvent\",\"generic\":false},{\"namespace\":\"SignalR.EventAggregatorProxy.Tests.Server\",\"name\":\"MembersEvent\",\"generic\":false}]";
 
         [TestInitialize]
         public void Context()
