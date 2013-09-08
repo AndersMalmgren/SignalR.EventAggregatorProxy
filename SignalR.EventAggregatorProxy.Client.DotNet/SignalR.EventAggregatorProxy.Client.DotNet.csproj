@@ -48,6 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bootstrap\Bootstrapper.cs" />
+    <Compile Include="Bootstrap\DependencyResolver.cs" />
+    <Compile Include="Bootstrap\Factories\HubProxyFactory.cs" />
+    <Compile Include="Bootstrap\Factories\IHubProxyFactory.cs" />
+    <Compile Include="Bootstrap\IResolver.cs" />
+    <Compile Include="Bootstrap\Resolver.cs" />
     <Compile Include="Constraint\ConstraintInfo.cs" />
     <Compile Include="Constraint\ConstraintInfoExtensions.cs" />
     <Compile Include="EventAggregation\EventAggregator.cs" />
@@ -65,6 +71,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

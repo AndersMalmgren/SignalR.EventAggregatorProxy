@@ -45,7 +45,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private EventProxy<TProxyEvent> eventProxy;
         private readonly Dictionary<object, IEnumerable<IConstraintInfo>> constraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
 
-        public EventAggregator<TProxyEvent> Init(string hubUrl, Action<HubConnection> configureConnection = null)
+        public EventAggregator<TProxyEvent> Init(string hubUrl, Action<IHubConnection> configureConnection = null)
         {
             if (eventProxy != null) throw new Exception("Event aggregator already initialized");
 

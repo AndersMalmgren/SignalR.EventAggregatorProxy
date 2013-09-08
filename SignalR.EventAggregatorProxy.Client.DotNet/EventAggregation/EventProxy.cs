@@ -4,6 +4,8 @@ using System.Linq;
 using System.Timers;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using Newtonsoft.Json.Linq;
+using SignalR.EventAggregatorProxy.Client.Bootstrap;
+using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Event;
 using SignalR.EventAggregatorProxy.Client.Extensions;
@@ -20,7 +22,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly TypeFinder<TProxyEvent> typeFinder;
         private readonly Timer throttleTimer;
 
-        public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl, Action<HubConnection> configureConnection = null)
+        public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl,
+                          Action<IHubConnection> configureConnection = null)
         {
             typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<Subscription>();
@@ -29,17 +32,11 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             throttleTimer.Elapsed += (s, e) => SendQueuedSubscriptions();
 
             this.eventAggregator = eventAggregator;
-            var connection = new HubConnection(hubUrl);
-            if (configureConnection != null)
-                configureConnection(connection);
-
-            proxy = connection.CreateHubProxy("EventAggregatorProxyHub");
-            
-            connection.Start().ContinueWith(o =>
+            proxy = DependencyResolver.Global.Get<IHubProxyFactory>()
+                .Create(hubUrl, configureConnection, p =>
                 {
                     SendQueuedSubscriptions();
-
-                    proxy.On<object>("onEvent", OnEvent);
+                    p.On<object>("onEvent", OnEvent);
                 });
         }
 

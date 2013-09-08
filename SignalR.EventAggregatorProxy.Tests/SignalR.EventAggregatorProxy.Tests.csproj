@@ -66,12 +66,17 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ConcurrencyTests.cs" />
+    <Compile Include="DotNetClientTest.cs" />
     <Compile Include="ScriptHandlerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="TypeFinderTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Client.DotNet\SignalR.EventAggregatorProxy.Client.DotNet.csproj">
+      <Project>{CEDFD5F2-27BE-41A3-83D4-CBAFA24EBBEB}</Project>
+      <Name>SignalR.EventAggregatorProxy.Client.DotNet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj">
       <Project>{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}</Project>
       <Name>SignalR.EventAggregatorProxy.Constraint</Name>

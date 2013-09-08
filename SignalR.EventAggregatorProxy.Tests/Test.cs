@@ -22,15 +22,20 @@ namespace SignalR.EventAggregatorProxy.Tests
             return stub.Expect(action);
         }
 
-        public T Get<T>() where T : class
+        public virtual T Get<T>() where T : class
         {
             return GlobalHost.DependencyResolver.GetService(typeof (T)) as T;
+        }
+
+        public virtual void Register<T>(T stub)
+        {
+            GlobalHost.DependencyResolver.Register(typeof(T), () => stub);
         }
 
         public T Mock<T>() where T : class
         {
             var stub = MockRepository.GenerateMock<T>();
-            GlobalHost.DependencyResolver.Register(typeof(T), () => stub);
+            Register(stub);
             return stub;
         }
 
