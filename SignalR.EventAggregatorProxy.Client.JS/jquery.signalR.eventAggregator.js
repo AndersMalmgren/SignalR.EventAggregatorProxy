@@ -170,14 +170,10 @@
         this.hub.client.onEvent = this.onEvent.bind(this);
         this.queueSubscriptions = true;
         this.queuedSubscriptions = [];
-        $.connection.hub.start().done(this.onStarted.bind(this));
+        $.connection.hub.start().done(this.sendSubscribeQueue.bind(this));
     };
 
     Proxy.prototype = {
-        onStarted: function () {
-            this.queueSubscriptions = false;
-            this.sendSubscribeQueue();
-        },
         onEvent: function (message) {
             var type = signalR.getEvent(message.type);
             var event = new type();
@@ -210,13 +206,11 @@
 
             if (typeNames.length > 0) {
                 this.queueSubscriptions = true;
-                this.hub.server.unsubscribe(typeNames).done(function () {
-                    this.queueSubscriptions = false;
-                    this.sendSubscribeQueue();
-                } .bind(this));
+                this.hub.server.unsubscribe(typeNames).done(this.sendSubscribeQueue.bind(this));
             }
         },
         sendSubscribeQueue: function () {
+            this.queueSubscriptions = false;
             if (this.queuedSubscriptions.length === 0) return;
 
             var temp = this.queuedSubscriptions;
