@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="KellermanSoftware.Compare-NET-Objects">
+      <HintPath>..\packages\CompareNETObjects.1.7.2.0\lib\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Client">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.1.1.2\lib\net40\Microsoft.AspNet.SignalR.Client.dll</HintPath>
     </Reference>
@@ -60,6 +63,8 @@
     <Compile Include="EventAggregation\EventProxy.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />
     <Compile Include="EventAggregation\IHandle.cs" />
+    <Compile Include="EventAggregation\ISubscriptionStore.cs" />
+    <Compile Include="EventAggregation\SubscriptionStore.cs" />
     <Compile Include="Event\TypeFinder.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />

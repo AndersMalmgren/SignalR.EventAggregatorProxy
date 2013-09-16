@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
+using SignalR.EventAggregatorProxy.Client.Bootstrap;
+using SignalR.EventAggregatorProxy.Client.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Client.Constraint
 {
@@ -16,8 +18,8 @@ namespace SignalR.EventAggregatorProxy.Client.Constraint
 
         public ConstraintInfo(TConstraint constraint)
         {
-            Id = counter++;
             Constraint = constraint;
+            Id = DependencyResolver.Global.Get<ISubscriptionStore>().GenerateConstraintId<TEvent>(this);
         }
 
         public object GetConstraint()

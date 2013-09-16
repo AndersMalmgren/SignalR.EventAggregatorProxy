@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNet.SignalR.Client.Hubs;
+using SignalR.EventAggregatorProxy.Client.Bootstrap;
+using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 using Subscription = SignalR.EventAggregatorProxy.Client.Model.Subscription;
@@ -43,7 +45,14 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     public class EventAggregator<TProxyEvent> : EventAggregator, IEventAggregator<TProxyEvent>
     {
         private EventProxy<TProxyEvent> eventProxy;
-        private readonly Dictionary<object, IEnumerable<IConstraintInfo>> constraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
+        private readonly Dictionary<object, IEnumerable<IConstraintInfo>> constraints;
+        private readonly ISubscriptionStore subscriptionStore;
+
+        public EventAggregator()
+        {
+            constraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
+            subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
+        }
 
         public EventAggregator<TProxyEvent> Init(string hubUrl, Action<IHubConnection> configureConnection = null)
         {
@@ -69,7 +78,9 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                     .Select(pe => new Subscription(pe, constraintInfos.GetConstraint(pe), constraintInfos.GetConstraintId(pe)))
                     .ToList();
 
-                eventProxy.Subscribe(subscriptions);
+                var actualSubscriptions = subscriptionStore.GetActualSubscriptions(subscriptions);
+
+                eventProxy.Subscribe(actualSubscriptions);
             }
         }
 

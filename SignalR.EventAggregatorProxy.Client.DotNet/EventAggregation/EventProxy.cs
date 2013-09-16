@@ -27,7 +27,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         {
             typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<Subscription>();
-            throttleTimer = new Timer(1);
+            throttleTimer = new Timer(32);
             throttleTimer.AutoReset = false;
             throttleTimer.Elapsed += (s, e) => SendQueuedSubscriptions();
 
