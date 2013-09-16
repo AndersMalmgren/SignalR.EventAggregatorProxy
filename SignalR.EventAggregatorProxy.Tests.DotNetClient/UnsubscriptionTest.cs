@@ -10,37 +10,49 @@ using Rhino.Mocks;
 using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
-    public abstract class SubscriptionTest<TEvent> : DotNetClientTest where TEvent : class
+    public class DummyUnsubscriptionEvent : Event
     {
-        private int subscriptionCount = 0;
-        protected int exptectedSubscriptionCount = 1;
+        
+    }
+
+    public abstract class UnsubscriptionTest<TEvent> : DotNetClientTest where TEvent : class
+    {
+        private int unsubscriptionCount = 0;
+        protected int exptectedUnsubscriptionCount = 1;
 
         protected virtual IEnumerable<IConstraintInfo> GetConstraintInfos(int index)
         {
             return new List<IConstraintInfo>();
         }
-            
-            [TestInitialize]
+
+        [TestInitialize]
         public void Context()
         {
             var reset = new AutoResetEvent(false);
 
             Register<ISubscriptionStore>(new SubscriptionStore());
 
+            var task = new Task(() => { });
             var proxy = Mock<IHubProxy>();
             WhenCalling<IHubProxy>(x => x.Subscribe(Arg<string>.Is.Anything))
                 .Return(new Subscription());
-            WhenCalling<IHubProxy>(x => x.Invoke(Arg<string>.Is.Equal("subscribe"), Arg<object[]>.Is.Anything))
+            
+            WhenCalling<IHubProxy>(x => x.Invoke(Arg<string>.Is.Anything, Arg<object[]>.Is.Anything))
                 .Callback<string, object[]>((m, a) =>
                 {
-                    subscriptionCount += (a[0] as IEnumerable<dynamic>).Count();
+                    if (m == "unsubscribe")
+                    {
+                        unsubscriptionCount++;
+                    }
+
                     reset.Set();
                     return true;
                 })
-                .Return(null);
+                .Return(task);
 
             Mock<IHubProxyFactory>();
 
@@ -55,51 +67,48 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
             var eventAggregator = new EventAggregator<Event>()
                 .Init("foo");
 
+            var handlers = Enumerable.Range(0, 2).Select(i => Mock<IHandle<TEvent>>())
+                .Cast<object>()
+                .ToList();
+            
+            handlers.Add(Mock<IHandle<DummyUnsubscriptionEvent>>());
+            
             for (int i = 0; i < 2; i++)
-                eventAggregator.Subscribe(Mock<IHandle<TEvent>>(), GetConstraintInfos(i));
+                eventAggregator.Subscribe(handlers[i], GetConstraintInfos(i));
+            
+            reset.WaitOne();
+
+            for (int i = 0; i < 2; i++)
+                eventAggregator.Unsubscribe(handlers[i]);
 
             reset.WaitOne();
         }
 
         [TestMethod]
-        public virtual void It_should_only_call_server_side_subscribe_correct_number_of_times()
+        public virtual void It_should_only_call_server_side_unsubscribe_correct_number_of_times()
         {
-            Assert.AreEqual(exptectedSubscriptionCount, subscriptionCount);
+            Assert.AreEqual(exptectedUnsubscriptionCount, unsubscriptionCount);
         }
     }
 
     [TestClass]
-    public class When_subscribing_to_multiple_events_of_same_type : SubscriptionTest<StandardEvent>
+    public class When_unsubscribing_to_a_event_that_is_subscribed_multiple_times : UnsubscriptionTest<StandardEvent>
+    {
+        
+    }
+
+    [TestClass]
+    public class When_unsubscribing_to_a_geneic_event_that_is_subscribed_multiple_times : UnsubscriptionTest<GenericEvent<string>>
     {
 
     }
 
     [TestClass]
-    public class When_subscribing_to_multiple_generic_events_of_same_type : SubscriptionTest<GenericEvent<string>>
-    {
-
-    }
-
-    [TestClass]
-    public class When_subscribing_to_multiple_constrained_events_of_same_type : SubscriptionTest<StandardEvent>
+    public class When_unsubscribing_to_a_constrained_event_that_is_subscribed_multiple_times : UnsubscriptionTest<StandardEvent>
     {
         protected override IEnumerable<IConstraintInfo> GetConstraintInfos(int index)
         {
-            return new[] {new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint {Id = 1})};
-        }
-    }
-
-    [TestClass]
-    public class When_subscribing_to_multiple_constrained_events_of_same_type_but_different_constraint : SubscriptionTest<StandardEvent>
-    {
-        public When_subscribing_to_multiple_constrained_events_of_same_type_but_different_constraint()
-        {
-            exptectedSubscriptionCount = 2;
-        }
-
-        protected override IEnumerable<IConstraintInfo> GetConstraintInfos(int index)
-        {
-            return new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = index }) };
+            return new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }) };
         }
     }
 }
