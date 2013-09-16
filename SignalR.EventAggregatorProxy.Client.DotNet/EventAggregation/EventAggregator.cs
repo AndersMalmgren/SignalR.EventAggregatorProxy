@@ -97,9 +97,9 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             base.Unsubscribe(subscriber);
             if (eventProxy != null)
             {
-                constraints.Remove(subscriber);
                 var proxyEvents = GetProxyEventTypes(subscriber);
                 eventProxy.Unsubscribe(proxyEvents, constraints[subscriber]);
+                constraints.Remove(subscriber);
             }
         }
 
