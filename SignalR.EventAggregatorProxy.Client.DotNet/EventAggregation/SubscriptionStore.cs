@@ -13,13 +13,16 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     {
         private readonly Dictionary<Type, List<Subscription>> subscriptions;
         private readonly Dictionary<Type, List<IConstraintInfo>> constraints;
+        private readonly Dictionary<object, IEnumerable<IConstraintInfo>> subscriberConstraints;
+
         private int constraintIdCounter;
-        private CompareObjects comparer;
+        private readonly CompareObjects comparer;
 
         public SubscriptionStore()
         {
             subscriptions = new Dictionary<Type, List<Subscription>>();
             constraints = new Dictionary<Type, List<IConstraintInfo>>();
+            subscriberConstraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
 
             comparer = new CompareObjects();
         }
@@ -33,6 +36,42 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             subscriptions.ForEach(AddSubscription);
 
             return uniqueSubscription;
+        }
+
+        public IEnumerable<Subscription> GetActualUnsubscriptions(IEnumerable<Subscription> subscriptions)
+        {
+            var uniqueSubscription = subscriptions
+                .Where(UniqueSubscription)
+                .ToList();
+
+            subscriptions.ForEach(AddSubscription);
+
+            return uniqueSubscription;
+        }
+
+        //public IEnumerable<Subscription> PopSubscriptions(IEnumerable<Type> eventTypes, object sbscriber)
+        //{
+        //    foreach (var eventType in eventTypes)
+        //    {
+
+        //    }
+        //}
+
+        public void AddSubscriberConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints)
+        {
+            subscriberConstraints[subscriber] = constraints;
+        }
+
+        public bool HasConstraint(object subscriber, int constraintId)
+        {
+            return subscriberConstraints[subscriber].Any(c => c.Id == constraintId);
+        }
+
+        public IEnumerable<IConstraintInfo> PopSubscriberConstraints(object subcriber)
+        {
+            var constraint = subscriberConstraints[subcriber];
+            subscriberConstraints.Remove(subcriber);
+            return constraint;
         }
 
         public int GenerateConstraintId<TEvent>(IConstraintInfo constraint)

@@ -8,5 +8,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     {
         IEnumerable<Subscription> GetActualSubscriptions(IEnumerable<Subscription> subscriptions);
         int GenerateConstraintId<TEvent>(IConstraintInfo constraint);
+        void AddSubscriberConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints);
+        bool HasConstraint(object subscriber, int constraintId);
+        IEnumerable<IConstraintInfo> PopSubscriberConstraints(object subcriber);
     }
 }

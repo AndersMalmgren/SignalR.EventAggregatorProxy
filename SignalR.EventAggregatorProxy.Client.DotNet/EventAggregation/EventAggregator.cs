@@ -45,12 +45,10 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     public class EventAggregator<TProxyEvent> : EventAggregator, IEventAggregator<TProxyEvent>
     {
         private EventProxy<TProxyEvent> eventProxy;
-        private readonly Dictionary<object, IEnumerable<IConstraintInfo>> constraints;
         private readonly ISubscriptionStore subscriptionStore;
 
         public EventAggregator()
         {
-            constraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
             subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
         }
 
@@ -72,7 +70,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             base.Subscribe(subscriber);
             if (eventProxy != null)
             {
-                constraints[subscriber] = constraintInfos;
+                subscriptionStore.AddSubscriberConstraints(subscriber, constraintInfos);
                 var proxyEvents = GetProxyEventTypes(subscriber);
                 var subscriptions = proxyEvents
                     .Select(pe => new Subscription(pe, constraintInfos.GetConstraint(pe), constraintInfos.GetConstraintId(pe)))
@@ -87,7 +85,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         public void Publish<T>(T message, int? constraintId) where T : class
         {
             var subscribers = ListSubscribers(message)
-                .Where(s => !constraintId.HasValue || constraints[s].Any(c => c.Id == constraintId));
+                .Where(s => !constraintId.HasValue || subscriptionStore.HasConstraint(s, constraintId.Value));
 
             Publish(subscribers, message);
         }
@@ -98,8 +96,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             if (eventProxy != null)
             {
                 var proxyEvents = GetProxyEventTypes(subscriber);
-                eventProxy.Unsubscribe(proxyEvents, constraints[subscriber]);
-                constraints.Remove(subscriber);
+                eventProxy.Unsubscribe(proxyEvents, subscriptionStore.PopSubscriberConstraints(subscriber));
             }
         }
 
