@@ -14,11 +14,14 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly Dictionary<Type, List<Subscription>> subscriptions;
         private readonly Dictionary<Type, List<IConstraintInfo>> constraints;
         private int constraintIdCounter;
+        private CompareObjects comparer;
 
         public SubscriptionStore()
         {
             subscriptions = new Dictionary<Type, List<Subscription>>();
             constraints = new Dictionary<Type, List<IConstraintInfo>>();
+
+            comparer = new CompareObjects();
         }
 
         public IEnumerable<Subscription> GetActualSubscriptions(IEnumerable<Subscription> subscriptions)
@@ -39,7 +42,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             if (!constraints.ContainsKey(eventType))
                 return GenerateNewConstraintId<TEvent>(constraint);
 
-            var comparer = new CompareObjects();
+            
             var existing = constraints[eventType].FirstOrDefault(c => comparer.Compare(constraint.GetConstraint(), c.GetConstraint()));
             return existing != null ? existing.Id : GenerateNewConstraintId<TEvent>(constraint);
         }
