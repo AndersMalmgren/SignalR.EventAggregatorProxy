@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using SignalR.EventAggregatorProxy.Client.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
 
 namespace SignalR.EventAggregatorProxy.Client.Constraint
 {

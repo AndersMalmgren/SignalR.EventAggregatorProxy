@@ -10,6 +10,7 @@ using Rhino.Mocks;
 using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Tests.DotNetClient

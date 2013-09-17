@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Model;
 
-namespace SignalR.EventAggregatorProxy.Client.EventAggregation
+namespace SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents
 {
     public interface ISubscriptionStore
     {
         IEnumerable<Subscription> GetActualSubscriptions(IEnumerable<Subscription> subscriptions);
         int GenerateConstraintId<TEvent>(IConstraintInfo constraint);
-        void AddSubscriberConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints);
+        void AddConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints);
         bool HasConstraint(object subscriber, int constraintId);
-        IEnumerable<IConstraintInfo> PopSubscriberConstraints(object subcriber);
+        IEnumerable<Subscription> PopSubscriptions(IEnumerable<Type> eventTypes, object subscriber);
     }
 }

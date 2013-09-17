@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using KellermanSoftware.CompareNetObjects;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 using SignalR.EventAggregatorProxy.Client.Model;
 
-namespace SignalR.EventAggregatorProxy.Client.EventAggregation
+namespace SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents
 {
     public class SubscriptionStore : ISubscriptionStore
     {
-        private readonly Dictionary<Type, List<Subscription>> subscriptions;
-        private readonly Dictionary<Type, List<IConstraintInfo>> constraints;
+        private readonly Dictionary<Type, List<Subscription>> eventSubscriptions;
+        private readonly Dictionary<Type, List<IConstraintInfo>> eventConstraints;
         private readonly Dictionary<object, IEnumerable<IConstraintInfo>> subscriberConstraints;
 
         private int constraintIdCounter;
@@ -20,8 +19,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         public SubscriptionStore()
         {
-            subscriptions = new Dictionary<Type, List<Subscription>>();
-            constraints = new Dictionary<Type, List<IConstraintInfo>>();
+            eventSubscriptions = new Dictionary<Type, List<Subscription>>();
+            eventConstraints = new Dictionary<Type, List<IConstraintInfo>>();
             subscriberConstraints = new Dictionary<object, IEnumerable<IConstraintInfo>>();
 
             comparer = new CompareObjects();
@@ -49,15 +48,32 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             return uniqueSubscription;
         }
 
-        //public IEnumerable<Subscription> PopSubscriptions(IEnumerable<Type> eventTypes, object sbscriber)
-        //{
-        //    foreach (var eventType in eventTypes)
-        //    {
+        public IEnumerable<Subscription> PopSubscriptions(IEnumerable<Type> eventTypes, object subscriber)
+        {
+            var actualUnsubscriptions = new List<Subscription>();
 
-        //    }
-        //}
+            foreach (var eventType in eventTypes)
+            {
+                var subscriptions = eventSubscriptions[eventType];
 
-        public void AddSubscriberConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints)
+                var remove = subscriptions
+                    .ToList()
+                    .Where(s => !s.ConstraintId.HasValue || subscriberConstraints[subscriber].Any(c => c.Id == s.ConstraintId))
+                    .GroupBy(s => s.ConstraintId)
+                    .ForEach(g => subscriptions.Remove(g.First()))
+                    .Where(g => g.Count() == 1).Select(g => g.First())
+                    .ToList();
+
+                actualUnsubscriptions.AddRange(remove);
+                RemoveConstraint(eventType, remove);
+            }
+
+            subscriberConstraints.Remove(subscriber);
+
+            return actualUnsubscriptions;
+        }
+
+        public void AddConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints)
         {
             subscriberConstraints[subscriber] = constraints;
         }
@@ -66,48 +82,51 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         {
             return subscriberConstraints[subscriber].Any(c => c.Id == constraintId);
         }
-
-        public IEnumerable<IConstraintInfo> PopSubscriberConstraints(object subcriber)
-        {
-            var constraint = subscriberConstraints[subcriber];
-            subscriberConstraints.Remove(subcriber);
-            return constraint;
-        }
-
+        
         public int GenerateConstraintId<TEvent>(IConstraintInfo constraint)
         {
             var eventType = typeof (TEvent);
 
-            if (!constraints.ContainsKey(eventType))
+            if (!eventConstraints.ContainsKey(eventType))
                 return GenerateNewConstraintId<TEvent>(constraint);
 
             
-            var existing = constraints[eventType].FirstOrDefault(c => comparer.Compare(constraint.GetConstraint(), c.GetConstraint()));
+            var existing = eventConstraints[eventType].FirstOrDefault(c => comparer.Compare(constraint.GetConstraint(), c.GetConstraint()));
             return existing != null ? existing.Id : GenerateNewConstraintId<TEvent>(constraint);
         }
+
+        private void RemoveConstraint(Type eventType, IEnumerable<Subscription> actualUnsubscriptions)
+        {
+            if(!eventConstraints.ContainsKey(eventType)) return;
+
+            eventConstraints[eventType].RemoveAll(ec => actualUnsubscriptions.Any(s => ec.Id == s.ConstraintId));
+            if (!eventConstraints[eventType].Any())
+                eventConstraints.Remove(eventType);
+        }
+
 
         private int GenerateNewConstraintId<TEvent>(IConstraintInfo constraint)
         {
             var eventType = typeof (TEvent);
-            if(!constraints.ContainsKey(eventType))
-                constraints[eventType] = new List<IConstraintInfo>();
+            if(!eventConstraints.ContainsKey(eventType))
+                eventConstraints[eventType] = new List<IConstraintInfo>();
 
-            constraints[eventType].Add(constraint);
+            eventConstraints[eventType].Add(constraint);
 
             return constraintIdCounter++;
         }
 
         private void AddSubscription(Subscription subscription)
         {
-            if(!subscriptions.ContainsKey(subscription.EventType)) 
-                subscriptions[subscription.EventType] = new List<Subscription>();
+            if(!eventSubscriptions.ContainsKey(subscription.EventType)) 
+                eventSubscriptions[subscription.EventType] = new List<Subscription>();
 
-            subscriptions[subscription.EventType].Add(subscription);
+            eventSubscriptions[subscription.EventType].Add(subscription);
         }
 
         private bool UniqueSubscription(Subscription subscription)
         {
-            if (!subscriptions.ContainsKey(subscription.EventType)) return true;
+            if (!eventSubscriptions.ContainsKey(subscription.EventType)) return true;
 
             if (subscription.Constraint == null) return false;
 
@@ -116,7 +135,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         private bool ConstraintUnique(Subscription subscription)
         {
-            return subscriptions[subscription.EventType]
+            return eventSubscriptions[subscription.EventType]
                 .Where(s => s != subscription)
                 .All(s => s.ConstraintId != subscription.ConstraintId);
         }

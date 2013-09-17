@@ -5,6 +5,7 @@ using Microsoft.AspNet.SignalR.Client.Hubs;
 using SignalR.EventAggregatorProxy.Client.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
+using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 using Subscription = SignalR.EventAggregatorProxy.Client.Model.Subscription;
 
@@ -70,7 +71,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             base.Subscribe(subscriber);
             if (eventProxy != null)
             {
-                subscriptionStore.AddSubscriberConstraints(subscriber, constraintInfos);
+                subscriptionStore.AddConstraints(subscriber, constraintInfos);
                 var proxyEvents = GetProxyEventTypes(subscriber);
                 var subscriptions = proxyEvents
                     .Select(pe => new Subscription(pe, constraintInfos.GetConstraint(pe), constraintInfos.GetConstraintId(pe)))
@@ -96,7 +97,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             if (eventProxy != null)
             {
                 var proxyEvents = GetProxyEventTypes(subscriber);
-                eventProxy.Unsubscribe(proxyEvents, subscriptionStore.PopSubscriberConstraints(subscriber));
+                var actualUnsubscriptions = subscriptionStore.PopSubscriptions(proxyEvents, subscriber);
+                eventProxy.Unsubscribe(actualUnsubscriptions);
             }
         }
 
