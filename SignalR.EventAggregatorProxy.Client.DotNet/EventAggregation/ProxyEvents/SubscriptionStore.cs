@@ -37,17 +37,6 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents
             return uniqueSubscription;
         }
 
-        public IEnumerable<Subscription> GetActualUnsubscriptions(IEnumerable<Subscription> subscriptions)
-        {
-            var uniqueSubscription = subscriptions
-                .Where(UniqueSubscription)
-                .ToList();
-
-            subscriptions.ForEach(AddSubscription);
-
-            return uniqueSubscription;
-        }
-
         public IEnumerable<Subscription> PopSubscriptions(IEnumerable<Type> eventTypes, object subscriber)
         {
             var actualUnsubscriptions = new List<Subscription>();
