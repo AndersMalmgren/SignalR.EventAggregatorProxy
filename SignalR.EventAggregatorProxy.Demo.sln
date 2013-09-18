@@ -1,7 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.MVC4", "SignalR.EventAggregatorProxy.Demo.MVC4\SignalR.EventAggregatorProxy.Demo.MVC4.csproj", "{6B697011-F12B-4BA2-946C-A7A3BB186CDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.Contracts", "SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj", "{66E48156-BE41-4E76-A94C-A866A930B51D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.DotNet", "SignalR.EventAggregatorProxy.Demo.DotNet\SignalR.EventAggregatorProxy.Demo.DotNet.csproj", "{59DA121F-8564-4699-A1D6-ADD6E228A615}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,14 @@ Global
 		{6B697011-F12B-4BA2-946C-A7A3BB186CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B697011-F12B-4BA2-946C-A7A3BB186CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B697011-F12B-4BA2-946C-A7A3BB186CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66E48156-BE41-4E76-A94C-A866A930B51D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66E48156-BE41-4E76-A94C-A866A930B51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66E48156-BE41-4E76-A94C-A866A930B51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66E48156-BE41-4E76-A94C-A866A930B51D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

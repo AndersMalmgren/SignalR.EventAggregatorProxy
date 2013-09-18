@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="SignalR.EventAggregatorProxy.Demo.DotNet.Views.SendMessageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d">
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="5,0,0,0"/>
+                </Style>
+            </StackPanel.Resources>
+            <Label>Message</Label>
+            <TextBox x:Name="Message" Width="100"></TextBox>
+            <Button x:Name="FireStandardEvent">Fire standard event</Button>
+            <Button x:Name="FireGenericEvent">Fire generic event</Button>
+            <Button x:Name="FireConstrainedEvent">Fire constrained event (Message must be 'HelloWorld' for the event to fire on this client</Button>
+            <Button x:Name="FireClientSideEvent">Fire client side event</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

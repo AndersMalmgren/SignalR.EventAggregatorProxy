@@ -4,7 +4,7 @@ using IEventAggregator = SignalR.EventAggregatorProxy.EventAggregation.IEventAgg
 
 namespace SignalR.EventAggregatorProxy.Demo.MVC4.EventProxy
 {
-    public class EventAggregatorProxy : IEventAggregator, IHandle<Events.Event>
+    public class EventAggregatorProxy : IEventAggregator, IHandle<Contracts.Events.Event>
     {
         private Action<object> handler;
 
@@ -18,7 +18,7 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.EventProxy
             this.handler = handler;
         }
 
-        public void Handle(Events.Event message)
+        public void Handle(Contracts.Events.Event message)
         {
             if(handler != null) //Events can come in before the subsriber is hooked up
                 handler(message);

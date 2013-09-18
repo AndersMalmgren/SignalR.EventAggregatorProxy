@@ -1,15 +1,21 @@
-﻿TestViewModel = function () {
+﻿ClientSideEvent = function(message) {
+    this.message = message;
+};
+
+TestViewModel = function () {
     this.text = ko.observable();
     this.events = ko.observableArray();
+    this.canFire = ko.computed(this.getCanFire, this);
 
     this.subscribe();
 };
 
 TestViewModel.prototype = {
     subscribe: function () {
-        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.MVC4.Events.StandardEvent, this.onEvent, this);
-        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.MVC4.Events.GenericEvent.of("System.String"), this.onEvent, this);
-        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.MVC4.Events.ConstrainedEvent, this.onEvent, this, { message: "HelloWorld" });
+        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.StandardEvent, this.onEvent, this);
+        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.GenericEvent.of("System.String"), this.onEvent, this);
+        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.ConstrainedEvent, this.onEvent, this, { message: "HelloWorld" });
+        signalR.eventAggregator.subscribe(ClientSideEvent, this.onEvent, this);
     },
     onEvent: function (message) {
         this.events.push(message);
@@ -22,6 +28,9 @@ TestViewModel.prototype = {
             contentType: "application/json;charset=utf-8"
         });
     },
+    getCanFire: function() {
+        return this.text() != null && this.text().trim() != "";
+    },
     fireStandardEvent: function () {
         this.post("api/service/fireStandardEvent", this.text());
     },
@@ -30,6 +39,9 @@ TestViewModel.prototype = {
     },
     fireConstrainedEvent: function () {
         this.post("api/service/fireConstrainedEvent", this.text());
+    },
+    fireClientSideEvent: function () {
+        signalR.eventAggregator.publish(new ClientSideEvent(this.text()));
     }
 };
 

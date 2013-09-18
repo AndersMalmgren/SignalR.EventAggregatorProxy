@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
+﻿using System.Web.Http;
 using Caliburn.Micro;
-using SignalR.EventAggregatorProxy.Demo.MVC4.Events;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 
 namespace SignalR.EventAggregatorProxy.Demo.MVC4.Controllers
 {

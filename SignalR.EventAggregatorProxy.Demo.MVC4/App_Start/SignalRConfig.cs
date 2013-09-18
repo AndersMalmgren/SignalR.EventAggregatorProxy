@@ -17,7 +17,7 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.App_Start
             //var proxy = new Lazy<IEventAggregator>(() => new MyEventAggregatorProxy());
             //GlobalHost.DependencyResolver.Register(typeof(IEventAggregator), () => proxy.Value);
 
-            routes.MapEventProxy<Events.Event>();
+            routes.MapEventProxy<Contracts.Events.Event>();
         }
     }
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using SignalR.EventAggregatorProxy.Constraint;
-using SignalR.EventAggregatorProxy.Demo.MVC4.Events;
+﻿using SignalR.EventAggregatorProxy.Constraint;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 
 namespace SignalR.EventAggregatorProxy.Demo.MVC4.EventConstraintHandlers
 {
@@ -13,10 +10,5 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.EventConstraintHandlers
         {
             return message.Message == constraint.Message;
         }
-    }
-
-    public class ConstrainedEventConstraint
-    {
-        public string Message { get; set; }
     }
 }
