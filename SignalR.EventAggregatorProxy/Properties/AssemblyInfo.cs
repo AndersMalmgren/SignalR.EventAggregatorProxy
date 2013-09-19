@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SignalR.EventAggregatorProxy")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Agero")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SignalR.EventAggregatorProxy")]
-[assembly: AssemblyCopyright("Copyright © Agero 2013")]
+[assembly: AssemblyCopyright("Copyright © Anders Malmgren 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

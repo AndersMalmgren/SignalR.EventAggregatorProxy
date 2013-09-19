@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("SignalR.EventAggregatorProxy.Demo.DotNet")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Agero")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SignalR.EventAggregatorProxy.Demo.DotNet")]
-[assembly: AssemblyCopyright("Copyright © Agero 2013")]
+[assembly: AssemblyCopyright("Copyright © Anders Malmgren 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
