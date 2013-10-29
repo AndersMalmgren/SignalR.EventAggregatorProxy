@@ -27,8 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{759861
 		.build\Package.Constraint.nuspec = .build\Package.Constraint.nuspec
 		.build\Package.DotNet.Client.nuspec = .build\Package.DotNet.Client.nuspec
 		.build\Package.Server.nuspec = .build\Package.Server.nuspec
-		.build\SignalR.EventAggregatorProxy.Client.DotNet.txt = .build\SignalR.EventAggregatorProxy.Client.DotNet.txt
-		.build\SignalR.EventAggregatorProxy.txt = .build\SignalR.EventAggregatorProxy.txt
 		.build\versions.xml = .build\versions.xml
 		.build\Yahoo.Yui.Compressor.dll = .build\Yahoo.Yui.Compressor.dll
 		.build\Yahoo.Yui.Compressor.MsBuildTask.dll = .build\Yahoo.Yui.Compressor.MsBuildTask.dll
@@ -43,6 +41,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests.DotNetClient", "SignalR.EventAggregatorProxy.Tests.DotNetClient\SignalR.EventAggregatorProxy.Tests.DotNetClient.csproj", "{5D7E876C-974D-446F-9DF8-A3D3EF8FD2B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests.JS", "SignalR.EventAggregatorProxy.Tests.JS\SignalR.EventAggregatorProxy.Tests.JS.csproj", "{A95F482B-1F43-4F22-8DD8-0A8EE83C970B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "readme", "readme", "{B8E832E2-3DB5-4029-B22B-827114227F50}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SignalR.EventAggregatorProxy", "SignalR.EventAggregatorProxy", "{03C5BCE5-95D6-4ABA-8B36-C7512C5B1E58}"
+	ProjectSection(SolutionItems) = preProject
+		.build\readme\SignalR.EventAggregatorProxy\readme.txt = .build\readme\SignalR.EventAggregatorProxy\readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SignalR.EventAggregatorProxy.Client.DotNet", "SignalR.EventAggregatorProxy.Client.DotNet", "{F27F7328-5269-4F7C-A1FA-385260D9CB2A}"
+	ProjectSection(SolutionItems) = preProject
+		.build\readme\SignalR.EventAggregatorProxy.Client.DotNet\readme.txt = .build\readme\SignalR.EventAggregatorProxy.Client.DotNet\readme.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,5 +101,8 @@ Global
 		{3FA5DB04-D34F-44BB-B590-113D94D4F866} = {5BCC75D3-B58D-4680-8886-63A73322D2AD}
 		{5D7E876C-974D-446F-9DF8-A3D3EF8FD2B2} = {5BCC75D3-B58D-4680-8886-63A73322D2AD}
 		{A95F482B-1F43-4F22-8DD8-0A8EE83C970B} = {5BCC75D3-B58D-4680-8886-63A73322D2AD}
+		{B8E832E2-3DB5-4029-B22B-827114227F50} = {7598615F-6AF9-41D6-9089-6E9DB38128AA}
+		{03C5BCE5-95D6-4ABA-8B36-C7512C5B1E58} = {B8E832E2-3DB5-4029-B22B-827114227F50}
+		{F27F7328-5269-4F7C-A1FA-385260D9CB2A} = {B8E832E2-3DB5-4029-B22B-827114227F50}
 	EndGlobalSection
 EndGlobal
