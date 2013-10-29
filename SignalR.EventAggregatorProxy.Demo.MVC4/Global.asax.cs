@@ -15,7 +15,6 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4
         {
             AreaRegistration.RegisterAllAreas();
 
-            SignalRConfig.Register(RouteTable.Routes);
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
