@@ -4,6 +4,10 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
     public abstract class DotNetClientTest : Test
     {
+        protected override void Reset()
+        {
+        }
+
         public override T Get<T>()
         {
             return DependencyResolver.Global.Get<T>();

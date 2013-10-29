@@ -8,6 +8,13 @@ namespace SignalR.EventAggregatorProxy.Tests
 {
     public abstract class Test
     {
+        protected Test()
+        {
+            Reset();
+        }
+
+        protected abstract void Reset();
+        
         public IMethodOptions<object> WhenCalling<T>(Action<T> action) where T : class
         {
             return GetOrMock<T>().Stub(action);
