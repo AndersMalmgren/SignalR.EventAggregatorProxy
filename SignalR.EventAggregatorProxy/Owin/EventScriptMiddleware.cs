@@ -36,17 +36,21 @@ namespace SignalR.EventAggregatorProxy.Owin
         {
             var response = context.Response;
             response.ContentType = "application/javascript";
-            response.StatusCode = 200;
 
             if (ClientCached(context.Request, scriptBuildDate))
             {
                 response.StatusCode = 304;
                 response.Headers["Content-Length"] = "0";
+                response.Body.Close();
+                response.Body = Stream.Null;
+
                 return null;
             }
+
+            response.StatusCode = 200;
             response.Headers["Last-Modified"] = scriptBuildDate.ToUniversalTime().ToString("r");
 
-            return context.Response.WriteAsync(js);
+            return response.WriteAsync(js);
         }
 
         private bool ClientCached(IOwinRequest request, DateTime contentModified)
