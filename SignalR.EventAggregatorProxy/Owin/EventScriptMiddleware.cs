@@ -34,31 +34,22 @@ namespace SignalR.EventAggregatorProxy.Owin
 
         public override Task Invoke(IOwinContext context)
         {
-            try
+            var response = context.Response;
+            response.ContentType = "application/javascript";
+            response.StatusCode = 200;
+
+            if (ClientCached(context.Request, scriptBuildDate))
             {
-                var response = context.Response;
-                response.ContentType = "application/javascript";
-                response.StatusCode = 200;
+                response.StatusCode = 304;
+                response.Headers["Content-Length"] = "0";
+                response.Body.Close();
+                response.Body = Stream.Null;
 
-                if (ClientCached(context.Request, scriptBuildDate))
-                {
-                    response.StatusCode = 304;
-                    response.Headers["Content-Length"] = "0";
-                    response.Body.Close();
-                    response.Body = Stream.Null;
-
-                    return Task.FromResult<Object>(null);
-                }
-
-                response.Headers["Last-Modified"] = scriptBuildDate.ToUniversalTime().ToString("r");
-
-                return response.WriteAsync(js);
+                return Task.FromResult<Object>(null);
             }
-            catch (Exception e)
-            {
-                File.AppendAllText("c:\\temp\\log.log", string.Format("{0}: {1}", e.Message, e.StackTrace));
-                throw;
-            }
+
+            response.Headers["Last-Modified"] = scriptBuildDate.ToUniversalTime().ToString("r");
+            return response.WriteAsync(js);
         }
 
         private bool ClientCached(IOwinRequest request, DateTime contentModified)
