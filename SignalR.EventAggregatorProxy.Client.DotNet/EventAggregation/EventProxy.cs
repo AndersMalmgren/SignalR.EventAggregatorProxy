@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using Microsoft.AspNet.SignalR.Client;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using Newtonsoft.Json.Linq;
 using SignalR.EventAggregatorProxy.Client.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
-using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.Event;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 using Subscription = SignalR.EventAggregatorProxy.Client.Model.Subscription;
