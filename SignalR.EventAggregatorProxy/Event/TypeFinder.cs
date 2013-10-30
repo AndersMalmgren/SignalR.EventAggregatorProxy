@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.Constraint;
-using SignalR.EventAggregatorProxy.EventAggregation;
 using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Event
@@ -28,7 +28,7 @@ namespace SignalR.EventAggregatorProxy.Event
         {
             var type = typeof (TEvent);
             eventTypes = assemblyLocator.GetAssemblies()
-                                   .SelectMany(a => a.GetTypes())
+                                   .SelectMany(GetTypesSafely)
                                    .Where(t => !t.IsAbstract && type.IsAssignableFrom(t))
                                    .ToDictionary(t => t.GetFullNameWihoutGenerics(), t => t);
         }
@@ -38,11 +38,23 @@ namespace SignalR.EventAggregatorProxy.Event
             var lookupType = typeof(IEventConstraintHandler<>);
             constraintHandlerTypes = assemblyLocator
                 .GetAssemblies()
-                .SelectMany(a => a.GetTypes())
+                .SelectMany(GetTypesSafely)
                 .Where(t => t.GetInterfaces().Any(i => i.GUID == lookupType.GUID))
                 .Select(t => new { Handler = t, Type = t.GetInterfaces().First(i => i.GUID == lookupType.GUID).GetGenericArguments()[0] })
                 .ToDictionary(t => t.Type, t => t.Handler);
         }
+
+        private IEnumerable<Type> GetTypesSafely(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch
+            {
+                return new List<Type>();
+            }
+        } 
 
         public IEnumerable<Type> ListEventTypes()
         {

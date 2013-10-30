@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNet.SignalR.Client;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 
 namespace SignalR.EventAggregatorProxy.Client.Bootstrap.Factories

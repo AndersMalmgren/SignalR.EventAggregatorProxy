@@ -13,9 +13,9 @@
     <copyright>Copyright 2013</copyright>
     <tags>SignalR EventAggregator</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.SignalR.Client" version="1.1.2" />
-      <dependency id="Newtonsoft.Json" version="5.0.6" />
-      <dependency id="CompareNETObjects" version="1.7.2.0" />
+      <dependency id="Microsoft.AspNet.SignalR.Client" version="2.0.0" />
+      <dependency id="Newtonsoft.Json" version="5.0.8" />
+      <dependency id="CompareNETObjects" version="1.7.3.0" />
     </dependencies>
   </metadata>
 </package>

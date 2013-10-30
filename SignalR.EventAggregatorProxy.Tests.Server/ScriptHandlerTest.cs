@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Web;
+﻿using Microsoft.Owin;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rhino.Mocks;
 using SignalR.EventAggregatorProxy.Event;
-using SignalR.EventAggregatorProxy.ScriptProxy;
+using SignalR.EventAggregatorProxy.Owin;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
@@ -31,16 +31,28 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         [TestInitialize]
         public void Context()
         {
+            WhenCalling<IOwinResponse>(x => x.WriteAsync(Arg<string>.Is.Anything))
+                .Return(null)
+                .Callback<string>(s =>
+                    {
+                        script = s;
+                        return true;
+                    });
+
             WhenCalling<ITypeFinder>(x => x.ListEventTypes()).Return(new[] {typeof (NoMembersEvent), typeof (MembersEvent)});
+            Mock<IHeaderDictionary>();
+            
+            WhenAccessing<IOwinRequest, IHeaderDictionary>(x => x.Headers).Return(Get<IHeaderDictionary>());
+            WhenAccessing<IOwinResponse, IHeaderDictionary>(x => x.Headers).Return(Get<IHeaderDictionary>());
 
-            var handler = new ScriptHandler<TestEventBase>();
-            var context = new HttpContext(
-                new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
+            WhenAccessing<IOwinContext, IOwinResponse>(x => x.Response).Return(Get<IOwinResponse>());
+            WhenAccessing<IOwinContext, IOwinRequest>(x => x.Request).Return(Get<IOwinRequest>());
+            
 
-            handler.ProcessRequest(context);
-            script = context.Response.Output.ToString();
+            var eventScriptMiddleware = new EventScriptMiddleware<TestEventBase>(null);
+
+            eventScriptMiddleware.Invoke(Get<IOwinContext>());
+            //script = context.Response.Output.ToString();
         }
 
         [TestMethod]

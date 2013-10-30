@@ -4,85 +4,57 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;
+using Microsoft.Owin;
+using Newtonsoft.Json;
 using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.Extensions;
 
-namespace SignalR.EventAggregatorProxy.ScriptProxy
+namespace SignalR.EventAggregatorProxy.Owin
 {
-    public class ScriptHandler<TEvent> : IHttpHandler
+    public class EventScriptMiddleware<TEvent> : OwinMiddleware
     {
         private static string js;
         private static DateTime scriptBuildDate;
 
-        public ScriptHandler()
+        static EventScriptMiddleware()
         {
             if (js == null)
             {
                 RenderScript();
-            }            
+            }
         }
 
-        public void ProcessRequest(HttpContext context)
+        public EventScriptMiddleware(OwinMiddleware next) : base(next)
+        {
+        }
+
+        public override Task Invoke(IOwinContext context)
         {
             var response = context.Response;
-            response.ContentType = "text/javascript";
+            response.ContentType = "application/javascript";
+            response.StatusCode = 200;
 
-            if (ClientCached(context, scriptBuildDate))
+            if (ClientCached(context.Request, scriptBuildDate))
             {
                 response.StatusCode = 304;
-                response.StatusDescription = "Not Modified";
-                response.AddHeader("Content-Length", "0");
-                return;
+                response.Headers["Content-Length"] = "0";
+                response.Body.Close();
+                response.Body = Stream.Null;
+
+                return Task.FromResult<Object>(null);
             }
 
-            response.Cache.SetLastModified(scriptBuildDate);
-
-            response.Write(js);
+            response.Headers["Last-Modified"] = scriptBuildDate.ToUniversalTime().ToString("r");
+            return response.WriteAsync(js);
         }
 
-        private void RenderScript()
+        private bool ClientCached(IOwinRequest request, DateTime contentModified)
         {
-            var types = GetEventTypes();
-
-            var definitons = types.Select(t => new { @namespace = t.Namespace, name = t.GetNameWihoutGenerics(), generic = t.ContainsGenericParameters });
-            var template = GetScriptTemplate();
-
-            js = template.Replace("{{Data}}", Serialize(definitons));
-            scriptBuildDate = types.Max(t => t.Assembly.GetBuildDate());
-        }
-
-        private string GetScriptTemplate()
-        {
-            var stream = Assembly
-                .GetExecutingAssembly()
-                .GetManifestResourceStream("SignalR.EventAggregatorProxy.Resources.EventProxy.js");
-
-            var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
-        }
-
-        private IEnumerable<Type> GetEventTypes()
-        {
-            return GlobalHost.DependencyResolver.Resolve<ITypeFinder>()
-                .ListEventTypes();
-        }
-
-        private string Serialize(object obj)
-        {
-            var jsonSerializer = GlobalHost.DependencyResolver.Resolve<IJsonSerializer>();
-            var stringBuilder = new StringBuilder();
-            var writer = new StringWriter(stringBuilder);
-
-            jsonSerializer.Serialize(obj, writer);
-            return stringBuilder.ToString();
-        }
-
-        private bool ClientCached(HttpContext context, DateTime contentModified)
-        {
-            string header = context.Request.Headers["If-Modified-Since"];
+            string header = request.Headers["If-Modified-Since"];
 
             if (header != null)
             {
@@ -96,9 +68,42 @@ namespace SignalR.EventAggregatorProxy.ScriptProxy
             return false;
         }
 
-        public bool IsReusable
+
+        private static void RenderScript()
         {
-            get { return true; }
+            var types = GetEventTypes();
+
+            var definitons = types.Select(t => new { @namespace = t.Namespace, name = t.GetNameWihoutGenerics(), generic = t.ContainsGenericParameters });
+            var template = GetScriptTemplate();
+
+            js = template.Replace("{{Data}}", Serialize(definitons));
+            scriptBuildDate = types.Max(t => t.Assembly.GetBuildDate());
+        }
+
+        private static string GetScriptTemplate()
+        {
+            var stream = Assembly
+                .GetExecutingAssembly()
+                .GetManifestResourceStream("SignalR.EventAggregatorProxy.Resources.EventProxy.js");
+
+            var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
+        private static IEnumerable<Type> GetEventTypes()
+        {
+            return GlobalHost.DependencyResolver.Resolve<ITypeFinder>()
+                .ListEventTypes();
+        }
+
+        private static string Serialize(object obj)
+        {
+            var jsonSerializer = GlobalHost.DependencyResolver.Resolve<JsonSerializer>();
+            var stringBuilder = new StringBuilder();
+            var writer = new StringWriter(stringBuilder);
+
+            jsonSerializer.Serialize(obj, writer);
+            return stringBuilder.ToString();
         }
     }
 }
