@@ -49,6 +49,7 @@ namespace SignalR.EventAggregatorProxy.Owin
             }
 
             response.Headers["Last-Modified"] = scriptBuildDate.ToUniversalTime().ToString("r");
+            response.Headers["Cache-Control"] = "must-revalidate";
             return response.WriteAsync(js);
         }
 
