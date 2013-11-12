@@ -223,6 +223,7 @@ multipleSameEventSubscriptionTest("When subscribing multiple times to same const
 multipleSameEventSubscriptionTest("When subscribing multiple times to event with different constraint - Issue #13", null, [{ id: 1 }, { id: 2 }], 2);
 multipleSameEventSubscriptionTest("When subscribing multiple times to event with different generic parameters - Issue #13", ["One", "Two"], null, 2);
 multipleSameEventSubscriptionTest("When subscribing multiple times to same constrained generic event - Issue #13", "One", { id: 1 });
+multipleSameEventSubscriptionTest("When subscribing multiple times to event with different generic parameters but same constraint", ["One", "Two"], [{ id: 1 }, { id: 1 }], 2);
 
 multipleSameEventUnsubscriptionTest = function (name, genericArgument, constraint, subscribeCount, unsubscribeCount) {
     throttleTest(name, function () {
