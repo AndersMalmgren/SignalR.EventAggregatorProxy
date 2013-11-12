@@ -6,6 +6,7 @@
     <BuildDir></BuildDir>
     <DeliverFolder></DeliverFolder>
     <Version></Version>
+    <VersionPostfix>-SignalR-1x</VersionPostfix>
   </PropertyGroup>
   
   <UsingTask
@@ -106,7 +107,7 @@
   </Target>
 
   <Target Name="Pack">
-    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.server.nuspec -version $(Version)"/>
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.server.nuspec -version $(Version)$(VersionPostfix)"/>
   </Target>
 
   <Target Name="Deliver">
