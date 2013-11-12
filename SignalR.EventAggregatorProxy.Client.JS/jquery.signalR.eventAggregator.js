@@ -77,7 +77,7 @@
 
             if (subscribers.length === 0) return true;
 
-            if (subscribers.length > 0 && newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
+            if (newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
 
             var should = true;
             $.each(subscribers, function () {
