@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using Caliburn.Micro;
+using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 
 namespace SignalR.EventAggregatorProxy.Demo.MVC4.Controllers
@@ -8,9 +9,9 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.Controllers
     {
         private readonly IEventAggregator eventAggregator;
 
-        public ServiceController(IEventAggregator eventAggregator)
+        public ServiceController()
         {
-            this.eventAggregator = eventAggregator;
+            this.eventAggregator = GlobalHost.DependencyResolver.Resolve<IEventAggregator>();
         }
 
         public void Get()
