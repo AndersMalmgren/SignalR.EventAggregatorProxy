@@ -93,6 +93,10 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
             var constraintHandlerType = typeFinder.GetConstraintHandlerType(eventType);
             var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
+
+            if (constraintHandlerType != null && constraintHandler == null)
+                throw new Exception(string.Format("Constraint {0} not registered correctly with the DependencyResolver", constraintHandlerType.Name));
+
             foreach (var subscription in subscriptions[eventType.GUID])
             {
                 if (!GenericArgumentsCorrect(eventType, subscription)) continue;
