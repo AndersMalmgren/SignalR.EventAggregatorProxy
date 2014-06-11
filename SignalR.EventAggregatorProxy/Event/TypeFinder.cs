@@ -14,6 +14,7 @@ namespace SignalR.EventAggregatorProxy.Event
         private IDictionary<string, Type> eventTypes;
         private IDictionary<string, Type> types;
         private IDictionary<Type, Type> constraintHandlerTypes;
+        private IDictionary<Type, Type> lookup;
         
         public TypeFinder()
         {
@@ -36,12 +37,13 @@ namespace SignalR.EventAggregatorProxy.Event
         private void InitConstraintHandlerTypes()
         {
             var lookupType = typeof(IEventConstraintHandler<>);
-            constraintHandlerTypes = assemblyLocator
+            lookup = assemblyLocator
                 .GetAssemblies()
                 .SelectMany(GetTypesSafely)
                 .Where(t => t.GetInterfaces().Any(i => i.GUID == lookupType.GUID))
                 .Select(t => new { Handler = t, Type = t.GetInterfaces().First(i => i.GUID == lookupType.GUID).GetGenericArguments()[0] })
                 .ToDictionary(t => t.Type, t => t.Handler);
+            constraintHandlerTypes = new Dictionary<Type, Type>(lookup);
         }
 
         private IEnumerable<Type> GetTypesSafely(Assembly assembly)
@@ -85,7 +87,7 @@ namespace SignalR.EventAggregatorProxy.Event
         {
             if (!constraintHandlerTypes.ContainsKey(type))
             {
-                var handler = constraintHandlerTypes.SingleOrDefault(kvp => kvp.Key.IsAssignableFrom(type)).Value;
+                var handler = lookup.SingleOrDefault(kvp => kvp.Key.IsAssignableFrom(type)).Value;
                 constraintHandlerTypes[type] = handler;
             }
             return constraintHandlerTypes[type];

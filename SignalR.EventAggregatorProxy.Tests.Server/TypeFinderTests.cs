@@ -7,17 +7,24 @@ using SignalR.EventAggregatorProxy.Event;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
+    public class TypeFinderTest<TEvent> : ServerTest
+    {
+        protected TypeFinder<TEvent> typeFinder;
+
+        public TypeFinderTest()
+        {
+            WhenCalling<IAssemblyLocator>(x => x.GetAssemblies()).Return(new[] { Assembly.GetExecutingAssembly() });
+            typeFinder = new TypeFinder<TEvent>();
+        }
+    }
+
     [TestClass]
-    public class When_trying_to_find_a_constraint_handler_for_a_generic_event : ServerTest
+    public class When_trying_to_find_a_constraint_handler_for_a_generic_event : TypeFinderTest<TestEventBase>
     {
         [TestInitialize]
         public void Context()
         {
             GenericEventConstraintHandler.Called = false;
-
-            WhenCalling<IAssemblyLocator>(x => x.GetAssemblies()).Return(new[] {Assembly.GetExecutingAssembly()});
-
-            var typeFinder = new TypeFinder<TestEventBase>();
             var type = typeof(OuterGeneric<EntityOne>);
 
             var handlerType = typeFinder.GetConstraintHandlerType(type);
@@ -82,7 +89,52 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         public class EntityTwo : EntityBase
         {
         }
+    }
 
+    [TestClass]
+    public class When_trying_to_find_a_constraint_handler_for_a_base_class_type_Issue_17 : TypeFinderTest<When_trying_to_find_a_constraint_handler_for_a_base_class_type_Issue_17.MyBase>
+    {
+        private bool result;
 
+        [TestInitialize]
+        public void Context()
+        {
+            var types = new List<Type> {typeof (MySub), typeof(MySubTwo)};
+            foreach (var type in types)
+            {
+                var handlerType = typeFinder.GetConstraintHandlerType(type);
+                var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
+                result = eventConstraintHandler.Allow(Activator.CreateInstance(type), "", null);
+            }
+        }
+
+        [TestMethod]
+        public void It_should_invoke_correct_handler()
+        {
+            Assert.IsTrue(result);
+        }
+
+        public abstract class MyBase 
+        {
+            
+        }
+
+        public class MySub : MyBase
+        {
+            
+        }
+
+        public class MySubTwo : MySub
+        {
+
+        }
+
+        public class Handler : EventConstraintHandler<MyBase>
+        {
+            public override bool Allow(MyBase message, string username, dynamic constraint)
+            {
+                return true;
+            }
+        }
     }
 }
