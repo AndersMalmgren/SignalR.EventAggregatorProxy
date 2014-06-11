@@ -3,8 +3,8 @@ using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.Demo.MVC4.App_Start.DependencyResolvers;
 using SignalR.EventAggregatorProxy.EventAggregation;
 
-[assembly: WebActivator.PreApplicationStartMethod(typeof(SignalR.EventAggregatorProxy.Demo.MVC4.App_Start.NinjectWebCommon), "Start")]
-[assembly: WebActivator.ApplicationShutdownMethodAttribute(typeof(SignalR.EventAggregatorProxy.Demo.MVC4.App_Start.NinjectWebCommon), "Stop")]
+[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(SignalR.EventAggregatorProxy.Demo.MVC4.App_Start.NinjectWebCommon), "Start")]
+[assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(SignalR.EventAggregatorProxy.Demo.MVC4.App_Start.NinjectWebCommon), "Stop")]
 
 namespace SignalR.EventAggregatorProxy.Demo.MVC4.App_Start
 {
@@ -45,14 +45,22 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.App_Start
         private static IKernel CreateKernel()
         {
             var kernel = new StandardKernel();
-            kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
-            kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
+            try
+            {
+                kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
+                kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
 
-            GlobalHost.DependencyResolver = new SignalRNinjectDependencyResolver(kernel);
-            GlobalConfiguration.Configuration.DependencyResolver = new WebApiDependencyResolver(kernel);
+                GlobalHost.DependencyResolver = new SignalRNinjectDependencyResolver(kernel);
+                GlobalConfiguration.Configuration.DependencyResolver = new WebApiDependencyResolver(kernel);
 
-            RegisterServices(kernel);
-            return kernel;
+                RegisterServices(kernel);
+                return kernel;
+            }
+            catch
+            {
+                kernel.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -63,6 +71,6 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.App_Start
         {
             kernel.Bind<Caliburn.Micro.IEventAggregator>().To<Caliburn.Micro.EventAggregator>().InSingletonScope();
             kernel.Bind<IEventAggregator>().To<EventProxy.EventAggregatorProxy>().InSingletonScope();
-        }        
+        }
     }
 }

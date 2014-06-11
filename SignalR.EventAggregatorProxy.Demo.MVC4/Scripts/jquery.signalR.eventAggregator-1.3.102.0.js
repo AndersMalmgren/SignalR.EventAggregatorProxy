@@ -71,30 +71,26 @@
             return context.__getSubscriptions();
         }
 
-        function shouldProxySubscribe(newSubscription) {
+        function shouldProxySubscription(newSubscription) {
             var subscribers = getSubscribers(newSubscription.type, false);
             if (getConstructor(newSubscription.type).proxyEvent !== true) return false;
 
-            if (subscribers.length === 0) {
-                assignNewConstraintId.call(this, newSubscription);
-                return true;
-            }
+            if (subscribers.length === 0) return true;
 
-            if (subscribers.length > 0 && newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
+            if (newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
 
             var should = true;
-            $.each(subscribers, function() {
-                if ((newSubscription.type.genericArguments != null && genericArgumentsCorrect(newSubscription.type.genericArguments, this.type.genericArguments)) ||
-                    (newSubscription.constraint != null && compareConstraint(newSubscription.constraint, this.constraint))) {
+            $.each(subscribers, function () {
+                if(newSubscription.type.genericArguments != null && 
+                    !genericArgumentsCorrect(newSubscription.type.genericArguments, this.type.genericArguments)) return true;
+
+                if (newSubscription.constraint != null && !compareConstraint(newSubscription.constraint, this.constraint)) return true;
                     
                     should = false;
                     newSubscription.constraintId = this.constraintId;
-                }
-            });
 
-            if (should && newSubscription.constraint) {
-                assignNewConstraintId.call(this, newSubscription);
-            }
+                return false;
+            });
 
             return should;
         }
@@ -143,12 +139,13 @@
 
                 var subscribers = getSubscribers(type, false);
                 var subscription = { type: type, handler: handler, context: context, constraint: constraint };
-                var shouldProxy = shouldProxySubscribe.call(this, subscription);
+                var shouldProxy = shouldProxySubscription.call(this, subscription);
 
                 subscriptions.push(subscription);
                 subscribers.push(subscription);
                 
                 if (this.proxy && shouldProxy) {
+                    assignNewConstraintId.call(this, subscription);
                     this.proxy.subscribe(getConstructor(type), type.genericArguments, constraint, subscription.constraintId);
                 }
             },
