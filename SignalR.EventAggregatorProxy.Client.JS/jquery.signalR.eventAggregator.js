@@ -8,7 +8,7 @@
 
     signalR.EventAggregator.prototype = function () {
         function getSubscribers(message, isInstance) {
-            message = message.genericConstructor || message;
+            message = getConstructor(message);
             var constructor = isInstance ? message.constructor : message;
             if (constructor.__subscribers === undefined) {
                 constructor.__subscribers = [];
@@ -35,10 +35,6 @@
         function compareSubscriptions(s1, s2) {
             return genericArgumentsCorrect(s1.type.genericArguments, s2.type.genericArguments) &&
                 checkConstraintId(s1, s2.constraintId);
-        }
-        
-        function getConstructor(type) {
-            return type.genericConstructor || type;
         }
         
         function compareConstraint(c1, c2) {
@@ -191,7 +187,7 @@
         },
         unsubscribe: function (eventTypes) {
             var typeNames = $.map(eventTypes, function (typeData) {
-                var constructor = typeData.type.genericConstructor || typeData.type;
+                var constructor = getConstructor(typeData.type);
                 if (constructor.proxyEvent !== true) return null;
 
                 return {
@@ -215,6 +211,10 @@
             this.hub.server.subscribe(temp);
         }
     };
+    
+    function getConstructor(type) {
+        return type.genericConstructor || type;
+    }
 
     signalR.eventAggregator = new signalR.EventAggregator(true);
 })(window.signalR = window.signalR || {}, jQuery);
