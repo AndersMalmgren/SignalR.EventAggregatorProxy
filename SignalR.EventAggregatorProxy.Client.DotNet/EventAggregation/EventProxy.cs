@@ -36,7 +36,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                 .Create(hubUrl, configureConnection, p =>
                 {
                     SendQueuedSubscriptions();
-                    p.On<object>("onEvent", OnEvent);
+                    p.On<Message>("onEvent", OnEvent);
                 });
         }
 
@@ -50,10 +50,8 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             }
         }
 
-        private void OnEvent(dynamic data)
+        private void OnEvent(Message message)
         {   
-            var jObject = data as JObject;
-            var message = jObject.ToObject<Message>();
             var @event = ParseTypeData(message);
             eventAggregator.Publish(@event, message.Id);
         }
@@ -70,7 +68,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                 type = type.MakeGenericType(genericArguments);
             }
             
-            return (message.Event as JObject).ToObject(type);
+            return message.Event.ToObject(type);
         }
         
         public void Unsubscribe(IEnumerable<Subscription> subscriptions)
@@ -103,7 +101,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private class Message
         {
             public string Type { get; set; }
-            public object Event { get; set; }
+            public JObject Event { get; set; }
             public string[] GenericArguments { get; set; }
             public int? Id { get; set; }
         }
