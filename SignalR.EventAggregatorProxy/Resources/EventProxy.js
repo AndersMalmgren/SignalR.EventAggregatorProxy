@@ -1,13 +1,13 @@
 ﻿
 (function(signalR, definitions) {
     var events = {};
-    $.each(definitions, function(index, defintion) {
-        var type = defintion.namespace + "." + defintion.name;
-        var closure = getClosure(window, defintion.namespace.split("."));
-        var $class = closure[defintion.name] = function() {
+    $.each(definitions, function(index, definition) {
+        var type = definition.namespace + "." + definition.name;
+        var closure = getClosure(window, definition.namespace.split("."));
+        var $class = closure[definition.name] = function() {
         };
         
-        if (defintion.generic) {
+        if (definition.generic) {
             $class.of = function() {
                 return {
                     genericConstructor:  $class,
