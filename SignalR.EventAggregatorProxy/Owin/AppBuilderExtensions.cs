@@ -7,8 +7,13 @@ namespace SignalR.EventAggregatorProxy.Owin
     {
         public static void MapEventProxy<TEvent>(this IAppBuilder app)
         {
+            app.MapEventProxy<TEvent>("/eventAggregation/events");
+        }
+
+        public static void MapEventProxy<TEvent>(this IAppBuilder app, string eventsUrl)
+        {
             Bootstrapper.Init<TEvent>();
-            app.Map("/eventAggregation/events", subApp => subApp.Use<EventScriptMiddleware<TEvent>>());
+            app.Map(eventsUrl, subApp => subApp.Use<EventScriptMiddleware<TEvent>>());
         }
     }
 }
