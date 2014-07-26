@@ -50,8 +50,8 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
             var client = new Client(events);
 
-            WhenCalling<IHubConnectionContext>(x => x.Client(Arg<string>.Is.Anything)).Return(client);
-            WhenAccessing<IHubContext, IHubConnectionContext>(x => x.Clients).Return(Get<IHubConnectionContext>());
+            WhenCalling<IHubConnectionContext<dynamic>>(x => x.Client(Arg<string>.Is.Anything)).Return(client);
+            WhenAccessing<IHubContext, IHubConnectionContext<dynamic>>(x => x.Clients).Return(Get<IHubConnectionContext<dynamic>>());
             Mock<IConnectionManager>();
             WhenCalling<IConnectionManager>(x => x.GetHubContext<EventAggregatorProxyHub>()).Return(Get<IHubContext>());
 
