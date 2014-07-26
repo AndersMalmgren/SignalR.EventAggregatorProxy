@@ -14,7 +14,8 @@
     <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
       <dependency id="Microsoft.AspNet.SignalR" version="2.1.1" />
-      <dependency id="SignalR.EventAggregatorProxy.Constraint" version="1.1" /> 
+      <dependency id="SignalR.EventAggregatorProxy.Constraint" version="1.1" />
+      <dependency id="Newtonsoft.Json" version="6.0.3" />
     </dependencies>
   </metadata>
 </package>
