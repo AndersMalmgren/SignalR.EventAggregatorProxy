@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using Caliburn.Micro;
 using Ninject;
 using SignalR.EventAggregatorProxy.Client.EventAggregation;
@@ -11,9 +12,14 @@ using IEventAggregator = SignalR.EventAggregatorProxy.Client.EventAggregation.IE
 
 namespace SignalR.EventAggregatorProxy.Demo.DotNet.Bootstrap
 {
-    public class Bootstrapper : Bootstrapper<MainShellViewModel>
+    public class Bootstrapper : BootstrapperBase
     {
         private readonly IKernel kernel = new StandardKernel();
+
+        public Bootstrapper()
+        {
+            Initialize();
+        }
 
         protected override void Configure()
         {
@@ -31,6 +37,11 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNet.Bootstrap
         protected override IEnumerable<object> GetAllInstances(Type service)
         {
             return kernel.GetAll(service);
+        }
+
+        protected override void OnStartup(object sender, StartupEventArgs e)
+        {
+            DisplayRootViewFor<MainShellViewModel>();
         }
     }
 }
