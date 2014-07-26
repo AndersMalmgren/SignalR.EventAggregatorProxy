@@ -31,8 +31,6 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             ids = new ConcurrentBag<string>();
             events = new ConcurrentBag<object>();
             reset = new AutoResetEvent(false);
-            var running = true;
-            var count = 0;
 
             var type = typeof (MembersEvent);
             var typeName = type.FullName;
@@ -96,7 +94,6 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             timer.Start();
 
             reset.WaitOne();
-            running = false;
             Console.WriteLine("Catched events: {0} in {1}", events.Count, DateTime.Now - start);
         }
         

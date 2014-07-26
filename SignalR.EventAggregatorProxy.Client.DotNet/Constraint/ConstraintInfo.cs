@@ -15,7 +15,6 @@ namespace SignalR.EventAggregatorProxy.Client.Constraint
     public class ConstraintInfo<TEvent, TConstraint> : IConstraintInfo
     {
         public TConstraint Constraint { get; set; }
-        private static int counter;
 
         public ConstraintInfo(TConstraint constraint)
         {
