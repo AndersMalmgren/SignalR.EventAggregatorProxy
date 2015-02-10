@@ -206,8 +206,8 @@
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery.signalR-2.1.1.js" />
     <Content Include="Scripts\jquery.signalR-2.1.1.min.js" />
-    <Content Include="Scripts\jquery.signalR.eventAggregator-1.3.110.0.js" />
-    <Content Include="Scripts\jquery.signalR.eventAggregator-1.3.110.0.min.js" />
+    <Content Include="Scripts\jquery.signalR.eventAggregator-1.4.117.0.js" />
+    <Content Include="Scripts\jquery.signalR.eventAggregator-1.4.117.0.min.js" />
     <Content Include="Scripts\knockout-3.1.0.debug.js" />
     <Content Include="Scripts\knockout-3.1.0.js" />
     <Content Include="Scripts\modernizr-2.7.2.js" />
