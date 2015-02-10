@@ -205,23 +205,25 @@
 
             return unsub;
         },
-        sendSubscribeQueue: function () {
+        sendSubscribeQueue: function (arg) {
+            var reconnected = typeof (arg) === "boolean" ? arg : false;
+
             this.queueSubscriptions = false;
             if (this.queuedSubscriptions.length === 0) return;
 
             var temp = this.queuedSubscriptions;
             this.queuedSubscriptions = [];
             this.pushRange(this.activeSubscriptions, temp);
-            this.hub.server.subscribe(temp);
+            this.hub.server.subscribe(temp, reconnected);
         },
         pushRange: function (arr, arr2) {
             arr.push.apply(arr, arr2);
         },
-        reconnected: function() {
+        reconnected: function () {
             var temp = this.activeSubscriptions;
             this.activeSubscriptions = [];
             this.queuedSubscriptions = temp;
-            this.sendSubscribeQueue();
+            this.sendSubscribeQueue(true);
         }
     };
     

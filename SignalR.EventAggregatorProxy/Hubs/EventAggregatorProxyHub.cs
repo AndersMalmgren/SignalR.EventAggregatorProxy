@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,8 +20,11 @@ namespace SignalR.EventAggregatorProxy.Hubs
             eventProxy = new EventProxy();
         }
 
-        public void Subscribe(IEnumerable<SubscriptionDto> subscriptions)
+        public void Subscribe(IEnumerable<SubscriptionDto> subscriptions, bool reconnected)
         {
+            if (reconnected)
+                eventProxy.UnsubscribeConnection(Context.ConnectionId);
+
             subscriptions
                 .ForEach(s => eventProxy.Subscribe(Context, s.Type, s.GenericArguments ?? new string[0], s.Constraint, s.ConstraintId));
         }

@@ -89,7 +89,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             }
         }
 
-        private void SendQueuedSubscriptions()
+        private void SendQueuedSubscriptions(bool reconnected = false)
         {
             queueSubscriptions = false;
             var subscriptions = subscriptionQueue.Select(s => new
@@ -102,13 +102,13 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             subscriptionQueue.Clear();
 
             if (subscriptions.Any())
-                proxy.Invoke("subscribe", subscriptions);
+                proxy.Invoke("subscribe", subscriptions, reconnected);
         }
         
         private void Reconnected()
         {
             subscriptionQueue.AddRange(subscriptionStore.ListUniqueSubscriptions());
-            SendQueuedSubscriptions();
+            SendQueuedSubscriptions(true);
         }
 
         private class Message
