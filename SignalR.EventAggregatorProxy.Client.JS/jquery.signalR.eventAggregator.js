@@ -17,17 +17,6 @@
             return constructor.__subscribers;
         }
 
-        function genericArgumentsCorrect(ga1, ga2) {
-            if (ga1 == null) return true;
-            if (ga1.length !== ga2.length) return false;
-
-            for (var i = 0; i < ga2.length; i++) {
-                if (ga1[i] !== ga2[i]) return false;
-            }
-
-            return true;
-        }
-
         function checkConstraintId(subscriber, constraintId) {
             return constraintId == null || (subscriber.constraintId === constraintId);
         }
@@ -163,6 +152,8 @@
         this.hub.client.onEvent = this.onEvent.bind(this);
         this.queueSubscriptions = true;
         this.queuedSubscriptions = [];
+        this.activeSubscriptions = [];
+        $.connection.hub.reconnected(this.reconnected.bind(this));
         $.connection.hub.start().done(this.sendSubscribeQueue.bind(this));
     };
 
@@ -190,17 +181,29 @@
                 var constructor = getConstructor(typeData.type);
                 if (constructor.proxyEvent !== true) return null;
 
-                return {
+                return this.removeActiveSubscription({
                     type: constructor.type,
                     genericArguments: typeData.type.genericArguments,
                     id: typeData.constraintId
-                };
-            });
+                });
+
+            }.bind(this));
 
             if (typeNames.length > 0) {
                 this.queueSubscriptions = true;
                 this.hub.server.unsubscribe(typeNames).done(this.sendSubscribeQueue.bind(this));
             }
+        },
+        removeActiveSubscription: function (unsub) {
+            for (var i = 0; i < this.activeSubscriptions.length; i++) {
+                var e = this.activeSubscriptions[i];
+                if (e.type === unsub.type && genericArgumentsCorrect(e.genericArguments, unsub.genericArguments) && e.constraintId === unsub.id) {
+                    this.activeSubscriptions.splice(i, 1);
+                    break;
+                }
+            }
+
+            return unsub;
         },
         sendSubscribeQueue: function () {
             this.queueSubscriptions = false;
@@ -208,12 +211,33 @@
 
             var temp = this.queuedSubscriptions;
             this.queuedSubscriptions = [];
+            this.pushRange(this.activeSubscriptions, temp);
             this.hub.server.subscribe(temp);
+        },
+        pushRange: function (arr, arr2) {
+            arr.push.apply(arr, arr2);
+        },
+        reconnected: function() {
+            var temp = this.activeSubscriptions;
+            this.activeSubscriptions = [];
+            this.queuedSubscriptions = temp;
+            this.sendSubscribeQueue();
         }
     };
     
     function getConstructor(type) {
         return type.genericConstructor || type;
+    }
+
+    function genericArgumentsCorrect(ga1, ga2) {
+        if (ga1 == null) return true;
+        if (ga1.length !== ga2.length) return false;
+
+        for (var i = 0; i < ga2.length; i++) {
+            if (ga1[i] !== ga2[i]) return false;
+        }
+
+        return true;
     }
 
     signalR.eventAggregator = new signalR.EventAggregator(true);

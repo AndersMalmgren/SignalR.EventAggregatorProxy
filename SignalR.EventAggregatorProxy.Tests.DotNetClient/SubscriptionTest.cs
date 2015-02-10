@@ -23,7 +23,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
             return new List<IConstraintInfo>();
         }
             
-            [TestInitialize]
+        [TestInitialize]
         public void Context()
         {
             var reset = new AutoResetEvent(false);
@@ -44,8 +44,8 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
             Mock<IHubProxyFactory>();
 
-            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>>((u, c, started) =>
+            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything))
+                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action>((u, c, started, reconnected) =>
                 {
                     started(proxy);
                     return true;

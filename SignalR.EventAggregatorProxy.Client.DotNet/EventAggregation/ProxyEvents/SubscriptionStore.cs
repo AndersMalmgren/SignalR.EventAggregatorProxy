@@ -26,13 +26,13 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents
             comparer = new CompareObjects();
         }
 
-        public IEnumerable<Subscription> GetActualSubscriptions(IEnumerable<Subscription> subscriptions)
+        public IEnumerable<Subscription> GetActualSubscriptions(IEnumerable<Subscription> newSubscriptions)
         {
-            var uniqueSubscription = subscriptions
+            var uniqueSubscription = newSubscriptions
                 .Where(UniqueSubscription)
                 .ToList();
 
-            subscriptions.ForEach(AddSubscription);
+            newSubscriptions.ForEach(AddSubscription);
 
             return uniqueSubscription;
         }
@@ -61,6 +61,15 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents
 
             return actualUnsubscriptions;
         }
+
+        public IEnumerable<Subscription> ListUniqueSubscriptions()
+        {
+            var sub = eventSubscriptions.SelectMany(s => s.Value)
+                .GroupBy(s => s.EventType)
+                .SelectMany(g => g.GroupBy(s => s.ConstraintId).Select(c => c.First()).ToList())
+                .ToList();
+            return sub;
+        } 
 
         public void AddConstraints(object subscriber, IEnumerable<IConstraintInfo> constraints)
         {
