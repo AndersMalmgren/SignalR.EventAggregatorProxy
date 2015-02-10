@@ -15,7 +15,6 @@
     <dependencies>
       <dependency id="Microsoft.AspNet.SignalR.Client" version="2.1.1" />
       <dependency id="Newtonsoft.Json" version="6.0.3" />
-      <dependency id="CompareNETObjects" version="1.7.3.0" />
     </dependencies>
   </metadata>
 </package>
