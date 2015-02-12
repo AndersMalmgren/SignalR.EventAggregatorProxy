@@ -71,13 +71,17 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             base.Subscribe(subscriber);
             if (eventProxy != null)
             {
+                CheckSubscriberConstraints(constraintInfos);
+
                 subscriptionStore.AddConstraints(subscriber, constraintInfos);
                 var proxyEvents = GetProxyEventTypes(subscriber);
-                var subscriptions = proxyEvents
-                    .Select(pe => new Subscription(pe, constraintInfos.GetConstraint(pe), constraintInfos.GetConstraintId(pe)))
-                    .ToList();
 
-                var actualSubscriptions = subscriptionStore.GetActualSubscriptions(subscriptions);
+                var subscriptions = from pe in proxyEvents
+                                    join ci in constraintInfos on pe equals ci.GetType().GetGenericArguments()[0] into eci
+                            from ciOuter in eci.DefaultIfEmpty()
+                                    select new Subscription(pe, ciOuter != null ? ciOuter.GetConstraint() : null, ciOuter.GetConstraintId());
+
+                var actualSubscriptions = subscriptionStore.GetActualSubscriptions(subscriptions.ToList());
 
                 eventProxy.Subscribe(actualSubscriptions);
             }
@@ -111,5 +115,18 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                 .Where(i => i.GUID == handleType.GUID && eventProxyType.IsAssignableFrom(i.GetGenericArguments()[0]))
                 .Select(i => i.GetGenericArguments()[0]);
         }
+
+        private void CheckSubscriberConstraints(IEnumerable<IConstraintInfo> constraintInfos)
+        {
+            try
+            {
+                constraintInfos.GroupBy(c => c.Id).Select(c => c.Single()).ToList();
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new ArgumentException("One subscriber cant subscribe to the same constraint twice");
+            }
+        }
+
     }
 }

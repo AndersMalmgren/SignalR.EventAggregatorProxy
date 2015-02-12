@@ -26,45 +26,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         [TestInitialize]
         public void Context()
         {
-            var reset = new AutoResetEvent(false);
-
-            Register<ISubscriptionStore>(new SubscriptionStore());
-
-            var proxy = Mock<IHubProxy>();
-            WhenCalling<IHubProxy>(x => x.Subscribe(Arg<string>.Is.Anything))
-                .Return(new Subscription());
-            var task = new Task(() => { });
-            WhenCalling<IHubProxy>(x => x.Invoke(Arg<string>.Is.Anything, Arg<object[]>.Is.Anything))
-                .Callback<string, object[]>((m, a) =>
-                {
-                    if (m == "subscribe")
-                    {
-                        subscriptionCount = (a[0] as IEnumerable<object>).Count();
-                    }
-                    reset.Set();
-
-                    return true;
-                })
-                .Return(task);
-
-            Mock<IHubProxyFactory>();
-            Action reconnectedCallback = null;
-            
-            WhenCalling<IHubProxyFactory>(
-                x =>
-                    x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action>((u, c, started, reconnected) =>
-                {
-                    started(proxy);
-                    reconnectedCallback = reconnected;
-                    return true;
-                })
-                .Return(proxy);
-
-            var eventAggregator = new EventAggregator<Event>()
-                .Init("foo");
-
-
+            Setup();
 
             var removeSubscriber = MockRepository.GenerateMock<IHandle<NoneConstraintEvent>, IHandle<GenericEvent<string>>, IHandle<StandardEvent>>();
             var subscriberOne = MockRepository.GenerateMock<IHandle<NoneConstraintEvent>, IHandle<GenericEvent<int>>, IHandle<StandardEvent>>();
@@ -86,6 +48,12 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
             reconnectedCallback();
 
+        }
+
+        protected override void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
+        {
+            subscriptionCount = subscriptions.Count();
+            reset.Set();
         }
 
         [TestMethod]

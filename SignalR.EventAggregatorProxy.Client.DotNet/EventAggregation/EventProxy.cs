@@ -78,14 +78,12 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         
         public void Unsubscribe(IEnumerable<Subscription> subscriptions)
         {
-            var unsubssciptions = subscriptions.Select(s => new { type = s.EventType.GetFullNameWihoutGenerics(), genericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName), id = s.ConstraintId });
+            var unsubssciptions = subscriptions.Select(s => new { type = s.EventType.GetFullNameWihoutGenerics(), genericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName), id = s.ConstraintId }).ToList();
             if (unsubssciptions.Any())
             {
                 queueSubscriptions = true;
-                var result = proxy.Invoke("unsubscribe", unsubssciptions);
-
-
-                     result.ContinueWith(o => SendQueuedSubscriptions());
+                proxy.Invoke("unsubscribe", unsubssciptions)
+                    .ContinueWith(o => SendQueuedSubscriptions());
             }
         }
 

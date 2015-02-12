@@ -26,39 +26,17 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         [TestInitialize]
         public void Context()
         {
-            var reset = new AutoResetEvent(false);
-
-            Register<ISubscriptionStore>(new SubscriptionStore());
-
-            var proxy = Mock<IHubProxy>();
-            WhenCalling<IHubProxy>(x => x.Subscribe(Arg<string>.Is.Anything))
-                .Return(new Subscription());
-            WhenCalling<IHubProxy>(x => x.Invoke(Arg<string>.Is.Equal("subscribe"), Arg<object[]>.Is.Anything))
-                .Callback<string, object[]>((m, a) =>
-                {
-                    subscriptionCount += (a[0] as IEnumerable<dynamic>).Count();
-                    reset.Set();
-                    return true;
-                })
-                .Return(null);
-
-            Mock<IHubProxyFactory>();
-
-            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action>((u, c, started, reconnected) =>
-                {
-                    started(proxy);
-                    return true;
-                })
-                .Return(proxy);
-
-            var eventAggregator = new EventAggregator<Event>()
-                .Init("foo");
-
+            Setup();
             for (int i = 0; i < 2; i++)
                 eventAggregator.Subscribe(Mock<IHandle<TEvent>>(), GetConstraintInfos(i));
 
             reset.WaitOne();
+        }
+
+        protected override void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
+        {
+            subscriptionCount += subscriptions.Count();
+            reset.Set();
         }
 
         [TestMethod]
@@ -101,5 +79,63 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         {
             return new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = index }) };
         }
+    }
+
+    [TestClass]
+    public class When_subscribing_to_multiple_constrained_events_of_same_type_but_different_constraint_and_same_subscriber_issue_19 : DotNetClientTest
+    {
+        private int subscriptionCount = 0;
+
+        [TestInitialize]
+        public void Context()
+        {
+            Setup();
+            var subscriber = Mock<IHandle<StandardEvent>>();
+            eventAggregator.Subscribe(subscriber, new[]
+            {
+                new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }),
+                new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 2 })
+            });
+
+            reset.WaitOne();
+
+        }
+
+        protected override void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
+        {
+            subscriptionCount = subscriptions.Count();
+            reset.Set();
+        }
+
+
+        [TestMethod]
+        public void It_Should_subscribe_to_both_events()
+        {
+            Assert.AreEqual(2, subscriptionCount);
+        }
+        
+    }
+
+    [TestClass]
+    public class When_subscribing_to_multiple_constrained_events_of_same_type_and_same_constraint_and_same_subscriber : DotNetClientTest
+    {
+        [TestInitialize]
+        public void Context()
+        {
+            Setup();
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void It_should_throw_argument_exception()
+        {
+            var subscriber = Mock<IHandle<StandardEvent>>();
+            eventAggregator.Subscribe(subscriber, new[]
+            {
+                new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }),
+                new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 })
+            });
+        }
+
     }
 }
