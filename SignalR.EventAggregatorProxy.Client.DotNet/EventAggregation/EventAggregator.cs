@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using SignalR.EventAggregatorProxy.Client.Bootstrap;
-using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
 using SignalR.EventAggregatorProxy.Client.Extensions;
@@ -122,7 +121,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             {
                 constraintInfos.GroupBy(c => c.Id).Select(c => c.Single()).ToList();
             }
-            catch (InvalidOperationException e)
+            catch (InvalidOperationException)
             {
                 throw new ArgumentException("One subscriber cant subscribe to the same constraint twice");
             }
