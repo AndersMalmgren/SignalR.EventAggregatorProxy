@@ -111,7 +111,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             var type = subscriber.GetType();
             var handleType = typeof(IHandle<>);
             return type.GetInterfaces()
-                .Where(i => i.GUID == handleType.GUID && eventProxyType.IsAssignableFrom(i.GetGenericArguments()[0]))
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handleType && eventProxyType.IsAssignableFrom(i.GetGenericArguments()[0]))
                 .Select(i => i.GetGenericArguments()[0]);
         }
 
