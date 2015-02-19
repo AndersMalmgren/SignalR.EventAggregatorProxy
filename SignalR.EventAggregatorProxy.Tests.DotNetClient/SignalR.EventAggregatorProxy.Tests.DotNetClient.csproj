@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DotNetClientTest.cs" />
+    <Compile Include="ReconnectTest.cs" />
     <Compile Include="SubscriptionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestEvents.cs" />

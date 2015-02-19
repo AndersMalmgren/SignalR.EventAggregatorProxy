@@ -32,40 +32,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         [TestInitialize]
         public void Context()
         {
-            var reset = new AutoResetEvent(false);
-
-            Register<ISubscriptionStore>(new SubscriptionStore());
-
-            var task = new Task(() => { });
-            var proxy = Mock<IHubProxy>();
-            WhenCalling<IHubProxy>(x => x.Subscribe(Arg<string>.Is.Anything))
-                .Return(new Subscription());
-            
-            WhenCalling<IHubProxy>(x => x.Invoke(Arg<string>.Is.Anything, Arg<object[]>.Is.Anything))
-                .Callback<string, object[]>((m, a) =>
-                {
-                    if (m == "unsubscribe")
-                    {
-                        unsubscriptionCount++;
-                    }
-
-                    reset.Set();
-                    return true;
-                })
-                .Return(task);
-
-            Mock<IHubProxyFactory>();
-
-            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>>((u, c, started) =>
-                {
-                    started(proxy);
-                    return true;
-                })
-                .Return(proxy);
-
-            var eventAggregator = new EventAggregator<Event>()
-                .Init("foo");
+            Setup();
 
             var handlers = Enumerable.Range(0, 2).Select(i => Mock<IHandle<TEvent>>())
                 .Cast<object>()
@@ -82,6 +49,12 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
                 eventAggregator.Unsubscribe(handlers[i]);
 
             reset.WaitOne();
+        }
+
+        protected override void OnUnsubscribe(IEnumerable<object> enumerable)
+        {
+            unsubscriptionCount++;
+            reset.Set();
         }
 
         [TestMethod]

@@ -2,7 +2,7 @@ window.TestEvent = function() {
 
 };
 
-constructEvent = function (genericArgument, event, proxyEvent) {
+constructEvent = function (genericArgument, event, proxyEvent, typeName) {
     if (event == null) {
         event = function() {
         };
@@ -12,6 +12,7 @@ constructEvent = function (genericArgument, event, proxyEvent) {
     
     var constructor = event;
 
+    constructor.type = typeName || constructor.toString();
     if (proxyEvent == null || proxyEvent === true) {
         event.proxyEvent = true;
     }
@@ -327,4 +328,56 @@ throttleTest("When two contexts subcribe to different generic arguments of same 
     return function () {
         eventAggregator.unsubscribe(instanceOne);
     };
+});
+
+asyncTest("When a client is reconnected", function() {
+    var reconnectedCallback = null;
+    $.connection.hub.reconnected = function(callback) {
+        reconnectedCallback = callback;
+    };
+
+    $.connection.eventAggregatorProxyHub.server.unsubscribe = function () {
+        return {
+            done: function (callback) {
+                callback();
+            }
+        };
+    };
+
+    var eventOne = constructEvent(null, null, true, "EventOne");
+    var genericEventOne = constructEvent("Genericarg", null, null, "genericEvent");
+    var genericEventTwo = constructEvent("Genericarg2", genericEventOne, true, "genericEvent");
+    var eventRemove = constructEvent(null, null, true, "eventRemove");
+    var constraintEvent = constructEvent(null, null, true, "constraintEvent");
+
+    var instanceOne = {};
+    var instanceTwo = {};
+    var instanceRemove = {};
+    var thirdConstraintSubscriber = {};
+
+    var eventAggregator = new signalR.EventAggregator(true);
+    $.connection.eventAggregatorProxyHub.server.subscribe = function() {
+        //Ignore first subscribe and wait for reconnect subscribe
+
+        eventAggregator.unsubscribe(instanceRemove);
+        $.connection.eventAggregatorProxyHub.server.subscribe = function(s) {
+            equal(s.length, 4, "It should resubscribe to the events: " + s.length);
+        };
+        start();
+        reconnectedCallback();
+    };
+
+    eventAggregator.subscribe(eventRemove, function () { }, instanceRemove);
+    eventAggregator.subscribe(genericEventTwo.event, function () { }, instanceRemove);
+    eventAggregator.subscribe(constraintEvent, function () { }, instanceRemove, { foo: 2 });
+
+    eventAggregator.subscribe(eventOne, function() {}, instanceOne);
+    eventAggregator.subscribe(genericEventOne.event, function () { }, instanceOne);
+    eventAggregator.subscribe(constraintEvent, function () { }, instanceOne, { foo: 1 });
+
+    eventAggregator.subscribe(eventOne, function() {}, instanceTwo);
+    eventAggregator.subscribe(genericEventOne.event, function () { }, instanceTwo);
+    eventAggregator.subscribe(constraintEvent, function () { }, instanceTwo, { foo: 1 });
+
+    eventAggregator.subscribe(constraintEvent, function () { },thirdConstraintSubscriber, { foo: 3 });
 });

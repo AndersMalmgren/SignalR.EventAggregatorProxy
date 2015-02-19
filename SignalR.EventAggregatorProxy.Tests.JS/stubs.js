@@ -11,6 +11,9 @@
                     callback();
                 }
             };
+        },
+        reconnected: function() {
+            
         }
     }
 };

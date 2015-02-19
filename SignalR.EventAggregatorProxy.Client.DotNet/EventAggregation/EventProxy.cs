@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Microsoft.AspNet.SignalR.Client;
@@ -8,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using SignalR.EventAggregatorProxy.Client.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Event;
+using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
 using SignalR.EventAggregatorProxy.Client.Extensions;
 using Subscription = SignalR.EventAggregatorProxy.Client.Model.Subscription;
 
@@ -21,6 +23,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly IHubProxy proxy;
         private readonly TypeFinder<TProxyEvent> typeFinder;
         private readonly Timer throttleTimer;
+        private readonly ISubscriptionStore subscriptionStore;
 
         public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl,
                           Action<IHubConnection> configureConnection = null)
@@ -32,12 +35,14 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             throttleTimer.Elapsed += (s, e) => SendQueuedSubscriptions();
 
             this.eventAggregator = eventAggregator;
+            subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
             proxy = DependencyResolver.Global.Get<IHubProxyFactory>()
                 .Create(hubUrl, configureConnection, p =>
                 {
                     SendQueuedSubscriptions();
                     p.On<Message>("onEvent", OnEvent);
-                });
+                },
+                Reconnected);
         }
 
         public void Subscribe(IEnumerable<Subscription> subscriptions)
@@ -73,16 +78,16 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         
         public void Unsubscribe(IEnumerable<Subscription> subscriptions)
         {
-            var unsubssciptions = subscriptions.Select(s => new { type = s.EventType.GetFullNameWihoutGenerics(), genericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName), id = s.ConstraintId });
+            var unsubssciptions = subscriptions.Select(s => new { type = s.EventType.GetFullNameWihoutGenerics(), genericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName), id = s.ConstraintId }).ToList();
             if (unsubssciptions.Any())
             {
                 queueSubscriptions = true;
                 proxy.Invoke("unsubscribe", unsubssciptions)
-                     .ContinueWith(o => SendQueuedSubscriptions());
+                    .ContinueWith(o => SendQueuedSubscriptions());
             }
         }
 
-        private void SendQueuedSubscriptions()
+        private void SendQueuedSubscriptions(bool reconnected = false)
         {
             queueSubscriptions = false;
             var subscriptions = subscriptionQueue.Select(s => new
@@ -95,7 +100,13 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             subscriptionQueue.Clear();
 
             if (subscriptions.Any())
-                proxy.Invoke("subscribe", subscriptions);
+                proxy.Invoke("subscribe", subscriptions, reconnected);
+        }
+        
+        private void Reconnected()
+        {
+            subscriptionQueue.AddRange(subscriptionStore.ListUniqueSubscriptions());
+            SendQueuedSubscriptions(true);
         }
 
         private class Message
