@@ -7,27 +7,33 @@ namespace SignalR.EventAggregatorProxy.Client.Bootstrap.Factories
 {
     public class HubProxyFactory : IHubProxyFactory
     {
-        public IHubProxy Create(string hubUrl, Action<IHubConnection> configureConnection, Action<IHubProxy> onStarted, Action reconnected)
+        public IHubProxy Create(string hubUrl, Action<IHubConnection> configureConnection, Action<IHubProxy> onStarted, Action reconnected, Action<Exception> faulted, Action connected)
         {
             var connection = new HubConnection(hubUrl);
             if (configureConnection != null)
                 configureConnection(connection);
 
             var proxy = connection.CreateHubProxy("EventAggregatorProxyHub");
-            var connectionTask = connection.Start().ContinueWith(o => onStarted(proxy), TaskContinuationOptions.NotOnFaulted);
-            connection.Start().ContinueWith(o => onStarted(proxy));
             connection.Reconnected += reconnected;
+            connection.Error += faulted;
 
-            connectionTask.Wait();
-
-            if (connectionTask.Exception == null) return proxy;
-
-            if (connectionTask.Exception.InnerExceptions.Count == 1)
+            Task.Factory.StartNew(() =>
             {
-                throw connectionTask.Exception.InnerException;
-            }
+                try
+                {
+                    connection.Start().Wait();
 
-            throw connectionTask.Exception;
+                    onStarted(proxy);
+
+                    connected();
+                }
+                catch (Exception ex)
+                {
+                    faulted(ex);
+                }
+            });
+
+            return proxy;
         }
     }
 }
