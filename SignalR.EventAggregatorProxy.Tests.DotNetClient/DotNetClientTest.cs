@@ -18,6 +18,8 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         protected Action reconnectedCallback;
         protected EventAggregator<Event> eventAggregator;
         protected AutoResetEvent reset;
+        protected Action<Exception> faultedCallback;
+        protected Action connectedCallback;
 
         public void Setup()
         {
@@ -42,19 +44,21 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
             Mock<IHubProxyFactory>();
 
-            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action>((u, c, started, reconnected) =>
+            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything, Arg<Action<Exception>>.Is.Anything, Arg<Action>.Is.Anything))
+                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action, Action<Exception>, Action>((u, c, started, reconnected, faulted, connected) =>
                 {
                     started(proxy);
                     reconnectedCallback = reconnected;
-
+                    faultedCallback = faulted;
+                    connectedCallback = connected;
+      
                     return true;
                 })
                 .Return(proxy);
 
-
             eventAggregator = new EventAggregator<Event>()
                 .Init("foo");
+
         }
 
         protected virtual void OnUnsubscribe(IEnumerable<object> enumerable)
