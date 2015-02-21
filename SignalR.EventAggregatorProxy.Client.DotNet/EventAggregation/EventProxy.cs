@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Microsoft.AspNet.SignalR.Client;
@@ -24,6 +23,9 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly TypeFinder<TProxyEvent> typeFinder;
         private readonly Timer throttleTimer;
         private readonly ISubscriptionStore subscriptionStore;
+        private Action<Exception> faultedConnectingAction;
+        private Action<Exception, IList<Subscription>> faultedSubscriptionAction;
+        private Action connectedAction;
 
         public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl,
                           Action<IHubConnection> configureConnection = null)
@@ -42,7 +44,13 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                     SendQueuedSubscriptions();
                     p.On<Message>("onEvent", OnEvent);
                 },
-                Reconnected);
+                Reconnected, FaultedConnection, ConnectionComplete);
+        }
+
+        private void ConnectionComplete()
+        {
+            if (connectedAction != null)
+                connectedAction();
         }
 
         public void Subscribe(IEnumerable<Subscription> subscriptions)
@@ -89,24 +97,64 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         private void SendQueuedSubscriptions(bool reconnected = false)
         {
-            queueSubscriptions = false;
-            var subscriptions = subscriptionQueue.Select(s => new
+            try
+            {
+                queueSubscriptions = false;
+                var subscriptions = subscriptionQueue.Select(s => new
                 {
                     Type = s.EventType.GetFullNameWihoutGenerics(),
                     GenericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName),
                     s.Constraint,
                     s.ConstraintId
                 }).ToList();
-            subscriptionQueue.Clear();
+                subscriptionQueue.Clear();
 
-            if (subscriptions.Any())
-                proxy.Invoke("subscribe", subscriptions, reconnected);
+                if (subscriptions.Any())
+                    proxy.Invoke("subscribe", subscriptions, reconnected);
+            }
+            catch (Exception ex)
+            {
+                FaultedSendingQueuedSubscriptions(ex, new List<Subscription>(subscriptionQueue));
+            }
         }
-        
+
+        private void FaultedSendingQueuedSubscriptions(Exception ex, IList<Subscription> subscriptions)
+        {
+            if (faultedSubscriptionAction != null)
+                faultedSubscriptionAction(ex, subscriptions);
+        }
+
         private void Reconnected()
         {
             subscriptionQueue.AddRange(subscriptionStore.ListUniqueSubscriptions());
             SendQueuedSubscriptions(true);
+        }
+
+        private void FaultedConnection(Exception ex)
+        {
+            /* Since we are using tasks, most of the time we will get an AggregateException with only one InnerException */
+            var aggregateException = ex as AggregateException;
+
+            if (aggregateException != null && aggregateException.InnerExceptions.Count == 1)
+                ex = aggregateException.InnerException;
+
+            if (faultedConnectingAction != null)
+                faultedConnectingAction(ex);
+        }
+
+        public void OnConnectionError(Action<Exception> faultedConnecting)
+        {
+            faultedConnectingAction = faultedConnecting;
+        }
+
+        public void OnSubscriptionError(Action<Exception, IList<Subscription>> faultedSubscription)
+        {
+            faultedSubscriptionAction = faultedSubscription;
+        }
+
+        public void OnConnected(Action connected)
+        {
+            connectedAction = connected;
         }
 
         private class Message

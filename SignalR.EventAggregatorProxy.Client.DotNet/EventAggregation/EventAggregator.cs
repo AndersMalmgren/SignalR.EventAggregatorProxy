@@ -52,6 +52,42 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
         }
 
+        /// <summary>
+        /// Register a callback for when the connection fails.
+        /// </summary>
+        /// <param name="faultedConnectingAction">Callback that receives the exception</param>
+        /// <returns></returns>
+        public EventAggregator<TProxyEvent> OnConnectionError(Action<Exception> faultedConnectingAction)
+        {
+            eventProxy.OnConnectionError(faultedConnectingAction);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Register a callback for when asynchronous subscription actions fail
+        /// </summary>
+        /// <param name="faultedSubscriptionAction">Callback that receives the exception and list of subscriptions involved in the failure.</param>
+        /// <returns></returns>
+        public EventAggregator<TProxyEvent> OnSubscriptionError(Action<Exception, IList<Subscription>> faultedSubscriptionAction)
+        {
+            eventProxy.OnSubscriptionError(faultedSubscriptionAction);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Register a callback for when the connection i complete.
+        /// </summary>
+        /// <param name="connectedAction">Callback</param>
+        /// <returns></returns>
+        public EventAggregator<TProxyEvent> OnConnected(Action connectedAction)
+        {
+            eventProxy.OnConnected(connectedAction);
+
+            return this;
+        }  
+
         public EventAggregator<TProxyEvent> Init(string hubUrl, Action<IHubConnection> configureConnection = null)
         {
             if (eventProxy != null) throw new Exception("Event aggregator already initialized");
