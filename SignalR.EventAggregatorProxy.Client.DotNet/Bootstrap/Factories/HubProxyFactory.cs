@@ -22,9 +22,7 @@ namespace SignalR.EventAggregatorProxy.Client.Bootstrap.Factories
                 try
                 {
                     connection.Start().Wait();
-
                     onStarted(proxy);
-
                     connected();
                 }
                 catch (Exception ex)
