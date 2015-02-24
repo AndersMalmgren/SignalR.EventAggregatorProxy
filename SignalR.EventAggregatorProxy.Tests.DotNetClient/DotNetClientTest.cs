@@ -42,8 +42,8 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
             Mock<IHubProxyFactory>();
 
-            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action>((u, c, started, reconnected) =>
+            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything, Arg<Action<Exception>>.Is.Anything, Arg<Action>.Is.Anything))
+                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action, Action<Exception>, Action>((u, c, started, reconnected, f, connected) =>
                 {
                     started(proxy);
                     reconnectedCallback = reconnected;
