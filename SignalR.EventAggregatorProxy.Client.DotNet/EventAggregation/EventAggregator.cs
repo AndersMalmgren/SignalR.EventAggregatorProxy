@@ -155,7 +155,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private void EnsureInitNotCalled()
         {
             if (eventProxy != null)
-                throw new Exception("Make sure to call callbacks before calling Init");
+                throw new Exception("Make sure to set callbacks before calling Init");
         }
 
     }
