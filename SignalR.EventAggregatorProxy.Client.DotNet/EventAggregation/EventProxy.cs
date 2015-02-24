@@ -17,18 +17,23 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
     public class EventProxy<TProxyEvent>
     {
         private readonly IEventAggregator<TProxyEvent> eventAggregator;
+        private readonly Action<Exception> faultedConnectingAction;
+        private readonly Action<Exception, IList<Subscription>> faultedSubscriptionAction;
+        private readonly Action connectedAction;
         private bool queueSubscriptions = true;
         private readonly List<Subscription> subscriptionQueue;
         private readonly IHubProxy proxy;
         private readonly TypeFinder<TProxyEvent> typeFinder;
         private readonly Timer throttleTimer;
         private readonly ISubscriptionStore subscriptionStore;
-        private Action<Exception> faultedConnectingAction;
-        private Action<Exception, IList<Subscription>> faultedSubscriptionAction;
-        private Action connectedAction;
 
-        public EventProxy(IEventAggregator<TProxyEvent> eventAggregator, string hubUrl,
-                          Action<IHubConnection> configureConnection = null)
+        public EventProxy(
+            IEventAggregator<TProxyEvent> eventAggregator, 
+            string hubUrl,
+            Action<IHubConnection> configureConnection, 
+            Action<Exception> faultedConnectingAction,
+            Action<Exception, IList<Subscription>> faultedSubscriptionActionm,
+            Action connectedAction)
         {
             typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<Subscription>();
@@ -37,6 +42,9 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             throttleTimer.Elapsed += (s, e) => SendQueuedSubscriptions();
 
             this.eventAggregator = eventAggregator;
+            this.faultedConnectingAction = faultedConnectingAction;
+            this.faultedSubscriptionAction = faultedSubscriptionActionm;
+            this.connectedAction = connectedAction;
             subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
             proxy = DependencyResolver.Global.Get<IHubProxyFactory>()
                 .Create(hubUrl, configureConnection, p =>
@@ -45,12 +53,6 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
                     p.On<Message>("onEvent", OnEvent);
                 },
                 Reconnected, FaultedConnection, ConnectionComplete);
-        }
-
-        private void ConnectionComplete()
-        {
-            if (connectedAction != null)
-                connectedAction();
         }
 
         public void Subscribe(IEnumerable<Subscription> subscriptions)
@@ -114,14 +116,20 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             }
             catch (Exception ex)
             {
-                FaultedSendingQueuedSubscriptions(ex, new List<Subscription>(subscriptionQueue));
+                FaultedSendingQueuedSubscriptions(ex);
             }
         }
 
-        private void FaultedSendingQueuedSubscriptions(Exception ex, IList<Subscription> subscriptions)
+        private void FaultedSendingQueuedSubscriptions(Exception ex)
         {
             if (faultedSubscriptionAction != null)
-                faultedSubscriptionAction(ex, subscriptions);
+                faultedSubscriptionAction(ex, new List<Subscription>(subscriptionQueue));
+        }
+
+        private void ConnectionComplete()
+        {
+            if (connectedAction != null)
+                connectedAction();
         }
 
         private void Reconnected()
@@ -137,26 +145,14 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
             if (aggregateException != null && aggregateException.InnerExceptions.Count == 1)
                 ex = aggregateException.InnerException;
-
+         
             if (faultedConnectingAction != null)
                 faultedConnectingAction(ex);
-        }
 
-        public void OnConnectionError(Action<Exception> faultedConnecting)
-        {
-            faultedConnectingAction = faultedConnecting;
+            if (subscriptionQueue.Count != 0)
+                FaultedSendingQueuedSubscriptions(ex);
         }
-
-        public void OnSubscriptionError(Action<Exception, IList<Subscription>> faultedSubscription)
-        {
-            faultedSubscriptionAction = faultedSubscription;
-        }
-
-        public void OnConnected(Action connected)
-        {
-            connectedAction = connected;
-        }
-
+        
         private class Message
         {
             public string Type { get; set; }

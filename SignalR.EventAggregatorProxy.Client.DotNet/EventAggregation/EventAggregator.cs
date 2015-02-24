@@ -47,34 +47,20 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private EventProxy<TProxyEvent> eventProxy;
         private readonly ISubscriptionStore subscriptionStore;
 
+        private Action<Exception> faultedConnectingAction;
+        private Action<Exception, IList<Subscription>> faultedSubscriptionAction;
+        private Action connectedAction;
+
         public EventAggregator()
         {
             subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
         }
 
-        public EventAggregator<TProxyEvent> OnConnectionError(Action<Exception> faultedConnectingAction)
-        {
-            eventProxy.OnConnectionError(faultedConnectingAction);
-            return this;
-        }
-
-        public EventAggregator<TProxyEvent> OnSubscriptionError(Action<Exception, IList<Subscription>> faultedSubscriptionAction)
-        {
-            eventProxy.OnSubscriptionError(faultedSubscriptionAction);
-            return this;
-        }
-
-        public EventAggregator<TProxyEvent> OnConnected(Action connectedAction)
-        {
-            eventProxy.OnConnected(connectedAction);
-            return this;
-        }  
-
         public EventAggregator<TProxyEvent> Init(string hubUrl, Action<IHubConnection> configureConnection = null)
         {
             if (eventProxy != null) throw new Exception("Event aggregator already initialized");
 
-            eventProxy = new EventProxy<TProxyEvent>(this, hubUrl, configureConnection);
+            eventProxy = new EventProxy<TProxyEvent>(this, hubUrl, configureConnection, faultedConnectingAction, faultedSubscriptionAction, connectedAction);
             return this;
         }
 
@@ -143,6 +129,33 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             {
                 throw new ArgumentException("One subscriber cant subscribe to the same constraint twice");
             }
+        }
+
+        public EventAggregator<TProxyEvent> OnConnectionError(Action<Exception> faultedConnectingAction)
+        {
+            EnsureInitNotCalled();
+            this.faultedConnectingAction = faultedConnectingAction;
+            return this;
+        }
+
+        public EventAggregator<TProxyEvent> OnSubscriptionError(Action<Exception, IList<Subscription>> faultedSubscriptionAction)
+        {
+            EnsureInitNotCalled();
+            this.faultedSubscriptionAction = faultedSubscriptionAction;
+            return this;
+        }
+
+        public EventAggregator<TProxyEvent> OnConnected(Action connectedAction)
+        {
+            EnsureInitNotCalled();
+            this.connectedAction = connectedAction;
+            return this;
+        }
+
+        private void EnsureInitNotCalled()
+        {
+            if (eventProxy != null)
+                throw new Exception("Make sure to call callbacks before calling Init");
         }
 
     }
