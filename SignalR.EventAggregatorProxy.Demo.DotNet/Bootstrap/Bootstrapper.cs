@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -26,7 +27,9 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNet.Bootstrap
             kernel.Bind<IWindowManager>().To<WindowManager>().InSingletonScope();
             kernel
                 .Bind<IEventAggregator, IEventAggregator<Event>>()
-                .ToConstant(new EventAggregator<Event>().Init("http://localhost:2336/"));
+                .ToConstant(new EventAggregator<Event>()
+                .OnConnectionError(e => Debug.WriteLine(e.Message))
+                .Init("http://localhost:2336/"));
         }
 
         protected override object GetInstance(Type service, string key)
