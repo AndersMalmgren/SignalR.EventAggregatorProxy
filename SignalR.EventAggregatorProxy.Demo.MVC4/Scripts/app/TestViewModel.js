@@ -16,6 +16,11 @@ TestViewModel.prototype = {
         signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.GenericEvent.of("System.String"), this.onEvent, this);
         signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.ConstrainedEvent, this.onEvent, this, { message: "HelloWorld" });
         signalR.eventAggregator.subscribe(ClientSideEvent, this.onEvent, this);
+
+        signalR.eventAggregator.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.ConnectionStateChangedEvent, this.onEvent, this);
+
+        this.hub = $.connection.connectionListenerHub;
+        this.hub.client.dummy = function() {};
     },
     onEvent: function (message) {
         this.events.push(message);

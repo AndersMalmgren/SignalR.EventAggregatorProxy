@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constraints\ConstrainedEventConstraint.cs" />
+    <Compile Include="Events\ConnectionStateChangedEvent.cs" />
     <Compile Include="Events\ConstrainedEvent.cs" />
     <Compile Include="Events\Event.cs" />
     <Compile Include="Events\GenericEvent.cs" />
