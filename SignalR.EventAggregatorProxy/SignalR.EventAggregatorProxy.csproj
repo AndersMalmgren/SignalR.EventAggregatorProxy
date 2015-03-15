@@ -66,7 +66,7 @@
   <ItemGroup>
     <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Boostrap\Bootstrapper.cs" />
-    <Compile Include="EventAggregation\IEventAggregator.cs" />
+    <Compile Include="EventAggregation\IEventAggregatorProxy.cs" />
     <Compile Include="EventAggregation\EventProxy.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Model\EventType.cs" />

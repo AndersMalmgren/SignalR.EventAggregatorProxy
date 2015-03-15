@@ -14,23 +14,82 @@ using SignalR.EventAggregatorProxy.Model;
 
 namespace SignalR.EventAggregatorProxy.EventAggregation
 {
-    public class EventProxy
+    public class EventProxy<TEvent> : EventProxy, IEventAggregatorProxy<TEvent>
     {
-        private readonly ITypeFinder typeFinder;
-        private readonly IDictionary<Guid, List<Subscription>> subscriptions;
-        private readonly IDictionary<string, List<Subscription>> userSubscriptions;
+        public void Publish(TEvent message)
+        {
+            var eventType = message.GetType();
+            var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
 
-        public EventProxy()
+            var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
+            var constraintHandlerType = typeFinder.GetConstraintHandlerType(eventType);
+            var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
+
+            if (constraintHandlerType != null && constraintHandler == null)
+                throw new Exception(string.Format("Constraint {0} not registered correctly with the DependencyResolver", constraintHandlerType.Name));
+
+            foreach (var subscription in subscriptions[eventType.GUID])
+            {
+                if (!GenericArgumentsCorrect(eventType, subscription)) continue;
+
+                if (constraintHandler != null && !constraintHandler.Allow(message, subscription.Username, subscription.Constraint))
+                    continue;
+
+                var client = context.Clients.Client(subscription.ConnectionId);
+                client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
+            }
+        }
+
+        private bool GenericArgumentsCorrect(Type eventType, Subscription subscription)
+        {
+            if (!eventType.IsGenericType) return true;
+
+            var genericArguments = eventType.GetGenericArguments();
+            if (genericArguments.Length != subscription.GenericArguments.Count) return false;
+
+            var correctArguments = genericArguments.Where((t, i) => subscription.GenericArguments[i] == t);
+            return correctArguments.Count() == genericArguments.Length;
+        }
+
+        private class Message
+        {
+            public Message(string type, object @event, string[] genericArguments, int? constraintId)
+            {
+                Type = type;
+                Event = @event;
+                GenericArguments = genericArguments;
+                ConstraintId = constraintId;
+            }
+
+            [JsonProperty("type")]
+            public string Type { get; set; }
+            [JsonProperty("event")]
+            public object Event { get; set; }
+            [JsonProperty("genericArguments")]
+            public string[] GenericArguments { get; set; }
+            [JsonProperty("id")]
+            public int? ConstraintId { get; set; }
+
+        }
+    }
+
+    public abstract class EventProxy
+    {
+        protected readonly ITypeFinder typeFinder;
+        protected readonly IDictionary<Guid, List<Subscription>> subscriptions;
+        protected readonly IDictionary<string, List<Subscription>> userSubscriptions;
+
+        protected EventProxy()
         {
             this.typeFinder = GlobalHost.DependencyResolver.Resolve<ITypeFinder>();
-            var eventAggregator = GlobalHost.DependencyResolver.Resolve<IEventAggregator>();
+            //var eventAggregator = GlobalHost.DependencyResolver.Resolve<IEventAggregatorProxy>();
             subscriptions = new Dictionary<Guid, List<Subscription>>(typeFinder
                 .ListEventTypes()
                 .ToDictionary(t => t.GUID, t => new List<Subscription>()));
 
             userSubscriptions = new Dictionary<string, List<Subscription>>();
 
-            eventAggregator.Subscribe(Handle);
+            //eventAggregator.Subscribe(Handle);
         }
 
         public void Subscribe(HubCallerContext context, string typeName, IEnumerable<string> genericArguments, dynamic constraint, int? constraintId)
@@ -85,30 +144,6 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             }
         }
 
-        private void Handle(object message)
-        {
-            var eventType = message.GetType();
-            var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
-
-            var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
-            var constraintHandlerType = typeFinder.GetConstraintHandlerType(eventType);
-            var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
-
-            if (constraintHandlerType != null && constraintHandler == null)
-                throw new Exception(string.Format("Constraint {0} not registered correctly with the DependencyResolver", constraintHandlerType.Name));
-
-            foreach (var subscription in subscriptions[eventType.GUID])
-            {
-                if (!GenericArgumentsCorrect(eventType, subscription)) continue;
-
-                if (constraintHandler != null && !constraintHandler.Allow(message, subscription.Username, subscription.Constraint))
-                    continue;
-
-                var client = context.Clients.Client(subscription.ConnectionId);
-                client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
-            }
-        }
-
         private bool ConstraintIdCorrect(Subscription subscription, int? constraintId)
         {
             return subscription.ConstraintId == null || subscription.ConstraintId == constraintId;
@@ -121,38 +156,6 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             if (genericArguments.Length != subscription.GenericArguments.Count) return false;
             var correctArguments = genericArguments.Where((t, i) => subscription.GenericArguments[i].FullName == t);
             return correctArguments.Count() == genericArguments.Length;
-        }
-
-        private bool GenericArgumentsCorrect(Type eventType, Subscription subscription)
-        {
-            if (!eventType.IsGenericType) return true;
-
-            var genericArguments = eventType.GetGenericArguments();
-            if (genericArguments.Length != subscription.GenericArguments.Count) return false;
-
-            var correctArguments = genericArguments.Where((t, i) => subscription.GenericArguments[i] == t);
-            return correctArguments.Count() == genericArguments.Length;
-        }
-
-        private class Message
-        {
-            public Message(string type, object @event, string[] genericArguments, int? constraintId)
-            {
-                Type = type;
-                Event = @event;
-                GenericArguments = genericArguments;
-                ConstraintId = constraintId;
-            }
-
-            [JsonProperty("type")]
-            public string Type { get; set; }
-            [JsonProperty("event")]
-            public object Event { get; set; }
-            [JsonProperty("genericArguments")]
-            public string[] GenericArguments { get; set; }
-            [JsonProperty("id")]
-            public int? ConstraintId { get; set; }
-
         }
     }
 }

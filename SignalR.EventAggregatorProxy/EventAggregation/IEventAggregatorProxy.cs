@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace SignalR.EventAggregatorProxy.EventAggregation
 {
-    public interface IEventAggregator
+    public interface IEventAggregatorProxy<in TEvent>
     {
-        void Subscribe(Action<object> handler);
+        void Publish(TEvent message);
     }
 }

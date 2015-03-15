@@ -17,7 +17,7 @@ namespace SignalR.EventAggregatorProxy.Hubs
 
         static EventAggregatorProxyHub()
         {
-            eventProxy = new EventProxy();
+            eventProxy = GlobalHost.DependencyResolver.Resolve<EventProxy>();
         }
 
         public void Subscribe(IEnumerable<SubscriptionDto> subscriptions, bool reconnected)

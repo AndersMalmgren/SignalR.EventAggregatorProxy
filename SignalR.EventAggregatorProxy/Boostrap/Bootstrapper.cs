@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.Event;
+using SignalR.EventAggregatorProxy.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Boostrap
 {
@@ -16,6 +17,10 @@ namespace SignalR.EventAggregatorProxy.Boostrap
 
             var typeFinder = new Lazy<ITypeFinder>(() => new TypeFinder<TEvent>());
             GlobalHost.DependencyResolver.Register(typeof (ITypeFinder), () => typeFinder.Value);
+
+            var eventProxy = new Lazy<EventProxy<TEvent>>(() => new EventProxy<TEvent>());
+            GlobalHost.DependencyResolver.Register(typeof(EventProxy), () => eventProxy.Value);
+            GlobalHost.DependencyResolver.Register(typeof(EventProxy<TEvent>), () => eventProxy.Value);
         }
     }
 }

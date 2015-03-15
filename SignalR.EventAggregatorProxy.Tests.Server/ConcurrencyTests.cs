@@ -36,14 +36,10 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             var typeName = type.FullName;
             var typeNames = new[] {typeName}.Select(t => new EventType { Type = t }).ToList();
 
-            Action<object> handler = null;
+            
             WhenCalling<ITypeFinder>(x => x.ListEventTypes()).Return(new[] {type});
             WhenCalling<ITypeFinder>(x => x.GetEventType(Arg<string>.Is.Anything)).Return(type);
-            WhenCalling<IEventAggregator>(x => x.Subscribe(Arg<Action<object>>.Is.Anything)).Callback<Action<object>>(h =>
-            {
-                handler = h;
-                return true;
-            });
+
             WhenAccessing<IRequest, IPrincipal>(x => x.User).Return(Thread.CurrentPrincipal);
 
             var client = new Client(events);
@@ -53,7 +49,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             Mock<IConnectionManager>();
             WhenCalling<IConnectionManager>(x => x.GetHubContext<EventAggregatorProxyHub>()).Return(Get<IHubContext>());
 
-            var eventProxy = new EventProxy();
+            var eventProxy = new EventProxy<TestEventBase>();
 
             //for (var i = 0; i < 100; i++)
             //{
@@ -83,10 +79,10 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
                     }
                 });
 
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
+            FailIfThreadCrashes(() => eventProxy.Publish(new MembersEvent()));
+            FailIfThreadCrashes(() => eventProxy.Publish(new MembersEvent()));
+            FailIfThreadCrashes(() => eventProxy.Publish(new MembersEvent()));
+            FailIfThreadCrashes(() => eventProxy.Publish(new MembersEvent()));
 
             var timer = new System.Timers.Timer(benchmarkTime.TotalMilliseconds);
             timer.Elapsed += (s, e) => reset.Set();
