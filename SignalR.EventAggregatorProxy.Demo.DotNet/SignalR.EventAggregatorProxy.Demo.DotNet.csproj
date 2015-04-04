@@ -44,21 +44,21 @@
     <Reference Include="Caliburn.Micro.Platform">
       <HintPath>..\packages\Caliburn.Micro.2.0.0\lib\net40\Caliburn.Micro.Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.1.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.1.1\lib\net40\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.2.0\lib\net40\Microsoft.AspNet.SignalR.Client.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net40\Ninject.dll</HintPath>
     </Reference>
-    <Reference Include="SignalR.EventAggregatorProxy.Client, Version=1.4.130.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SignalR.EventAggregatorProxy.Client, Version=1.4.132.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SignalR.EventAggregatorProxy.Client.DotNet.1.4.130.0\lib\net40\SignalR.EventAggregatorProxy.Client.dll</HintPath>
+      <HintPath>..\packages\SignalR.EventAggregatorProxy.Client.DotNet.1.4.132.0\lib\net40\SignalR.EventAggregatorProxy.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
