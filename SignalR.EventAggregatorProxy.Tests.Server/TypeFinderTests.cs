@@ -43,7 +43,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         {
             public static bool Called { get; set; }
 
-            public override bool Allow(IOuterGeneric<EntityBase> message, string username, dynamic constraint)
+            public override bool Allow(IOuterGeneric<EntityBase> message, ConstraintContext context, dynamic constraint)
             {
                 Called = true;
                 return true;

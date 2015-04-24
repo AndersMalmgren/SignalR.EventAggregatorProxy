@@ -41,6 +41,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConstraintContext.cs" />
     <Compile Include="EventConstraintHandler.cs" />
     <Compile Include="IEventConstraintHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
