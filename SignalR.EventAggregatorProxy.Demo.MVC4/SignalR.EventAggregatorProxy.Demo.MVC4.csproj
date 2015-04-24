@@ -19,9 +19,9 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
-    <IISExpressUseClassicPipelineMode />
+    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <WebGreaseLibPath>..\packages\WebGrease.1.5.2\lib</WebGreaseLibPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -77,14 +77,6 @@
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
-    </Reference>
-    <Reference Include="SignalR.EventAggregatorProxy, Version=1.1.67.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SignalR.EventAggregatorProxy.1.1.67.0\lib\net40\SignalR.EventAggregatorProxy.dll</HintPath>
-    </Reference>
-    <Reference Include="SignalR.EventAggregatorProxy.Constraint, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SignalR.EventAggregatorProxy.Constraint.1.1\lib\net40\SignalR.EventAggregatorProxy.Constraint.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -241,9 +233,17 @@
     <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj">
+      <Project>{3605162f-b6fa-4aaa-bed9-c8061fa9ed59}</Project>
+      <Name>SignalR.EventAggregatorProxy.Constraint</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj">
       <Project>{66E48156-BE41-4E76-A94C-A866A930B51D}</Project>
       <Name>SignalR.EventAggregatorProxy.Demo.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj">
+      <Project>{6f9f91fc-e3d0-4008-b57c-f343f3bd7dd8}</Project>
+      <Name>SignalR.EventAggregatorProxy</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

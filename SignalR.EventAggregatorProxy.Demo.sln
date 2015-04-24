@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.MVC4", "SignalR.EventAggregatorProxy.Demo.MVC4\SignalR.EventAggregatorProxy.Demo.MVC4.csproj", "{6B697011-F12B-4BA2-946C-A7A3BB186CDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.Contracts", "SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj", "{66E48156-BE41-4E76-A94C-A866A930B51D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.DotNet", "SignalR.EventAggregatorProxy.Demo.DotNet\SignalR.EventAggregatorProxy.Demo.DotNet.csproj", "{59DA121F-8564-4699-A1D6-ADD6E228A615}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy", "SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj", "{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Constraint", "SignalR.EventAggregatorProxy.Constraint\SignalR.EventAggregatorProxy.Constraint.csproj", "{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +31,14 @@ Global
 		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59DA121F-8564-4699-A1D6-ADD6E228A615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

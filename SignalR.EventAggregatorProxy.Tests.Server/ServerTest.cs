@@ -9,11 +9,6 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 {
     public abstract class ServerTest : Test
     {
-	    protected ServerTest()
-	    {
-		    GlobalHost.DependencyResolver = new DefaultDependencyResolver();
-	    }
-
         public override T Get<T>()
         {
             return GlobalHost.DependencyResolver.GetService(typeof(T)) as T;
