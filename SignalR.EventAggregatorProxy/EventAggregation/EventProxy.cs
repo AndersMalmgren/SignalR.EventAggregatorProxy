@@ -101,7 +101,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             {
                 if (!GenericArgumentsCorrect(eventType, subscription)) continue;
 
-                if (constraintHandler != null && !constraintHandler.Allow(message, subscription.Username, subscription.Constraint))
+                if (constraintHandler != null && !constraintHandler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint))
                     continue;
 
                 var client = context.Clients.Client(subscription.ConnectionId);

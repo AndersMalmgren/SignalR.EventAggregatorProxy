@@ -50,7 +50,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         {
             public static bool Called { get; set; }
 
-            public override bool Allow(IOuterGeneric<EntityBase> message, string username, dynamic constraint)
+            public override bool Allow(IOuterGeneric<EntityBase> message, ConstraintContext context, dynamic constraint)
             {
                 Called = true;
                 return true;
@@ -104,7 +104,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             {
                 var handlerType = typeFinder.GetConstraintHandlerType(type);
                 var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
-                result = eventConstraintHandler.Allow(Activator.CreateInstance(type), "", null);
+                result = eventConstraintHandler.Allow(Activator.CreateInstance(type), null, null);
             }
         }
 
@@ -131,7 +131,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class Handler : EventConstraintHandler<MyBase>
         {
-            public override bool Allow(MyBase message, string username, dynamic constraint)
+            public override bool Allow(MyBase message, ConstraintContext context, dynamic constraint)
             {
                 return true;
             }
