@@ -6,7 +6,7 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.EventConstraintHandlers
 {
     public class ConstrainedEventConstraintHandler : EventConstraintHandler<ConstrainedEvent, ConstrainedEventConstraint>
     {
-        public override bool Allow(ConstrainedEvent message, string username, ConstrainedEventConstraint constraint)
+        public override bool Allow(ConstrainedEvent message, ConstraintContext context, ConstrainedEventConstraint constraint)
         {
             return message.Message == constraint.Message;
         }

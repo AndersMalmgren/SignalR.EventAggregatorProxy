@@ -88,13 +88,13 @@
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
-    <Reference Include="SignalR.EventAggregatorProxy, Version=1.4.132.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SignalR.EventAggregatorProxy, Version=1.4.135.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SignalR.EventAggregatorProxy.1.4.132.0\lib\net45\SignalR.EventAggregatorProxy.dll</HintPath>
+      <HintPath>..\packages\SignalR.EventAggregatorProxy.1.4.135.0\lib\net45\SignalR.EventAggregatorProxy.dll</HintPath>
     </Reference>
-    <Reference Include="SignalR.EventAggregatorProxy.Constraint, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SignalR.EventAggregatorProxy.Constraint, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SignalR.EventAggregatorProxy.Constraint.1.1\lib\net40\SignalR.EventAggregatorProxy.Constraint.dll</HintPath>
+      <HintPath>..\packages\SignalR.EventAggregatorProxy.Constraint.1.2\lib\net40\SignalR.EventAggregatorProxy.Constraint.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -206,8 +206,8 @@
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
-    <Content Include="Scripts\jquery.signalR.eventAggregator-1.4.132.0.js" />
-    <Content Include="Scripts\jquery.signalR.eventAggregator-1.4.132.0.min.js" />
+    <Content Include="Scripts\jquery.signalR.eventAggregator-1.4.135.0.js" />
+    <Content Include="Scripts\jquery.signalR.eventAggregator-1.4.135.0.min.js" />
     <Content Include="Scripts\knockout-3.1.0.debug.js" />
     <Content Include="Scripts\knockout-3.1.0.js" />
     <Content Include="Scripts\modernizr-2.7.2.js" />
