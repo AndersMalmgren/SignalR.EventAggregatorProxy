@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Microsoft.AspNet.SignalR.Client.Hubs;
@@ -17,19 +18,34 @@ namespace SignalR.EventAggregatorProxy.Client.Bootstrap.Factories
             connection.Reconnected += reconnected;
             connection.Error += faulted;
 
-            Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    connection.Start().Wait();
-                    onStarted(proxy);
-                    connected();
-                }
-                catch (Exception ex)
-                {
-                    faulted(ex);
-                }
-            });
+	        var isConnected = false;
+
+			Action start = () =>
+	        {
+				Task.Factory.StartNew(() =>
+				{
+					try
+					{
+						connection.Start().Wait();
+						if(isConnected)
+							reconnected();
+						else
+						{
+							isConnected = true;
+							onStarted(proxy);
+							connected();
+						}
+					}
+					catch(Exception ex)
+					{
+						faulted(ex);
+					}
+				});
+	        };
+
+	        connection.Closed += start;
+
+	        start();
 
             return proxy;
         }
