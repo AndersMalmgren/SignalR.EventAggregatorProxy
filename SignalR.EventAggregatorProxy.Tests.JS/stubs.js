@@ -14,6 +14,9 @@
         },
         reconnected: function() {
             
+        },
+        disconnected: function() {
+	        
         }
     }
 };
