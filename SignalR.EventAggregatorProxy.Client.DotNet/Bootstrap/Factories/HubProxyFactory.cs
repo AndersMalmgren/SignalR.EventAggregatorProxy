@@ -18,34 +18,34 @@ namespace SignalR.EventAggregatorProxy.Client.Bootstrap.Factories
             connection.Reconnected += reconnected;
             connection.Error += faulted;
 
-	        var isConnected = false;
+            var isConnected = false;
 
-			Action start = () =>
-	        {
-				Task.Factory.StartNew(() =>
-				{
-					try
-					{
-						connection.Start().Wait();
-						if(isConnected)
-							reconnected();
-						else
-						{
-							isConnected = true;
-							onStarted(proxy);
-							connected();
-						}
-					}
-					catch(Exception ex)
-					{
-						faulted(ex);
-					}
-				});
-	        };
+            Action start = () =>
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        connection.Start().Wait();
+                        if(isConnected)
+                            reconnected();
+                        else
+                        {
+                            isConnected = true;
+                            onStarted(proxy);
+                            connected();
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        faulted(ex);
+                    }
+                });
+            };
 
-	        connection.Closed += start;
+            connection.Closed += start;
 
-	        start();
+            start();
 
             return proxy;
         }

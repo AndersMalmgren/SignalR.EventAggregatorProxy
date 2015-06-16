@@ -151,18 +151,18 @@
         this.hub = $.connection.eventAggregatorProxyHub;
         this.hub.client.onEvent = this.onEvent.bind(this);
         this.queueSubscriptions = true;
-	    this.isConnected = false;
+        this.isConnected = false;
         this.queuedSubscriptions = [];
         this.activeSubscriptions = [];
         $.connection.hub.reconnected(this.reconnected.bind(this));
-	    $.connection.hub.disconnected(this.start.bind(this));
-	    this.start();
+        $.connection.hub.disconnected(this.start.bind(this));
+        this.start();
     };
 
     Proxy.prototype = {
-		start: function () {
-			$.connection.hub.start().done(this.isConnected ? this.reconnected.bind(this) : this.sendSubscribeQueue.bind(this));
-		},
+        start: function () {
+            $.connection.hub.start().done(this.isConnected ? this.reconnected.bind(this) : this.sendSubscribeQueue.bind(this));
+        },
         onEvent: function (message) {
             var type = signalR.getEvent(message.type);
             var event = new type();
@@ -213,7 +213,7 @@
         sendSubscribeQueue: function (arg) {
             var reconnected = typeof (arg) === "boolean" ? arg : false;
 
-	        this.isConnected = true;
+            this.isConnected = true;
             this.queueSubscriptions = false;
             if (this.queuedSubscriptions.length === 0) return;
 

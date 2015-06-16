@@ -8,6 +8,6 @@
     public interface IEventConstraintHandler<T> : IEventConstraintHandler
     {
 
-		bool Allow(T message, ConstraintContext context, dynamic constraint);
+        bool Allow(T message, ConstraintContext context, dynamic constraint);
     }
 }
