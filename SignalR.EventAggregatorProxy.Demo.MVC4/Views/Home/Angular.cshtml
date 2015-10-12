@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>SignalR Demo</h2>
+
+<div ng-app="demo" ng-controller="DemoController as vm">
+
+    <label>Message</label><input ng-model="text" type="text" />
+    <div>
+        <button ng-disabled="!canFire()" ng-click="fireStandardEvent()">Fire standard event</button>
+        <button ng-disabled="!canFire()" ng-click="fireGenericEvent()">Fire generic event</button>
+        <button ng-disabled="!canFire()" ng-click="fireConstrainedEvent()">Fire constrained event (Message must be 'HelloWorld' for the event to fire on this client</button>
+        <button ng-disabled="!canFire()" ng-click="fireClientSideEvent()">Fire client side event</button>
+    </div>
+
+    <h3>Events</h3>
+    <div>
+        <div ng-repeat="event in events">{{event}}</div>
+    </div>
+
+</div>

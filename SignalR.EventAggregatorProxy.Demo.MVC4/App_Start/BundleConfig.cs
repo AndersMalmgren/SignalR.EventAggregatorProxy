@@ -11,10 +11,12 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4
             bundles.Add(new ScriptBundle("~/bundles/api").Include(
                 "~/Scripts/jquery-{version}.js",
                 "~/Scripts/jquery.signalR-{version}.js",
-                "~/Scripts/knockout-{version}.js"));
+                "~/Scripts/knockout-{version}.js",
+                "~/Scripts/angular.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/eventAggregator").Include(
-                "~/Scripts/jquery.signalR.eventAggregator-{version}.js"
+                "~/Scripts/jquery.signalR.eventAggregator-{version}.js",
+                "~/Scripts/jquery.signalR.eventAggregator.angular-{version}.js"
                 ));
 
             bundles.Add(new ScriptBundle("~/bundles/app").IncludeDirectory(

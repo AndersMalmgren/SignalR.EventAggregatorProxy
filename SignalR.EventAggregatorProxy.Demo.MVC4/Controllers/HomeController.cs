@@ -14,5 +14,10 @@ namespace SignalR.EventAggregatorProxy.Demo.MVC4.Controllers
             return View();
         }
 
+        public ActionResult Angular()
+        {
+            return View();
+        }
+
     }
 }
