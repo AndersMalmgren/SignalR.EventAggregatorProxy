@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>SignalR.EventAggregatorProxy.Client.Angular</id>
+    <version>1.0</version>
+    <authors>Anders Malmgren</authors>
+    <owners>Anders Malmgren</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Angular client for SignalR Event Aggregator proxy</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2013-2015</copyright>
+    <tags>SignalR EventAggregator Angular</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+</package>

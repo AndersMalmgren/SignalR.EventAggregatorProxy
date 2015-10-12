@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Start">
+  <PropertyGroup>
+    <ReleaseNotes></ReleaseNotes>
+    <NugetFolder></NugetFolder>
+    <BuildDir></BuildDir>
+    <DeliverFolder></DeliverFolder>
+    <Version></Version>
+  </PropertyGroup>
+  
+  <UsingTask
+        TaskName="CompressorTask"
+        AssemblyFile="Yahoo.Yui.Compressor.MsBuildTask.dll"></UsingTask>
+
+  <UsingTask
+        TaskName="VersionInfoTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <UsingTask
+        TaskName="CreateVersionInfoFileTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <Target Name="Start">
+    <CallTarget Targets="DeleteNugetFolder"/>
+    
+    <CallTarget Targets="GetGitVersion"/>
+
+    <CallTarget Targets="MinimizeJS"/>
+
+    <CallTarget Targets="CopyFiles"/>
+    <CallTarget Targets="PatchNuspec"/>
+    <CallTarget Targets="Pack"/>
+    <CallTarget Targets="Deliver"/>
+  </Target>
+
+  <Target Name="DeleteNugetFolder">
+    <RemoveDir Directories="$(NugetFolder)"/>
+  </Target>
+
+  <Target Name="GetGitVersion">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.Angular">
+      <Output PropertyName="Version" TaskParameter="Version" />
+    </VersionInfoTask>
+  </Target>
+
+  <Target Name="MinimizeJS">
+    <ItemGroup>
+      <JavaScriptFiles Include="..\SignalR.EventAggregatorProxy.Client.Angular\jquery.signalR.eventAggregator.angular.js;"/>
+    </ItemGroup>
+
+    <MakeDir Directories="$(NugetFolder)\content\scripts"/>
+
+    <Copy SourceFiles="@(JavaScriptFiles)" DestinationFiles="@(JavaScriptFiles -> '$(NugetFolder)\content\scripts\jquery.signalR.eventAggregator.angular-$(Version).js')"/>
+
+    <CompressorTask
+        JavaScriptCompressionType="YuiStockCompression"
+        JavaScriptFiles="@(JavaScriptFiles)"
+        ObfuscateJavaScript="True"
+        PreserveAllSemicolons="True"
+        DisableOptimizations="Nope"
+        EncodingType="Default"
+        DeleteJavaScriptFiles="false"
+        LineBreakPosition="-1"
+        JavaScriptOutputFile="$(NugetFolder)\content\scripts\jquery.signalR.eventAggregator.angular-$(Version).min.js"
+        LoggingType="ALittleBit"
+        ThreadCulture="en-US"
+        IsEvalIgnored="false" />    
+  </Target>
+
+  <Target Name="CopyFiles">
+    <ItemGroup>
+      <SpecFile Include="Package.Angular.Client.nuspec;readme\SignalR.EventAggregatorProxy.Client.Angular\readme.txt">
+      </SpecFile>
+    </ItemGroup>
+    <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <Target Name="PatchNuspec">
+    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.Angular.Client.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
+  </Target>
+
+  <Target Name="Pack">
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.Angular.Client.nuspec -version $(Version)"/>
+  </Target>
+
+  <Target Name="Deliver">
+    <ItemGroup>
+      <DeliverFiles Include="$(NugetFolder)\*.nupkg">
+      </DeliverFiles>
+    </ItemGroup>
+    <Copy SourceFiles="@(DeliverFiles)" DestinationFiles="@(DeliverFiles -> '$(DeliverFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <RemoveDir Directories="$(NugetFolder)" />
+  </Target>
+</Project>
