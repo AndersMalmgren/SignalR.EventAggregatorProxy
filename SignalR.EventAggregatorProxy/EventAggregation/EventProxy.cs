@@ -19,11 +19,14 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         private readonly ITypeFinder typeFinder;
         private readonly IDictionary<Guid, List<Subscription>> subscriptions;
         private readonly IDictionary<string, List<Subscription>> userSubscriptions;
+        private readonly IHubContext hubContext;
 
         public EventProxy()
         {
             this.typeFinder = GlobalHost.DependencyResolver.Resolve<ITypeFinder>();
             var eventAggregator = GlobalHost.DependencyResolver.Resolve<IEventAggregator>();
+            hubContext = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
+
             subscriptions = new Dictionary<Guid, List<Subscription>>(typeFinder
                 .ListEventTypes()
                 .ToDictionary(t => t.GUID, t => new List<Subscription>()));
@@ -89,8 +92,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         {
             var eventType = message.GetType();
             var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
-
-            var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
+            
             var constraintHandlerTypes = typeFinder.GetConstraintHandlerTypes(eventType);
             var hasHanderTypes = constraintHandlerTypes.Any();
             var constraintHandlers = (hasHanderTypes ? constraintHandlerTypes.Select(t => GlobalHost.DependencyResolver.GetService(t) as IEventConstraintHandler).ToList() : Enumerable.Empty<IEventConstraintHandler>());
@@ -105,7 +107,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 if (hasHanderTypes && constraintHandlers.Any(handler => !handler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint)))
                     continue;
 
-                var client = context.Clients.Client(subscription.ConnectionId);
+                var client = hubContext.Clients.Client(subscription.ConnectionId);
                 client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
             }
         }
