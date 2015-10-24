@@ -80,5 +80,10 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         {
             DependencyResolver.Global.Register(() => stub);
         }
+
+        public override void Register(object stub)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

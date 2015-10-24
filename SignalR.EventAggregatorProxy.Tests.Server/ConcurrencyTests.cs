@@ -16,51 +16,20 @@ using SignalR.EventAggregatorProxy.Model;
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
     [TestClass]
-    public class When_concurrent_operations_are_performed_on_proxy_event : ServerTest
+    public class When_concurrent_operations_are_performed_on_proxy_event : EventProxyTest
     {
         private bool running = true;
         private AutoResetEvent reset;
         private bool failed = false;
-        private ConcurrentBag<string> ids;
-        private ConcurrentBag<object> events;
-        private TimeSpan benchmarkTime = TimeSpan.FromSeconds(20);
+        private TimeSpan benchmarkTime = TimeSpan.FromSeconds(5);
             
         [TestInitialize]
         public void Context()
         {
-            ids = new ConcurrentBag<string>();
-            events = new ConcurrentBag<object>();
             reset = new AutoResetEvent(false);
+            var handler = SetupProxy(typeof(MembersEvent));
 
-            var type = typeof (MembersEvent);
-            var typeName = type.FullName;
-            var typeNames = new[] {typeName}.Select(t => new EventType { Type = t }).ToList();
-
-            Action<object> handler = null;
-            WhenCalling<ITypeFinder>(x => x.ListEventTypes()).Return(new[] {type});
-            WhenCalling<ITypeFinder>(x => x.GetEventType(Arg<string>.Is.Anything)).Return(type);
-            WhenCalling<IEventAggregator>(x => x.Subscribe(Arg<Action<object>>.Is.Anything)).Callback<Action<object>>(h =>
-            {
-                handler = h;
-                return true;
-            });
-            WhenAccessing<IRequest, IPrincipal>(x => x.User).Return(Thread.CurrentPrincipal);
-
-            var client = new Client(events);
-
-            WhenCalling<IHubConnectionContext<dynamic>>(x => x.Client(Arg<string>.Is.Anything)).Return(client);
-            WhenAccessing<IHubContext, IHubConnectionContext<dynamic>>(x => x.Clients).Return(Get<IHubConnectionContext<dynamic>>());
-            Mock<IConnectionManager>();
-            WhenCalling<IConnectionManager>(x => x.GetHubContext<EventAggregatorProxyHub>()).Return(Get<IHubContext>());
-
-            var eventProxy = new EventProxy();
-
-            //for (var i = 0; i < 100; i++)
-            //{
-            //    eventProxy.Subscribe(CreateHubContext(), typeName, new string[0], null, null);
-            //}
-
-            FailIfThreadCrashes(() => eventProxy.Subscribe(CreateHubContext(), typeName, new string[0], null, null));
+            FailIfThreadCrashes(Subscribe);
             FailIfThreadCrashes(() =>
                 {
                     if (ids.Count < 100) return;
@@ -68,7 +37,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
                     string id;
                     if (ids.TryTake(out id))
                     {
-                        eventProxy.Unsubscribe(id, typeNames);
+                        Unsubscribe(id);
                     }
 
                 });
@@ -79,7 +48,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
                     string id;
                     if (ids.TryTake(out id))
                     {
-                        eventProxy.UnsubscribeConnection(id);
+                        UnsubscribeConnection(id);
                     }
                 });
 
@@ -94,17 +63,11 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             timer.Start();
 
             reset.WaitOne();
+            running = false;
             Console.WriteLine("Catched events: {0} in {1}", events.Count, DateTime.Now - start);
         }
         
-        private HubCallerContext CreateHubContext()
-        {
-            var id = Guid.NewGuid().ToString();
-            ids.Add(id);
-
-            return new HubCallerContext(Get<IRequest>(), id);
-        }
-
+        
         [TestMethod]
         public void It_should_work_with_concurent_operations()
         {
@@ -131,21 +94,6 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
                     }
                 }
             });
-        }
-        
-        public class Client
-        {
-            private readonly ConcurrentBag<object> events;
-
-            public Client(ConcurrentBag<object> events)
-            {
-                this.events = events;
-            }
-
-            public void onEvent(object message)
-            {
-                events.Add(message);
-            }
         }
     }
 }

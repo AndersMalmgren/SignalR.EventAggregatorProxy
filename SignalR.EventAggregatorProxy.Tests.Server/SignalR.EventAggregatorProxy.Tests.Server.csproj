@@ -67,6 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConcurrencyTests.cs" />
+    <Compile Include="EventProxyTest.cs" />
+    <Compile Include="EventProxyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptHandlerTest.cs" />
     <Compile Include="ServerTest.cs" />

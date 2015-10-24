@@ -91,17 +91,18 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
 
             var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
-            var constraintHandlerType = typeFinder.GetConstraintHandlerType(eventType);
-            var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
+            var constraintHandlerTypes = typeFinder.GetConstraintHandlerTypes(eventType);
+            var hasHanderTypes = constraintHandlerTypes.Any();
+            var constraintHandlers = (hasHanderTypes ? constraintHandlerTypes.Select(t => GlobalHost.DependencyResolver.GetService(t) as IEventConstraintHandler).ToList() : Enumerable.Empty<IEventConstraintHandler>());
 
-            if (constraintHandlerType != null && constraintHandler == null)
-                throw new Exception(string.Format("Constraint {0} not registered correctly with the DependencyResolver", constraintHandlerType.Name));
+            if (hasHanderTypes && constraintHandlers.Any(h => h == null))
+                throw new Exception(string.Format("Constraint(s) {0} not registered correctly with the DependencyResolver", string.Join("; ",constraintHandlerTypes.Select(t=> t.Name))));
 
             foreach (var subscription in subscriptions[eventType.GUID])
             {
                 if (!GenericArgumentsCorrect(eventType, subscription)) continue;
 
-                if (constraintHandler != null && !constraintHandler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint))
+                if (hasHanderTypes && constraintHandlers.Any(handler => !handler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint)))
                     continue;
 
                 var client = context.Clients.Client(subscription.ConnectionId);
