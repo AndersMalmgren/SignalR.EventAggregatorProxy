@@ -1,22 +1,24 @@
-﻿$.connection = {
-    eventAggregatorProxyHub: {
-        client: {},
-        server: {}
-        
-    },
-    hub: {
-        start: function() {
-            return {
-                done: function(callback) {
-                    callback();
-                }
-            };
+﻿(window.stubHub = function() {
+    $.connection = {
+        eventAggregatorProxyHub: {
+            client: {},
+            server: {}
+
         },
-        reconnected: function() {
-            
-        },
-        disconnected: function() {
-            
+        hub: {
+            start: function() {
+                return {
+                    done: function(callback) {
+                        callback();
+                    }
+                };
+            },
+            reconnected: function() {
+
+            },
+            disconnected: function() {
+
+            }
         }
-    }
-};
+    };
+})();

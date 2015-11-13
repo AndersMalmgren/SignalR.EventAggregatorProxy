@@ -383,7 +383,6 @@ asyncTest("When a client is reconnected", function() {
 });
 
 test("When Hub is missing", function() {
-    var orgStub = $.connection.eventAggregatorProxyHub;
     delete $.connection.eventAggregatorProxyHub;
 
     try {
@@ -391,6 +390,6 @@ test("When Hub is missing", function() {
     } catch (error) {
         ok(typeof (error) === "string" && error.indexOf("/signalr/hubs") !== -1, "It should throw meaningful exception");
     } finally {
-        $.connection.eventAggregatorProxyHub = orgStub;
+        stubHub();
     }
 });
