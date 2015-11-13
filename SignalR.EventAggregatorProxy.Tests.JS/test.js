@@ -381,3 +381,16 @@ asyncTest("When a client is reconnected", function() {
 
     eventAggregator.subscribe(constraintEvent, function () { },thirdConstraintSubscriber, { foo: 3 });
 });
+
+test("When Hub is missing", function() {
+    var orgStub = $.connection.eventAggregatorProxyHub;
+    delete $.connection.eventAggregatorProxyHub;
+
+    try {
+        new signalR.EventAggregator(true);
+    } catch (error) {
+        ok(typeof (error) === "string" && error.indexOf("/signalr/hubs") !== -1, "It should throw meaningful exception");
+    } finally {
+        $.connection.eventAggregatorProxyHub = orgStub;
+    }
+});

@@ -148,6 +148,7 @@
     var Proxy = function (eventAggregator) {
         this.eventAggregator = eventAggregator;
 
+        if ($.connection.eventAggregatorProxyHub == null) throw "Hub with Id 'eventAggregatorProxyHub' is missing. Ensure that '/signalr/hubs' is referenced before the event aggregator client.";
         this.hub = $.connection.eventAggregatorProxyHub;
         this.hub.client.onEvent = this.onEvent.bind(this);
         this.queueSubscriptions = true;
