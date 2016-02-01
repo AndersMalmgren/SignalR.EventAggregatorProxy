@@ -30,6 +30,8 @@ namespace SignalR.EventAggregatorProxy.Tests
 
         public abstract void Register<T>(T stub);
 
+        public abstract void Register(object stub);
+
         public T Mock<T>() where T : class
         {
             var stub = MockRepository.GenerateMock<T>();

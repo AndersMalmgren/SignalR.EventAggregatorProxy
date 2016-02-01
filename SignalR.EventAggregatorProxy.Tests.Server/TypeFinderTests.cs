@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
@@ -27,7 +28,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             GenericEventConstraintHandler.Called = false;
             var type = typeof(OuterGeneric<EntityOne>);
 
-            var handlerType = typeFinder.GetConstraintHandlerType(type);
+            var handlerType = typeFinder.GetConstraintHandlerTypes(type).Single();
             var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
             eventConstraintHandler.Allow(new OuterGeneric<EntityOne>(), null, null);
         }
@@ -102,7 +103,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             var types = new List<Type> {typeof (MySub), typeof(MySubTwo)};
             foreach (var type in types)
             {
-                var handlerType = typeFinder.GetConstraintHandlerType(type);
+                var handlerType = typeFinder.GetConstraintHandlerTypes(type).Single();
                 var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
                 result = eventConstraintHandler.Allow(Activator.CreateInstance(type), null, null);
             }
@@ -132,6 +133,50 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         public class Handler : EventConstraintHandler<MyBase>
         {
             public override bool Allow(MyBase message, ConstraintContext context, dynamic constraint)
+            {
+                return true;
+            }
+        }
+    }
+
+    [TestClass]
+    public class When_trying_to_find_a_constraint_handler_for_a_base_class_with_multiple_constraint_handlers : TypeFinderTest<When_trying_to_find_a_constraint_handler_for_a_base_class_with_multiple_constraint_handlers.MyBase>
+    {
+        private IEnumerable<Type> handlerTypes;
+
+        [TestInitialize]
+        public void Context()
+        {
+            handlerTypes = typeFinder.GetConstraintHandlerTypes(typeof(MySub)).Where(t => new[] { typeof(Handler), typeof(HandlerTwo) }.Contains(t));
+        }
+
+        [TestMethod]
+        public void It_should_invoke_correct_handler()
+        {
+            Assert.AreEqual(2, handlerTypes.Count());
+        }
+
+        public abstract class MyBase
+        {
+
+        }
+
+        public class MySub : MyBase
+        {
+
+        }
+
+        public class Handler : EventConstraintHandler<MyBase>
+        {
+            public override bool Allow(MyBase message, ConstraintContext context, dynamic constraint)
+            {
+                return true;
+            }
+        }
+
+        public class HandlerTwo : EventConstraintHandler<MySub>
+        {
+            public override bool Allow(MySub message, ConstraintContext context, dynamic constraint)
             {
                 return true;
             }

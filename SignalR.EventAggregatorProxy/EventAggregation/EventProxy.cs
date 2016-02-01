@@ -19,11 +19,14 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         private readonly ITypeFinder typeFinder;
         private readonly IDictionary<Guid, List<Subscription>> subscriptions;
         private readonly IDictionary<string, List<Subscription>> userSubscriptions;
+        private readonly IHubContext hubContext;
 
         public EventProxy()
         {
             this.typeFinder = GlobalHost.DependencyResolver.Resolve<ITypeFinder>();
             var eventAggregator = GlobalHost.DependencyResolver.Resolve<IEventAggregator>();
+            hubContext = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
+
             subscriptions = new Dictionary<Guid, List<Subscription>>(typeFinder
                 .ListEventTypes()
                 .ToDictionary(t => t.GUID, t => new List<Subscription>()));
@@ -89,22 +92,22 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         {
             var eventType = message.GetType();
             var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
+            
+            var constraintHandlerTypes = typeFinder.GetConstraintHandlerTypes(eventType);
+            var hasHanderTypes = constraintHandlerTypes.Any();
+            var constraintHandlers = (hasHanderTypes ? constraintHandlerTypes.Select(t => GlobalHost.DependencyResolver.GetService(t) as IEventConstraintHandler).ToList() : Enumerable.Empty<IEventConstraintHandler>());
 
-            var context = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
-            var constraintHandlerType = typeFinder.GetConstraintHandlerType(eventType);
-            var constraintHandler = (constraintHandlerType != null ? GlobalHost.DependencyResolver.GetService(constraintHandlerType) : null) as IEventConstraintHandler;
-
-            if (constraintHandlerType != null && constraintHandler == null)
-                throw new Exception(string.Format("Constraint {0} not registered correctly with the DependencyResolver", constraintHandlerType.Name));
+            if (hasHanderTypes && constraintHandlers.Any(h => h == null))
+                throw new Exception(string.Format("Constraint(s) {0} not registered correctly with the DependencyResolver", string.Join("; ",constraintHandlerTypes.Select(t=> t.Name))));
 
             foreach (var subscription in subscriptions[eventType.GUID])
             {
                 if (!GenericArgumentsCorrect(eventType, subscription)) continue;
 
-                if (constraintHandler != null && !constraintHandler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint))
+                if (hasHanderTypes && constraintHandlers.Any(handler => !handler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint)))
                     continue;
 
-                var client = context.Clients.Client(subscription.ConnectionId);
+                var client = hubContext.Clients.Client(subscription.ConnectionId);
                 client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
             }
         }

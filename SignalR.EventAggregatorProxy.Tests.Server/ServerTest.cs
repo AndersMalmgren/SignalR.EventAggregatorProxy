@@ -23,5 +23,10 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         {
             GlobalHost.DependencyResolver.Register(typeof(T), () => stub);
         }
+
+        public override void Register(object stub)
+        {
+            GlobalHost.DependencyResolver.Register(stub.GetType(), () => stub);
+        }
     }
 }

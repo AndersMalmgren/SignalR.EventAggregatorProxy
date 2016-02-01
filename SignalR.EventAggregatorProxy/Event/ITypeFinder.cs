@@ -8,7 +8,7 @@ namespace SignalR.EventAggregatorProxy.Event
     {
         IEnumerable<Type> ListEventTypes();
         Type GetEventType(string type);
-        Type GetConstraintHandlerType(Type type);
+        IEnumerable<Type> GetConstraintHandlerTypes(Type type);
         Type GetType(string typeName);
     }
 }
