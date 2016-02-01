@@ -1,0 +1,1 @@
+Please see https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy/wiki for more information on using this lib with SignalR.

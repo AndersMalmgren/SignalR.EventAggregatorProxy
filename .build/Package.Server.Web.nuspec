@@ -1,18 +1,21 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>SignalR.EventAggregatorProxy.Constraint</id>
-    <version>1.2</version>
+    <id>SignalR.EventAggregatorProxy.SystemWeb</id>
+    <version>1.0</version>
     <authors>Anders Malmgren</authors>
     <owners>Anders Malmgren</owners>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Event constraint handler for SignalR.EventAggregatorProxy</description>
+    <description>A Event Aggregator proxy for SignalR</description>
+    <releaseNotes></releaseNotes>
     <copyright>Copyright 2013-2016</copyright>
-    <tags>SignalR EventAggregator</tags>
+    <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="5.0.6" />
+      <dependency id="Microsoft.AspNet.SignalR" version="2.2.0" />
+      <dependency id="SignalR.EventAggregatorProxy.Constraint" version="1.2" />
+      <dependency id="Newtonsoft.Json" version="6.0.4" />
     </dependencies>
   </metadata>
 </package>

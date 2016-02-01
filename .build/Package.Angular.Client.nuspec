@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Angular client for SignalR Event Aggregator proxy</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2013-2015</copyright>
+    <copyright>Copyright 2013-2016</copyright>
     <tags>SignalR EventAggregator Angular</tags>
     <dependencies>
     </dependencies>

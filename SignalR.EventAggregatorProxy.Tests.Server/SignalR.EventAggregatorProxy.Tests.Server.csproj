@@ -79,6 +79,10 @@
       <Project>{3605162F-B6FA-4AAA-BED9-C8061FA9ED59}</Project>
       <Name>SignalR.EventAggregatorProxy.Constraint</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.SystemWeb\SignalR.EventAggregatorProxy.SystemWeb.csproj">
+      <Project>{e56b0515-eadf-4600-85f9-f74cd7c183e2}</Project>
+      <Name>SignalR.EventAggregatorProxy.SystemWeb</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SignalR.EventAggregatorProxy.Tests\SignalR.EventAggregatorProxy.Tests.csproj">
       <Project>{D448A946-04D1-4890-ADA5-D200F0005734}</Project>
       <Name>SignalR.EventAggregatorProxy.Tests</Name>

@@ -8,6 +8,9 @@
     <Version></Version>
   </PropertyGroup>
   
+  <UsingTask
+        TaskName="CompressorTask"
+        AssemblyFile="Yahoo.Yui.Compressor.MsBuildTask.dll"></UsingTask>
 
   <UsingTask
         TaskName="VersionInfoTask"
@@ -26,6 +29,8 @@
     <CallTarget Targets="Build"/>
     <CallTarget Targets="CopyOutput"/>
 
+    <CallTarget Targets="MinimizeJS"/>
+
     <CallTarget Targets="CopyFiles"/>
     <CallTarget Targets="PatchNuspec"/>
     <CallTarget Targets="Pack"/>
@@ -41,42 +46,67 @@
   </Target>
 
   <Target Name="GetGitVersion">
-    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.SystemWeb">
       <Output PropertyName="Version" TaskParameter="Version" />
     </VersionInfoTask>
   </Target>
 
   <Target Name="WriteVersionInfo">
-    <CreateVersionInfoFileTask Version="$(Version)" VersionInfoFilePath="..\SignalR.EventAggregatorProxy\Properties\VersionInfo.cs" /> 
+    <CreateVersionInfoFileTask Version="$(Version)" VersionInfoFilePath="..\SignalR.EventAggregatorProxy.SystemWeb\Properties\VersionInfo.cs" /> 
   </Target>
 
   <Target Name="Build">
-    <MSBuild Projects="..\SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
+    <MSBuild Projects="..\SignalR.EventAggregatorProxy.SystemWeb\SignalR.EventAggregatorProxy.SystemWeb.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
   </Target>
 
   <Target Name="CopyOutput">
     <ItemGroup>
-      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.dll">
+      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.SystemWeb.dll">
       </ReleaseFiles>
     </ItemGroup>
     <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net45\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <RemoveDir Directories="$(BuildDir)" />
   </Target>
 
+  <Target Name="MinimizeJS">
+
+    <ItemGroup>
+      <JavaScriptFiles Include="..\SignalR.EventAggregatorProxy.Client.JS\jquery.signalR.eventAggregator.js;"/>
+    </ItemGroup>
+
+    <MakeDir Directories="$(NugetFolder)\content\scripts"/>
+
+    <Copy SourceFiles="@(JavaScriptFiles)" DestinationFiles="@(JavaScriptFiles -> '$(NugetFolder)\content\scripts\jquery.signalR.eventAggregator-$(Version).js')"/>
+
+    <CompressorTask
+        JavaScriptCompressionType="YuiStockCompression"
+        JavaScriptFiles="@(JavaScriptFiles)"
+        ObfuscateJavaScript="True"
+        PreserveAllSemicolons="True"
+        DisableOptimizations="Nope"
+        EncodingType="Default"
+        DeleteJavaScriptFiles="false"
+        LineBreakPosition="-1"
+        JavaScriptOutputFile="$(NugetFolder)\content\scripts\jquery.signalR.eventAggregator-$(Version).min.js"
+        LoggingType="ALittleBit"
+        ThreadCulture="en-US"
+        IsEvalIgnored="false" />    
+  </Target>
+
   <Target Name="CopyFiles">
     <ItemGroup>
-      <SpecFile Include="Package.server.nuspec;readme\SignalR.EventAggregatorProxy\readme.txt">
+      <SpecFile Include="Package.server.web.nuspec;readme\SignalR.EventAggregatorProxy.SystemWeb\readme.txt">
       </SpecFile>
     </ItemGroup>
     <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
   </Target>
 
   <Target Name="PatchNuspec">
-    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.server.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
+    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
   </Target>
 
   <Target Name="Pack">
-    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.server.nuspec -version $(Version)"/>
+    <Exec WorkingDirectory="$(NugetFolder)" Command="&quot;..\.nuget\nuget.exe&quot; pack Package.server.web.nuspec -version $(Version)"/>
   </Target>
 
   <Target Name="Deliver">

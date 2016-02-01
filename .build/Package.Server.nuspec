@@ -10,10 +10,10 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Event Aggregator proxy for SignalR</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2013-2016</copyright>
     <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.SignalR" version="2.2.0" />
+      <dependency id="Microsoft.AspNet.SignalR.Core" version="2.2.0" />
       <dependency id="SignalR.EventAggregatorProxy.Constraint" version="1.2" />
       <dependency id="Newtonsoft.Json" version="6.0.4" />
     </dependencies>

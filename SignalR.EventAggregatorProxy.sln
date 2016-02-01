@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy", "SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj", "{6F9F91FC-E3D0-4008-B57C-F343F3BD7DD8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7B4FF0AB-3019-4682-9289-1F949307C65F}"
@@ -22,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{759861
 		.build\build_constraint_output.proj = .build\build_constraint_output.proj
 		.build\build_dot_net_client_output.proj = .build\build_dot_net_client_output.proj
 		.build\build_server_output.proj = .build\build_server_output.proj
+		.build\build_server_web_output.proj = .build\build_server_web_output.proj
 		.build\create_nuget_package.cmd = .build\create_nuget_package.cmd
 		.build\EcmaScript.NET.modified.dll = .build\EcmaScript.NET.modified.dll
 		.build\get_git_version.proj = .build\get_git_version.proj
@@ -29,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{759861
 		.build\Package.Constraint.nuspec = .build\Package.Constraint.nuspec
 		.build\Package.DotNet.Client.nuspec = .build\Package.DotNet.Client.nuspec
 		.build\Package.Server.nuspec = .build\Package.Server.nuspec
+		.build\Package.Server.Web.nuspec = .build\Package.Server.Web.nuspec
 		.build\versions.xml = .build\versions.xml
 		.build\Yahoo.Yui.Compressor.dll = .build\Yahoo.Yui.Compressor.dll
 		.build\Yahoo.Yui.Compressor.MsBuildTask.dll = .build\Yahoo.Yui.Compressor.MsBuildTask.dll
@@ -61,6 +65,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SignalR.EventAggregatorProxy.Client.Angular", "SignalR.EventAggregatorProxy.Client.Angular", "{EF609E89-4D87-453F-B8E3-443E8C9EF985}"
 	ProjectSection(SolutionItems) = preProject
 		.build\readme\SignalR.EventAggregatorProxy.Client.Angular\readme.txt = .build\readme\SignalR.EventAggregatorProxy.Client.Angular\readme.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.SystemWeb", "SignalR.EventAggregatorProxy.SystemWeb\SignalR.EventAggregatorProxy.SystemWeb.csproj", "{E56B0515-EADF-4600-85F9-F74CD7C183E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SignalR.EventAggregatorProxy.SystemWeb", "SignalR.EventAggregatorProxy.SystemWeb", "{B40F15A9-F8BD-4AB8-AA63-A155DBE9850D}"
+	ProjectSection(SolutionItems) = preProject
+		.build\readme\SignalR.EventAggregatorProxy.SystemWeb\readme.txt = .build\readme\SignalR.EventAggregatorProxy.SystemWeb\readme.txt
 	EndProjectSection
 EndProject
 Global
@@ -105,6 +116,10 @@ Global
 		{B81872D6-1C36-4E9F-A89F-E69ADABB5258}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B81872D6-1C36-4E9F-A89F-E69ADABB5258}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B81872D6-1C36-4E9F-A89F-E69ADABB5258}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E56B0515-EADF-4600-85F9-F74CD7C183E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E56B0515-EADF-4600-85F9-F74CD7C183E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E56B0515-EADF-4600-85F9-F74CD7C183E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E56B0515-EADF-4600-85F9-F74CD7C183E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,5 +133,6 @@ Global
 		{03C5BCE5-95D6-4ABA-8B36-C7512C5B1E58} = {B8E832E2-3DB5-4029-B22B-827114227F50}
 		{F27F7328-5269-4F7C-A1FA-385260D9CB2A} = {B8E832E2-3DB5-4029-B22B-827114227F50}
 		{EF609E89-4D87-453F-B8E3-443E8C9EF985} = {B8E832E2-3DB5-4029-B22B-827114227F50}
+		{B40F15A9-F8BD-4AB8-AA63-A155DBE9850D} = {B8E832E2-3DB5-4029-B22B-827114227F50}
 	EndGlobalSection
 EndGlobal
