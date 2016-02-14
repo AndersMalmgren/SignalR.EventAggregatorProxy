@@ -6,6 +6,7 @@
     <BuildDir></BuildDir>
     <DeliverFolder></DeliverFolder>
     <Version></Version>
+    <CoreVersion></CoreVersion>
   </PropertyGroup>
   
   <UsingTask
@@ -48,6 +49,10 @@
   <Target Name="GetGitVersion">
     <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.SystemWeb">
       <Output PropertyName="Version" TaskParameter="Version" />
+    </VersionInfoTask>
+  
+      <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy">
+      <Output PropertyName="CoreVersion" TaskParameter="Version" />
     </VersionInfoTask>
   </Target>
 
@@ -103,6 +108,7 @@
 
   <Target Name="PatchNuspec">
     <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
+    <XmlPoke XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/dependencies/dependency[@id='SignalR.EventAggregatorProxy']/@version" Value="$(CoreVersion)" />
   </Target>
 
   <Target Name="Pack">
