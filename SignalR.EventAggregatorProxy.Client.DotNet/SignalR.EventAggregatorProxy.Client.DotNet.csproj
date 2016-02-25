@@ -62,8 +62,10 @@
     <Compile Include="EventAggregation\EventProxy.cs" />
     <Compile Include="EventAggregation\IEventAggregator.cs" />
     <Compile Include="EventAggregation\IHandle.cs" />
+    <Compile Include="EventAggregation\ISubscriptionThrottleHandler.cs" />
     <Compile Include="EventAggregation\ProxyEvents\ISubscriptionStore.cs" />
     <Compile Include="EventAggregation\ProxyEvents\SubscriptionStore.cs" />
+    <Compile Include="EventAggregation\SubscriptionThrottleHandler.cs" />
     <Compile Include="Event\TypeFinder.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />

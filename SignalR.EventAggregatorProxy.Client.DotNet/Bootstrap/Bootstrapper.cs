@@ -18,6 +18,9 @@ namespace SignalR.EventAggregatorProxy.Client.Bootstrap
             var subscriptionStore = new Lazy<SubscriptionStore>(() => new SubscriptionStore());
             resolver.Register<ISubscriptionStore>(() => subscriptionStore.Value);
 
+            var throttleHandler = new Lazy<SubscriptionThrottleHandler>(() => new SubscriptionThrottleHandler());
+            resolver.Register<ISubscriptionThrottleHandler>(() => throttleHandler.Value);
+
             return resolver;
         }
     }

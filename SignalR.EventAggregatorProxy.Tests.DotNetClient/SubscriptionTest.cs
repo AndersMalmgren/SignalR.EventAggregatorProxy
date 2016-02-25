@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.AspNet.SignalR.Client;
-using Microsoft.AspNet.SignalR.Client.Hubs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;
-using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.Constraint;
 using SignalR.EventAggregatorProxy.Client.EventAggregation;
-using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
+using SignalR.EventAggregatorProxy.Client.Extensions;
+using SignalR.EventAggregatorProxy.Client.Model;
 
 namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
@@ -134,6 +132,73 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
             {
                 new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }),
                 new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 })
+            });
+        }
+    }
+
+    [TestClass]
+    public class When_doing_concurrent_operations_on_subscription_queue : DotNetClientTest
+    {
+        private bool running = true;
+        private AutoResetEvent syncTest = new AutoResetEvent(false);
+
+        [TestInitialize]
+        public void Context()
+        {
+            var throttle = Mock<ISubscriptionThrottleHandler>();
+
+            Action callback = null;
+            WhenCalling<ISubscriptionThrottleHandler>(x => x.Init(Arg<Action>.Is.Anything)).Callback<Action>(c =>
+            {
+                callback = c;
+                return true;
+            });
+
+            WhenCalling<ISubscriptionThrottleHandler>(x => x.Throttle())
+                .WhenCalled(m => callback());
+
+
+            Setup();
+            var eventProxy = new EventProxy<Event>(eventAggregator, "foo", null, null, (e,s) =>
+            {
+                syncTest.Set();
+                running = false;
+                Assert.Fail(e.Message);
+            }, null);
+
+            Enumerable.Range(0, 4)
+                .ForEach(i => FailIfThreadCrashes(() => eventProxy.Subscribe(new[] {new Subscription(typeof(Event), null, null)})));
+
+            var timer = new System.Timers.Timer(5000);
+            timer.Elapsed += (s, e) => syncTest.Set();
+            timer.Start();
+
+            syncTest.WaitOne();
+            running = false;
+        }
+
+        [TestMethod]
+        public void It_work_with_concurrent_operations()
+        {
+        }
+
+        private void FailIfThreadCrashes(Action action)
+        {
+            ThreadPool.QueueUserWorkItem(obj =>
+            {
+                while(running)
+                {
+                    try
+                    {
+                        action();
+                    }
+                    catch(Exception e)
+                    {
+                        running = false;
+                        syncTest.Set();
+                        Assert.Fail("Not thread safe: {0}", e.Message);
+                    }
+                }
             });
         }
 

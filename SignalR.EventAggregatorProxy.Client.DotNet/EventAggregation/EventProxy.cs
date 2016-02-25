@@ -24,7 +24,7 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         private readonly List<Subscription> subscriptionQueue;
         private readonly IHubProxy proxy;
         private readonly TypeFinder<TProxyEvent> typeFinder;
-        private readonly Timer throttleTimer;
+        private readonly ISubscriptionThrottleHandler throttleHandler;
         private readonly ISubscriptionStore subscriptionStore;
 
         public EventProxy(
@@ -37,14 +37,14 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
         {
             typeFinder = new TypeFinder<TProxyEvent>();
             subscriptionQueue = new List<Subscription>();
-            throttleTimer = new Timer(32);
-            throttleTimer.AutoReset = false;
-            throttleTimer.Elapsed += (s, e) => SendQueuedSubscriptions();
 
             this.eventAggregator = eventAggregator;
             this.faultedConnectingAction = faultedConnectingAction;
             this.faultedSubscriptionAction = faultedSubscriptionActionm;
             this.connectedAction = connectedAction;
+
+            throttleHandler = DependencyResolver.Global.Get<ISubscriptionThrottleHandler>();
+            throttleHandler.Init(() => SendQueuedSubscriptions());
             subscriptionStore = DependencyResolver.Global.Get<ISubscriptionStore>();
             proxy = DependencyResolver.Global.Get<IHubProxyFactory>()
                 .Create(hubUrl, configureConnection, p =>
@@ -57,11 +57,12 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
 
         public void Subscribe(IEnumerable<Subscription> subscriptions)
         {
-            subscriptionQueue.AddRange(subscriptions);
+            lock (subscriptionQueue)
+                subscriptionQueue.AddRange(subscriptions);
+
             if (!queueSubscriptions)
             {
-                throttleTimer.Stop();
-                throttleTimer.Start();
+                throttleHandler.Throttle();
             }
         }
 
@@ -102,17 +103,21 @@ namespace SignalR.EventAggregatorProxy.Client.EventAggregation
             try
             {
                 queueSubscriptions = false;
-                var subscriptions = subscriptionQueue.Select(s => new
-                {
-                    Type = s.EventType.GetFullNameWihoutGenerics(),
-                    GenericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName),
-                    s.Constraint,
-                    s.ConstraintId
-                }).ToList();
-                subscriptionQueue.Clear();
 
-                if (subscriptions.Any())
-                    proxy.Invoke("subscribe", subscriptions, reconnected);
+                lock (subscriptionQueue)
+                {
+                    var subscriptions = subscriptionQueue.Select(s => new
+                    {
+                        Type = s.EventType.GetFullNameWihoutGenerics(),
+                        GenericArguments = s.EventType.GetGenericArguments().Select(ga => ga.FullName),
+                        s.Constraint,
+                        s.ConstraintId
+                    }).ToList();
+                    subscriptionQueue.Clear();
+
+                    if (subscriptions.Any())
+                        proxy.Invoke("subscribe", subscriptions, reconnected);
+                }
             }
             catch (Exception ex)
             {
