@@ -22,11 +22,11 @@ namespace SignalR.EventAggregatorProxy.Client.Bootstrap.Factories
 
             Action start = () =>
             {
-                Task.Factory.StartNew(() =>
+                Task.Run(async () =>
                 {
                     try
                     {
-                        connection.Start().Wait();
+                        await connection.Start();
                         if(isConnected)
                             reconnected();
                         else
