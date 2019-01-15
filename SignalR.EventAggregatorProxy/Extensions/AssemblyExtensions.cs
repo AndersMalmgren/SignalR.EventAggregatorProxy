@@ -9,7 +9,7 @@ namespace SignalR.EventAggregatorProxy.Extensions
        {
            return RetrieveLinkerTimestamp(assembly.Location);
        }
-
+        /// <summary>
         /// Retrieves the linker timestamp.
         /// </summary>
         /// <param name="filePath">The file path.</param>
