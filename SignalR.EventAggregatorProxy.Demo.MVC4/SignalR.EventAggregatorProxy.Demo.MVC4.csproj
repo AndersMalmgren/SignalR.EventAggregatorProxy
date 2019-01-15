@@ -23,6 +23,8 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -96,9 +98,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\SignalR.EventAggregatorProxy.Constraint.1.2\lib\net40\SignalR.EventAggregatorProxy.Constraint.dll</HintPath>
     </Reference>
-    <Reference Include="SignalR.EventAggregatorProxy.SystemWeb, Version=1.5.155.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SignalR.EventAggregatorProxy.SystemWeb.1.5.155.0\lib\net45\SignalR.EventAggregatorProxy.SystemWeb.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SignalR.EventAggregatorProxy.SystemWeb, Version=1.5.155.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SignalR.EventAggregatorProxy.SystemWeb.1.5.155.1\lib\net45\SignalR.EventAggregatorProxy.SystemWeb.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -215,8 +216,8 @@
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
-    <Content Include="Scripts\jquery.signalR.eventAggregator-1.5.155.0.js" />
-    <Content Include="Scripts\jquery.signalR.eventAggregator-1.5.155.0.min.js" />
+    <Content Include="Scripts\jquery.signalR.eventAggregator-1.5.155.1.js" />
+    <Content Include="Scripts\jquery.signalR.eventAggregator-1.5.155.1.min.js" />
     <Content Include="Scripts\jquery.signalR.eventAggregator.angular-1.4.143.0.js" />
     <Content Include="Scripts\jquery.signalR.eventAggregator.angular-1.4.143.0.min.js" />
     <Content Include="Scripts\knockout-3.1.0.debug.js" />
