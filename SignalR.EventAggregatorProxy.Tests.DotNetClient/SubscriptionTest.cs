@@ -141,6 +141,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     {
         private bool running = true;
         private AutoResetEvent syncTest = new AutoResetEvent(false);
+        private bool failed;
 
         [TestInitialize]
         public void Context()
@@ -155,14 +156,25 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
             });
 
             WhenCalling<ISubscriptionThrottleHandler>(x => x.Throttle())
-                .WhenCalled(m => callback());
-
+                .WhenCalled(m =>
+                {
+                    try
+                    {
+                        callback();
+                    }
+                    catch
+                    {
+                        failed = true;
+                        syncTest.Set();
+                    }
+                });
 
             Setup();
             var eventProxy = new EventProxy<Event>(eventAggregator, "foo", null, null, (e,s) =>
             {
                 syncTest.Set();
                 running = false;
+                failed = true;
                 Assert.Fail(e.Message);
             }, null);
 
@@ -180,6 +192,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         [TestMethod]
         public void It_work_with_concurrent_operations()
         {
+           Assert.IsFalse(failed);
         }
 
         private void FailIfThreadCrashes(Action action)
@@ -195,6 +208,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
                     catch(Exception e)
                     {
                         running = false;
+                        failed = true;
                         syncTest.Set();
                         Assert.Fail("Not thread safe: {0}", e.Message);
                     }
