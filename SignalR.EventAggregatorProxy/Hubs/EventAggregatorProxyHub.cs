@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNet.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.EventAggregation;
 using SignalR.EventAggregatorProxy.Extensions;
 using SignalR.EventAggregatorProxy.Model;
@@ -13,12 +11,13 @@ namespace SignalR.EventAggregatorProxy.Hubs
 {
     public class EventAggregatorProxyHub : Hub
     {
-        private static readonly EventProxy eventProxy;
+        private readonly EventProxy eventProxy;
 
-        static EventAggregatorProxyHub()
+        public EventAggregatorProxyHub(EventProxy eventProxy)
         {
-            eventProxy = new EventProxy();
+            this.eventProxy = eventProxy;
         }
+
 
         public void Subscribe(IEnumerable<SubscriptionDto> subscriptions, bool reconnected)
         {
@@ -34,10 +33,10 @@ namespace SignalR.EventAggregatorProxy.Hubs
             eventProxy.Unsubscribe(Context.ConnectionId, types);
         }
 
-        public override Task OnDisconnected(bool stopCalled)
+        public override Task OnDisconnectedAsync(Exception exception)
         {
             eventProxy.UnsubscribeConnection(Context.ConnectionId);
-            return base.OnDisconnected(stopCalled);
+            return base.OnDisconnectedAsync(exception);
         }
     }
 }

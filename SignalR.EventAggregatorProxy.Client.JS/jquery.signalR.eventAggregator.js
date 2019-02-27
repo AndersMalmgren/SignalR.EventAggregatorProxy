@@ -20,12 +20,12 @@
         function checkConstraintId(subscriber, constraintId) {
             return constraintId == null || (subscriber.constraintId === constraintId);
         }
-        
+
         function compareSubscriptions(s1, s2) {
             return genericArgumentsCorrect(s1.type.genericArguments, s2.type.genericArguments) &&
                 checkConstraintId(s1, s2.constraintId);
         }
-        
+
         function compareConstraint(c1, c2) {
             if (c2 === undefined) return false;
 
@@ -49,7 +49,7 @@
             if (context.__getSubscriptions === undefined) {
                 var subscriptions = [];
 
-                context.__getSubscriptions = function() {
+                context.__getSubscriptions = function () {
                     return subscriptions;
                 };
             }
@@ -66,13 +66,13 @@
 
             var should = true;
             $.each(subscribers, function () {
-                if(newSubscription.type.genericArguments != null && 
+                if (newSubscription.type.genericArguments != null &&
                     !genericArgumentsCorrect(newSubscription.type.genericArguments, this.type.genericArguments)) return true;
 
                 if (newSubscription.constraint != null && !compareConstraint(newSubscription.constraint, this.constraint)) return true;
-                    
-                    should = false;
-                    newSubscription.constraintId = this.constraintId;
+
+                should = false;
+                newSubscription.constraintId = this.constraintId;
 
                 return false;
             });
@@ -114,7 +114,7 @@
                     }
 
                 });
-                
+
                 if (this.proxy) {
                     this.proxy.unsubscribe(actualUnsubscriptions);
                 }
@@ -128,7 +128,7 @@
 
                 subscriptions.push(subscription);
                 subscribers.push(subscription);
-                
+
                 if (this.proxy && shouldProxy) {
                     assignNewConstraintId.call(this, subscription);
                     this.proxy.subscribe(getConstructor(type), type.genericArguments, constraint, subscription.constraintId);
@@ -143,26 +143,25 @@
                 });
             }
         };
-    } ();
+    }();
 
     var Proxy = function (eventAggregator) {
         this.eventAggregator = eventAggregator;
 
-        if ($.connection.eventAggregatorProxyHub == null) throw "Hub with Id 'eventAggregatorProxyHub' is missing. Ensure that '/signalr/hubs' is referenced before the event aggregator client.";
-        this.hub = $.connection.eventAggregatorProxyHub;
-        this.hub.client.onEvent = this.onEvent.bind(this);
+        this.hub = new signalR.HubConnectionBuilder().withUrl("/EventAggregatorProxyHub").build();
+        this.hub.on("onEvent", this.onEvent.bind(this));
+
         this.queueSubscriptions = true;
         this.isConnected = false;
         this.queuedSubscriptions = [];
         this.activeSubscriptions = [];
-        $.connection.hub.reconnected(this.reconnected.bind(this));
-        $.connection.hub.disconnected(this.start.bind(this));
+        this.hub.onclose(this.start.bind(this));
         this.start();
     };
 
     Proxy.prototype = {
         start: function () {
-            $.connection.hub.start().done(this.isConnected ? this.reconnected.bind(this) : this.sendSubscribeQueue.bind(this));
+            this.hub.start().then(this.isConnected ? this.reconnected.bind(this) : this.sendSubscribeQueue.bind(this));
         },
         onEvent: function (message) {
             var type = signalR.getEvent(message.type);
@@ -175,7 +174,7 @@
         },
         subscribe: function (eventType, genericArguments, constraint, constraintId) {
             if (eventType.proxyEvent !== true) return;
-            
+
             this.queuedSubscriptions.push({ type: eventType.type, genericArguments: genericArguments, constraint: constraint, constraintId: constraintId });
             if (!this.queueSubscriptions) {
                 clearTimeout(this.throttleTimer);
@@ -221,7 +220,7 @@
             var temp = this.queuedSubscriptions;
             this.queuedSubscriptions = [];
             this.pushRange(this.activeSubscriptions, temp);
-            this.hub.server.subscribe(temp, reconnected);
+            this.hub.invoke("Subscribe", temp, reconnected);
         },
         pushRange: function (arr, arr2) {
             arr.push.apply(arr, arr2);
@@ -233,7 +232,7 @@
             this.sendSubscribeQueue(true);
         }
     };
-    
+
     function getConstructor(type) {
         return type.genericConstructor || type;
     }

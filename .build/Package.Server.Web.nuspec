@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>SignalR.EventAggregatorProxy.SystemWeb</id>
+    <id>SignalR.EventAggregatorProxy.AspNetCore</id>
     <version>1.0</version>
     <authors>Anders Malmgren</authors>
     <owners>Anders Malmgren</owners>
@@ -10,10 +10,11 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Event Aggregator proxy for SignalR</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2013-2016</copyright>
+    <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.SignalR" version="2.2.0" />
+      <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
+      <dependency id="Newtonsoft.Json" version="12.0.1" />
       <dependency id="SignalR.EventAggregatorProxy" version="1.0" />
     </dependencies>
   </metadata>

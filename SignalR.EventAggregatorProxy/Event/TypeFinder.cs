@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNet.SignalR;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Event
 {
-    public class TypeFinder<TEvent> : ITypeFinder
+    public class TypeFinder : ITypeFinder
     {
         private readonly IAssemblyLocator assemblyLocator;
         private IDictionary<string, Type> eventTypes;
@@ -16,22 +15,15 @@ namespace SignalR.EventAggregatorProxy.Event
         private IDictionary<Type, IEnumerable<Type>> constraintHandlerTypes;
         private IDictionary<Type, IEnumerable<Type>> lookup;
         
-        public TypeFinder()
+        public TypeFinder(IAssemblyLocator assemblyLocator, IEventTypeFinder eventTypeFinder)
         {
-            assemblyLocator = GlobalHost.DependencyResolver.Resolve<IAssemblyLocator>();
+            this.assemblyLocator = assemblyLocator;
             types = new Dictionary<string, Type>();
 
-            InitEventTypes();
+            eventTypes = eventTypeFinder
+                .ListEventsTypes()
+                .ToDictionary(t => t.GetFullNameWihoutGenerics(), t => t);
             InitConstraintHandlerTypes();
-        }
-
-        private void InitEventTypes()
-        {
-            var type = typeof (TEvent);
-            eventTypes = assemblyLocator.GetAssemblies()
-                                   .SelectMany(GetTypesSafely)
-                                   .Where(t => !t.IsAbstract && type.IsAssignableFrom(t))
-                                   .ToDictionary(t => t.GetFullNameWihoutGenerics(), t => t);
         }
 
         private void InitConstraintHandlerTypes()

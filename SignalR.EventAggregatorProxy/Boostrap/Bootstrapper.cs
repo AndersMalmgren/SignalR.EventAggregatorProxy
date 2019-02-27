@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.AspNet.SignalR;
+﻿using System;using Microsoft.Extensions.DependencyInjection;
 using SignalR.EventAggregatorProxy.Event;
+using SignalR.EventAggregatorProxy.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Boostrap
 {
     public static class Bootstrapper
     {
-        public static void Init<TEvent>()
+        public static IServiceCollection AddSignalREventAggregator(this IServiceCollection collection)
         {
-            var locator = new Lazy<IAssemblyLocator>(() => new BuildManagerAssemblyLocator());
-            GlobalHost.DependencyResolver.Register(typeof(IAssemblyLocator), () => locator.Value);
+            collection.AddSingleton<IAssemblyLocator, AssemblyLocator>();
+            collection.AddSingleton<ITypeFinder, TypeFinder>();
+            collection.AddSingleton<EventProxy>();
 
-            var typeFinder = new Lazy<ITypeFinder>(() => new TypeFinder<TEvent>());
-            GlobalHost.DependencyResolver.Register(typeof (ITypeFinder), () => typeFinder.Value);
+            return collection;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 {
     public interface IEventAggregator
     {
-        void Subscribe(Action<object> handler);
+        void Subscribe(Func<object, Task> handler);
     }
 }

@@ -2,9 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using Microsoft.AspNet.SignalR.Infrastructure;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
@@ -19,13 +18,14 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         private readonly ITypeFinder typeFinder;
         private readonly IDictionary<Guid, List<Subscription>> subscriptions;
         private readonly IDictionary<string, List<Subscription>> userSubscriptions;
-        private readonly IHubContext hubContext;
+        private readonly IHubContext<EventAggregatorProxyHub> hubContext;
+        private readonly IServiceProvider serviceProvider;
 
-        public EventProxy()
+        public EventProxy(ITypeFinder typefinder, IEventAggregator eventAggregator, IHubContext<EventAggregatorProxyHub> hubContext, IServiceProvider serviceProvider)
         {
-            this.typeFinder = GlobalHost.DependencyResolver.Resolve<ITypeFinder>();
-            var eventAggregator = GlobalHost.DependencyResolver.Resolve<IEventAggregator>();
-            hubContext = GlobalHost.DependencyResolver.Resolve<IConnectionManager>().GetHubContext<EventAggregatorProxyHub>();
+            this.typeFinder = typefinder;
+            this.hubContext = hubContext;
+            this.serviceProvider = serviceProvider;
 
             subscriptions = new Dictionary<Guid, List<Subscription>>(typeFinder
                 .ListEventTypes()
@@ -88,14 +88,14 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             }
         }
 
-        private void Handle(object message)
+        private async Task Handle(object message)
         {
             var eventType = message.GetType();
             var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
             
             var constraintHandlerTypes = typeFinder.GetConstraintHandlerTypes(eventType);
             var hasHandlerTypes = constraintHandlerTypes.Any();
-            var constraintHandlers = (hasHandlerTypes ? constraintHandlerTypes.Select(t => GlobalHost.DependencyResolver.GetService(t) as IEventConstraintHandler).ToList() : Enumerable.Empty<IEventConstraintHandler>());
+            var constraintHandlers = (hasHandlerTypes ? constraintHandlerTypes.Select(t => serviceProvider.GetService(t) as IEventConstraintHandler).ToList() : Enumerable.Empty<IEventConstraintHandler>());
 
             if (hasHandlerTypes && constraintHandlers.Any(h => h == null))
                 throw new Exception(string.Format("Constraint(s) {0} not registered correctly with the DependencyResolver", string.Join("; ",constraintHandlerTypes.Select(t=> t.Name))));
@@ -108,7 +108,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                     continue;
 
                 var client = hubContext.Clients.Client(subscription.ConnectionId);
-                client.onEvent(new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId));
+                await client.SendCoreAsync("onEvent", new object[] { new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId) } );
             }
         }
 
