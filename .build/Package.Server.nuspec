@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+<package>
   <metadata>
     <id>SignalR.EventAggregatorProxyCore</id>
     <version>1.0</version>
     <authors>Anders Malmgren</authors>
     <owners>Anders Malmgren</owners>
-    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>A Event Aggregator proxy for SignalR</description>
