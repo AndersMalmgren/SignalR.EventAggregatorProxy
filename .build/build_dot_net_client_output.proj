@@ -40,8 +40,7 @@
   </Target>
 
   <Target Name="GetGitVersion">
-    <!--<VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.DotNetCore">-->
-    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.DotNetCore">
       <Output PropertyName="Version" TaskParameter="Version" />
     </VersionInfoTask>
   </Target>
