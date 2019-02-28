@@ -102,13 +102,18 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
 
             foreach (var subscription in subscriptions[eventType.GUID])
             {
-                if (!GenericArgumentsCorrect(eventType, subscription)) continue;
+                try
+                {
+                    if (!GenericArgumentsCorrect(eventType, subscription)) continue;
 
-                if (hasHandlerTypes && constraintHandlers.Any(handler => !handler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint)))
-                    continue;
+                    if (hasHandlerTypes && constraintHandlers.Any(handler => !handler.Allow(message, new ConstraintContext(subscription.ConnectionId, subscription.Username), subscription.Constraint)))
+                        continue;
 
-                var client = hubContext.Clients.Client(subscription.ConnectionId);
-                await client.SendCoreAsync("onEvent", new object[] { new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId) } );
+                    var client = hubContext.Clients.Client(subscription.ConnectionId);
+                    await client.SendCoreAsync("onEvent", new object[] { new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId) } );
+                }
+                catch { } //TODO: Client can crash constraint handler, log using built in logger
+                
             }
         }
 

@@ -8,7 +8,7 @@ namespace SignalR.EventAggregatorProxy.Event
     {
         public IEnumerable<Assembly> GetAssemblies()
         {
-            return Assembly.GetExecutingAssembly().GetReferencedAssemblies().Select(Assembly.Load);
+            return Assembly.GetEntryAssembly().GetReferencedAssemblies().Select(Assembly.Load).Union(new [] {Assembly.GetEntryAssembly()});
         }
     }
 }
