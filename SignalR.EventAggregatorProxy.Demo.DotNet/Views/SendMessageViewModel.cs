@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Caliburn.Micro;
 using SignalR.EventAggregatorProxy.Demo.DotNet.ClientEvents;
-using IEventAggregator = SignalR.EventAggregatorProxy.Client.EventAggregation.IEventAggregator;
+using IEventAggregator = SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation.IEventAggregator;
 
 namespace SignalR.EventAggregatorProxy.Demo.DotNet.Views
 {
@@ -66,7 +66,7 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNet.Views
         private void Post(string method)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:2336/");
+            client.BaseAddress = new Uri("http://localhost:60976/");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.PostAsJsonAsync(string.Format("api/service/{0}", method), Message);
 

@@ -11,6 +11,24 @@
         "dist/browser/signalr.js",
         "dist/browser/signalr.min.js"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "signalr.eventaggregatorproxy@2.0.16-6.0",
+      "destination": "wwwroot/lib/signalr.eventaggregatorproxy/",
+      "files": [
+        "jquery.signalR.eventAggregator.min.js",
+        "jquery.signalR.eventAggregator.js"
+      ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "knockout@3.5.0",
+      "destination": "wwwroot/lib/knockout/",
+      "files": [
+        "build/output/knockout-latest.debug.js",
+        "build/output/knockout-latest.js"
+      ]
     }
   ]
 }

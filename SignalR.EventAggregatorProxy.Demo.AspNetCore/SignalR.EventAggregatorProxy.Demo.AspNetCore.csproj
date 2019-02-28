@@ -10,12 +10,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="SignalR.EventAggregatorProxy.AspNetCore" Version="2.0.167" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\SignalR.EventAggregatorProxy.AspNetCore\SignalR.EventAggregatorProxy.AspNetCore.csproj" />
-    <ProjectReference Include="..\SignalR.EventAggregatorProxy\SignalR.EventAggregatorProxy.csproj" />
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -155,7 +155,6 @@
         this.isConnected = false;
         this.queuedSubscriptions = [];
         this.activeSubscriptions = [];
-        //$.connection.hub.reconnected(this.reconnected.bind(this));
         this.hub.onclose(this.start.bind(this));
         this.start();
     };

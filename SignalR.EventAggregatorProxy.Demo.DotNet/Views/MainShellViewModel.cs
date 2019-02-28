@@ -1,15 +1,14 @@
 ﻿using Caliburn.Micro;
-using SignalR.EventAggregatorProxy.Client.Constraint;
-using SignalR.EventAggregatorProxy.Client.EventAggregation;
-using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints;
 using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 using SignalR.EventAggregatorProxy.Demo.DotNet.ClientEvents;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints;
 
 namespace SignalR.EventAggregatorProxy.Demo.DotNet.Views
 {
-    public class MainShellViewModel : Screen, Client.EventAggregation.IHandle<StandardEvent>, Client.EventAggregation.IHandle<GenericEvent<string>>, Client.EventAggregation.IHandle<ConstrainedEvent>, Client.EventAggregation.IHandle<ClientSideEvent>
+    public class MainShellViewModel : Screen, Client.DotNetCore.EventAggregation.IHandle<StandardEvent>, Client.DotNetCore.EventAggregation.IHandle<GenericEvent<string>>, Client.DotNetCore.EventAggregation.IHandle<ConstrainedEvent>, Client.DotNetCore.EventAggregation.IHandle<ClientSideEvent>
     {
-        public MainShellViewModel(IEventAggregator<Event> eventAggregator, SendMessageViewModel sendMessage)
+        public MainShellViewModel(IProxyEventAggregator eventAggregator, SendMessageViewModel sendMessage)
         {
             SendMessage = sendMessage;
             DisplayName = ".NET Client Demo";
@@ -17,10 +16,7 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNet.Views
 
             Events = new BindableCollection<IMessageEvent<string>>();
 
-            eventAggregator.Subscribe(this, new[]
-                {
-                    new ConstraintInfo<ConstrainedEvent, ConstrainedEventConstraint>(new ConstrainedEventConstraint { Message = "HelloWorld" })
-                });
+            eventAggregator.Subscribe(this, builder => builder.Add<ConstrainedEvent, ConstrainedEventConstraint>(new ConstrainedEventConstraint { Message = "HelloWorld" }));
         }
 
         public SendMessageViewModel SendMessage { get; private set; }

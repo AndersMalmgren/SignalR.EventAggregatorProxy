@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,17 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using SignalR.EventAggregatorProxy.AspNetCore.Middlewares;
 using SignalR.EventAggregatorProxy.Boostrap;
+using SignalR.EventAggregatorProxy.Constraint;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 using SignalR.EventAggregatorProxy.Event;
-using SignalR.EventAggregatorProxy.EventAggregation;
-using SignalR.EventAggregatorProxy.Hubs;
-using SignalR.EventAggregatorProxy.Owin;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
 {
-    public class Startup
+    public partial class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -46,8 +43,9 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
             services
                 .AddSignalREventAggregator()
                 .AddSingleton<IEventAggregator, EventAggregator>()
-                .AddSingleton<IEventTypeFinder, DemoFinder>()
-                .AddSingleton<IHostedService, Host>()
+                .AddSingleton<EventAggregation.IEventAggregator>(p => p.GetService<IEventAggregator>())
+                .AddSingleton<IEventTypeFinder, EventTypeFinder>()
+                .AddTransient<ConstrainedEventConstraintHandler>()
                 .AddSignalR();
         }
 
@@ -66,81 +64,10 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvcWithDefaultRoute();
 
             app.UseEventProxy()
-                .UseSignalREventAggregator()
-                .UseSignalR(routes =>
-                {
-                    routes.MapHub<MyHub>("/myhub");
-
-                });
+                .UseSignalREventAggregator();
         }
-
-        private class DemoFinder : IEventTypeFinder
-        {
-            public IEnumerable<Type> ListEventsTypes()
-            {
-                return new[] {typeof(DemoEvent)};
-            }
-        }
-
-        public class EventAggregator : IEventAggregator
-        {
-            private Func<object, Task> handler;
-
-            public void Subscribe(Func<object, Task> handler)
-            {
-                this.handler = handler;
-            }
-
-            public async Task Push(DemoEvent demoEvent)
-            {
-                if (this.handler != null)
-                    await handler(demoEvent);
-            }
-        }
-
-        private class MyHub : Hub
-        {
-
-        }
-
-        private class Host : IHostedService
-        {
-            private readonly IHubContext<MyHub> myHubContext;
-            private EventAggregator aggregator;
-
-            public Host(IEventAggregator aggregator, IHubContext<MyHub> myHubContext)
-            {
-                this.myHubContext = myHubContext;
-                this.aggregator = aggregator as EventAggregator;
-            }
-
-            public async Task StartAsync(CancellationToken cancellationToken)
-            {
-                while (true)
-                {
-                    await myHubContext.Clients.All.SendCoreAsync("foo", new[] {DateTime.Now.ToLongTimeString()}, cancellationToken);
-                    await aggregator.Push(new DemoEvent{ Message = DateTime.Now.ToLongTimeString()});
-
-                    await Task.Delay(1000);
-                }
-            }
-
-            public async Task StopAsync(CancellationToken cancellationToken)
-            {
-            }
-        }
-    }
-
-    public class DemoEvent
-    {
-        public string Message { get; set; }
     }
 }
