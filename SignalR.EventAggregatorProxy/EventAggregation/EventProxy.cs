@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
@@ -20,12 +21,14 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         private readonly IDictionary<string, List<Subscription>> userSubscriptions;
         private readonly IHubContext<EventAggregatorProxyHub> hubContext;
         private readonly IServiceProvider serviceProvider;
+        private readonly ILogger<EventProxy> logger;
 
-        public EventProxy(ITypeFinder typefinder, IEventAggregator eventAggregator, IHubContext<EventAggregatorProxyHub> hubContext, IServiceProvider serviceProvider)
+        public EventProxy(ITypeFinder typefinder, IEventAggregator eventAggregator, IHubContext<EventAggregatorProxyHub> hubContext, IServiceProvider serviceProvider, ILogger<EventProxy> logger)
         {
             this.typeFinder = typefinder;
             this.hubContext = hubContext;
             this.serviceProvider = serviceProvider;
+            this.logger = logger;
 
             subscriptions = new Dictionary<Guid, List<Subscription>>(typeFinder
                 .ListEventTypes()
@@ -112,8 +115,10 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                     var client = hubContext.Clients.Client(subscription.ConnectionId);
                     await client.SendCoreAsync("onEvent", new object[] { new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId) } );
                 }
-                catch { } //TODO: Client can crash constraint handler, log using built in logger
-                
+                catch(Exception e)
+                {
+                    logger.LogWarning(e, "Error while publishing event to subscribers");
+                }
             }
         }
 

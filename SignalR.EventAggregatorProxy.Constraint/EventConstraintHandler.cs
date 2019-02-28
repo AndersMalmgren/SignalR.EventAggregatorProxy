@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace SignalR.EventAggregatorProxy.Constraint
 {
@@ -16,8 +17,8 @@ namespace SignalR.EventAggregatorProxy.Constraint
         public override bool Allow(TEvent message, ConstraintContext context, dynamic constraint)
         {
             var jObject = constraint as JObject;
-            var staticTypedConstraint = jObject != null ? jObject.ToObject<TConstraint>() : null;
-
+            var staticTypedConstraint = jObject?.ToObject<TConstraint>();
+            
             return Allow(message, context, staticTypedConstraint);
         }
         public abstract bool Allow(TEvent message, ConstraintContext context, TConstraint constraint);
