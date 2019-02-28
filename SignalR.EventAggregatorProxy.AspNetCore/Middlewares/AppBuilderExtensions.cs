@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using SignalR.EventAggregatorProxy.AspNetCore.Middlewares;
 using SignalR.EventAggregatorProxy.Hubs;
 
-namespace SignalR.EventAggregatorProxy.Owin
+namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
 {
     public static class AppBuilderExtensions
     {

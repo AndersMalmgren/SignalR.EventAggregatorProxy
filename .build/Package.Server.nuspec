@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<package >
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>SignalR.EventAggregatorProxy</id>
     <version>1.0</version>
@@ -13,8 +13,10 @@
     <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNetCore.SignalR" version="1.1.0" />
-      <dependency id="SignalR.EventAggregatorProxy.Constraint" version="1.3" />
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="SignalR.EventAggregatorProxy.Constraint" version="1.3.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.SignalR" version="1.1.0" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
   </metadata>
 </package>
