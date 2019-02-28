@@ -83,7 +83,7 @@
 
   <Target Name="PatchNuspec">
     <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
-    <XmlPoke XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/dependencies/dependency[@id='SignalR.EventAggregatorProxy']/@version" Value="$(CoreVersion)" />
+    <XmlPoke XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/dependencies/group/dependency[@id='SignalR.EventAggregatorProxyCore']/@version" Value="$(CoreVersion)" />
   </Target>
 
   <Target Name="Pack">

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>SignalR.EventAggregatorProxy.Client.DotNet</id>
+    <id>SignalR.EventAggregatorProxy.Client.DotNetCore</id>
     <version>1.0</version>
     <authors>Anders Malmgren</authors>
     <owners>Anders Malmgren</owners>
@@ -10,11 +10,15 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>.NET client for SignalR Event Aggregator proxy</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2013-2016</copyright>
+    <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.SignalR.Client" version="2.2.0" />
-      <dependency id="Newtonsoft.Json" version="6.0.4" />
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.AspNetCore.SignalR.Client" version="1.1.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.SignalR.Client.Core" version="1.1.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CSharp" version="4.5.0" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="12.0.1" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
   </metadata>
 </package>

@@ -40,22 +40,23 @@
   </Target>
 
   <Target Name="GetGitVersion">
-    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.DotNet">
+    <!--<VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.DotNetCore">-->
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy">
       <Output PropertyName="Version" TaskParameter="Version" />
     </VersionInfoTask>
   </Target>
 
   <Target Name="WriteVersionInfo">
-    <CreateVersionInfoFileTask Version="$(Version)" VersionInfoFilePath="..\SignalR.EventAggregatorProxy.Client.DotNet\Properties\VersionInfo.cs" /> 
+    <CreateVersionInfoFileTask Version="$(Version)" VersionInfoFilePath="..\SignalR.EventAggregatorProxy.Client.DotNetCore\Properties\VersionInfo.cs" /> 
   </Target>
 
   <Target Name="Build">
-    <MSBuild Projects="..\SignalR.EventAggregatorProxy.Client.DotNet\SignalR.EventAggregatorProxy.Client.DotNet.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
+    <MSBuild Projects="..\SignalR.EventAggregatorProxy.Client.DotNetCore\SignalR.EventAggregatorProxy.Client.DotNetCore.csproj" Properties="Configuration=Release;OutDir=$(BuildDir)\"/>
   </Target>
 
   <Target Name="CopyOutput">
     <ItemGroup>
-      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.Client.dll">
+      <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.Client.DotNetCore.dll">
       </ReleaseFiles>
     </ItemGroup>
     <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net45\%(RecursiveDir)%(Filename)%(Extension)')"/>
@@ -64,7 +65,7 @@
 
   <Target Name="CopyFiles">
     <ItemGroup>
-      <SpecFile Include="Package.DotNet.Client.nuspec;readme\SignalR.EventAggregatorProxy.Client.DotNet\readme.txt">
+      <SpecFile Include="Package.DotNet.Client.nuspec;readme\SignalR.EventAggregatorProxy.Client.DotNetCore\readme.txt">
       </SpecFile>
     </ItemGroup>
     <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
