@@ -1,7 +1,7 @@
 ﻿
 (function(signalR, definitions) {
     var events = {};
-    $.each(definitions, function(index, definition) {
+    definitions.forEach(function (definition) {
         var type = definition.namespace + "." + definition.name;
         var closure = getClosure(window, definition.namespace.split("."));
         var $class = closure[definition.name] = function() {
@@ -33,7 +33,7 @@
     
     function mapArgumentsToArray(genericArguments) {
         //SignalR does not like function argument arrays so we clone it
-        return genericArguments != null ? $.map(genericArguments, function (value) {
+        return genericArguments != null ? genericArguments.map(function (value) {
             return value;
         }) : null;
     }
