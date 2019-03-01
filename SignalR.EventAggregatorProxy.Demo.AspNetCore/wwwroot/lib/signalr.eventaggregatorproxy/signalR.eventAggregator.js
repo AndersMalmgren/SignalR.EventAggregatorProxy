@@ -1,4 +1,4 @@
-﻿(function (signalR, $) {
+﻿(function (signalR) {
     signalR.EventAggregator = function (enableProxy) {
         this.constraintId = 0;
         if (enableProxy) {
@@ -65,14 +65,14 @@
             if (newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
 
             var should = true;
-            $.each(subscribers, function () {
+            subscribers.forEach(function (s) {
                 if (newSubscription.type.genericArguments != null &&
-                    !genericArgumentsCorrect(newSubscription.type.genericArguments, this.type.genericArguments)) return true;
+                    !genericArgumentsCorrect(newSubscription.type.genericArguments, s.type.genericArguments)) return true;
 
-                if (newSubscription.constraint != null && !compareConstraint(newSubscription.constraint, this.constraint)) return true;
+                if (newSubscription.constraint != null && !compareConstraint(newSubscription.constraint, s.constraint)) return true;
 
                 should = false;
-                newSubscription.constraintId = this.constraintId;
+                newSubscription.constraintId = s.constraintId;
 
                 return false;
             });
@@ -89,11 +89,11 @@
                 if (context.__getSubscriptions === undefined) return;
                 var subscriptions = context.__getSubscriptions();
                 var actualUnsubscriptions = [];
-                $.each(subscriptions, function () {
+                subscriptions.forEach(function (s) {
                     var index = -1;
-                    var subscribers = getConstructor(this.type).__subscribers;
+                    var subscribers = getConstructor(s.type).__subscribers;
                     for (var i = 0; i < subscribers.length; i++) {
-                        if (subscribers[i].context == context && compareSubscriptions(this, subscribers[i])) {
+                        if (subscribers[i].context == context && compareSubscriptions(s, subscribers[i])) {
                             index = i;
                             break;
                         }
@@ -136,9 +136,9 @@
             },
             publish: function (message, genericArguments, constraintId) {
                 var subscribers = getSubscribers.call(this, message, true);
-                $.each(subscribers, function () {
-                    if (genericArgumentsCorrect(this.type.genericArguments, genericArguments) && checkConstraintId(this, constraintId)) {
-                        this.handler.call(this.context, message);
+                subscribers.forEach(function (s) {
+                    if (genericArgumentsCorrect(s.type.genericArguments, genericArguments) && checkConstraintId(s, constraintId)) {
+                        s.handler.call(s.context, message);
                     }
                 });
             }
@@ -183,7 +183,7 @@
             }
         },
         unsubscribe: function (eventTypes) {
-            var typeNames = $.map(eventTypes, function (typeData) {
+            var typeNames = eventTypes.map(function (typeData) {
                 var constructor = getConstructor(typeData.type);
                 if (constructor.proxyEvent !== true) return null;
 
@@ -250,4 +250,4 @@
     }
 
     signalR.eventAggregator = new signalR.EventAggregator(true);
-})(window.signalR = window.signalR || {}, jQuery);
+})(window.signalR = window.signalR || {});

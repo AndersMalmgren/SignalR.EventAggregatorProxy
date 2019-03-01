@@ -23,11 +23,11 @@
     },
     {
       "provider": "unpkg",
-      "library": "signalr.eventaggregatorproxy@2.0.17-5.0",
+      "library": "signalr.eventaggregatorproxy@2.0.17-7.0",
       "destination": "wwwroot/lib/signalr.eventaggregatorproxy/",
       "files": [
-        "jquery.signalR.eventAggregator.js",
-        "jquery.signalR.eventAggregator.min.js"
+        "signalR.eventAggregator.js",
+        "signalR.eventAggregator.min.js"
       ]
     }
   ]
