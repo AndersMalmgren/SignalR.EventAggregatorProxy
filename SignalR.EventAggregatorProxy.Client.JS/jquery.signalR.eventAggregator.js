@@ -148,6 +148,7 @@
     var Proxy = function (eventAggregator) {
         this.eventAggregator = eventAggregator;
 
+		if (signalR.HubConnectionBuilder == null) throw "Ensure that SignalR client side library is included and before Signal.EventAggregator cilent library.";
         this.hub = new signalR.HubConnectionBuilder().withUrl("/EventAggregatorProxyHub").build();
         this.hub.on("onEvent", this.onEvent.bind(this));
 
@@ -196,7 +197,7 @@
 
             if (typeNames.length > 0) {
                 this.queueSubscriptions = true;
-                this.hub.server.unsubscribe(typeNames).done(this.sendSubscribeQueue.bind(this));
+                this.hub.invoke("Unsubscribe", typeNames).then(this.sendSubscribeQueue.bind(this));
             }
         },
         removeActiveSubscription: function (unsub) {

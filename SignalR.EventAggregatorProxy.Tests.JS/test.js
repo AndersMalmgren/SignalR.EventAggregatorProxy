@@ -49,7 +49,7 @@ test("Event aggregator class should have correct casing on closure (signalR) Iss
 
 throttleTest("When subscribing to client side event Issue #2", function () {
     expect(0);
-    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+    currentHub.invoke = function () {
         ok(false, "Server side subscribe should not be called for client side events");
     };
 
@@ -59,7 +59,7 @@ throttleTest("When subscribing to client side event Issue #2", function () {
 
 test("When unsubscribing to client side event Issue #5", function () {
     var context = {};
-    $.connection.eventAggregatorProxyHub.server.unsubscribe = function () {
+    currentHub.invoke = function () {
         ok(false, "Server side unsubscribe should not be called for client side events");
     };
 
@@ -104,17 +104,19 @@ throttleTest("When unsubscribing and subscribing directly after to server side e
     var unsubscribeDone = false;
     var doneCallback = null;
 
-    $.connection.eventAggregatorProxyHub.server.unsubscribe = function () {
-        return {
-            done: function (callback) {
-                doneCallback = callback;
-            }
-        };
+    currentHub.invoke = function (method) {
+		if(method === "Unsubscribe")
+			return {
+				then: function (callback) {
+					doneCallback = callback;
+				}
+			};
+		if(method === "Subscribe")
+			ok(unsubscribeDone, "It should not call subscribe while unsubscribe is working");
+		else			
+			ok(false, "No method mapped");
     };
 
-    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
-        ok(unsubscribeDone, "It should not call subscribe while unsubscribe is working");
-    };
 
     signalR.eventAggregator.proxy.unsubscribe([eventData]);
     signalR.eventAggregator.proxy.subscribe(event);
@@ -122,11 +124,13 @@ throttleTest("When unsubscribing and subscribing directly after to server side e
     return function() {
         unsubscribeDone = true;
         doneCallback();
+		
+		currentHub.invoke = null;
     };
 });
 
 throttleTest("When doing subsequent calls to subscribe Issue #12", function () {
-    $.connection.eventAggregatorProxyHub.server.subscribe = function (arr) {
+    currentHub.invoke = function (method, arr) {
         equal(arr.length, 2, "Should throttle subscriptions");
     };
 
@@ -141,7 +145,7 @@ throttleTest("When doing subsequent calls to subscribe Issue #12", function () {
 });
 
 test("When not subscribing to any events from start", function () {
-    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+    currentHub.invoke = function () {
         ok(false, "Should not call subscribe");
     };
 
@@ -162,7 +166,7 @@ throttleTest("When a third party lib is traversing object tree that has referenc
         }
     };
 
-    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
+    currentHub.invoke = function () {
     };
 
     var event = constructEvent();
@@ -183,7 +187,7 @@ throttleTest("When a third party lib is traversing object tree that has referenc
 
 multipleSameEventSubscriptionTest = function(name, genericArgument, constraint, expectedCount) {
     throttleTest(name, function () {
-        $.connection.eventAggregatorProxyHub.server.subscribe = function (s) {
+        currentHub.invoke = function (method, s) {
             expectedCount = expectedCount || 1;
             equal(s.length, expectedCount, "It should subscribe " + expectedCount + " times to same event");
         };
@@ -237,22 +241,26 @@ multipleSameEventUnsubscriptionTest = function (name, genericArgument, constrain
         if (removeAll)
             expect(2);
 
-        $.connection.eventAggregatorProxyHub.server.subscribe = function () {
-            for (var i = 0; i < unsubscribeCount; i++) {
-                eventAggregator.unsubscribe(contexts[i]);
-            }
-            equal(constructor.__subscribers.length, subscribeCount - unsubscribeCount, "Should remove " + unsubscribeCount + " subscriptions client side");
+        currentHub.invoke = function (method) {
+			switch(method) {
+				case "Subscribe":
+					for (var i = 0; i < unsubscribeCount; i++) {
+						eventAggregator.unsubscribe(contexts[i]);
+					}
+					equal(constructor.__subscribers.length, subscribeCount - unsubscribeCount, "Should remove " + unsubscribeCount + " subscriptions client side");				
+				break;
+				case "Unsubscribe":
+					ok(removeAll, "Should " + (removeAll ? "" : "not") + " unsubscribe");
+
+					return {
+						then: function() {
+						}
+					};				
+				break;
+			}				
+
         };
         
-        $.connection.eventAggregatorProxyHub.server.unsubscribe = function (s) {
-            ok(removeAll, "Should " + (removeAll ? "" : "not") + " unsubscribe");
-
-            return {
-                done: function() {
-                }
-            };
-        };
-
         var event = function () {
         };
         event.proxyEvent = true;
@@ -281,7 +289,7 @@ multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same c
 
 throttleTest("When two contexts subcribe to different generic arguments of same event", function() {
     expect(0);
-    $.connection.eventAggregatorProxyHub.server.subscribe = function() {
+    currentHub.invoke = function() {
     };
 
     var eventOne = constructEvent("One");
@@ -300,21 +308,23 @@ throttleTest("When two contexts subcribe to different generic arguments of same 
 });
 
 throttleTest("When two contexts subcribe to different generic arguments of same event and unsubscribes", function () {
-    $.connection.eventAggregatorProxyHub.server.subscribe = function () {
-    };
+	currentHub.invoke = function (method, events) {
+		switch(method) {
+			case "Subscribe":							
+			break;
+			case "Unsubscribe":
+				equal(events.length, 1, "It should only unsubscribe one event")
+				equal(events[0].genericArguments[0], "One", "It should unsubscribe event one");
+
+				return {
+					then: function() {
+					}
+				};				
+			break;
+		}				
+
+	}; 
     
-    $.connection.eventAggregatorProxyHub.server.unsubscribe = function (events) {
-        equal(events.length, 1, "It should only unsubscribe one event")
-        equal(events[0].genericArguments[0], "One", "It should unsubscribe event one");
-
-        return {
-            done: function(callback) {
-                callback();
-            }
-        };
-    };
-
-
     var eventOne = constructEvent("One");
     var eventTwo = constructEvent("Two", eventOne);
 
@@ -331,18 +341,39 @@ throttleTest("When two contexts subcribe to different generic arguments of same 
 });
 
 asyncTest("When a client is reconnected", function() {
-    var reconnectedCallback = null;
-    $.connection.hub.reconnected = function(callback) {
-        reconnectedCallback = callback;
-    };
+	var reconnected = false;
+	var startAssert = false;
+	
+	currentHub.invoke = function (method, events) {
+		switch(method) {
+			case "Subscribe":
+				if(!reconnected) return;
 
-    $.connection.eventAggregatorProxyHub.server.unsubscribe = function () {
-        return {
-            done: function (callback) {
-                callback();
-            }
-        };
-    };
+				eventAggregator.unsubscribe(instanceRemove);
+				
+				//Wait for unsubscribe
+				if(!startAssert) {
+					startAssert = true;
+					start();
+					window.currentOnClose();
+					return;
+				}
+				equal(events.length, 4, "It should resubscribe to the events: " + events.length);			
+				
+			
+			break;
+			case "Unsubscribe":
+
+
+				return {
+					then: function (callback) {
+						callback();
+					}		
+				};				
+			break;
+		}
+	}; 
+	
 
     var eventOne = constructEvent(null, null, true, "EventOne");
     var genericEventOne = constructEvent("Genericarg", null, null, "genericEvent");
@@ -356,16 +387,7 @@ asyncTest("When a client is reconnected", function() {
     var thirdConstraintSubscriber = {};
 
     var eventAggregator = new signalR.EventAggregator(true);
-    $.connection.eventAggregatorProxyHub.server.subscribe = function() {
-        //Ignore first subscribe and wait for reconnect subscribe
-
-        eventAggregator.unsubscribe(instanceRemove);
-        $.connection.eventAggregatorProxyHub.server.subscribe = function(s) {
-            equal(s.length, 4, "It should resubscribe to the events: " + s.length);
-        };
-        start();
-        reconnectedCallback();
-    };
+	reconnected = true;    
 
     eventAggregator.subscribe(eventRemove, function () { }, instanceRemove);
     eventAggregator.subscribe(genericEventTwo.event, function () { }, instanceRemove);
@@ -383,12 +405,12 @@ asyncTest("When a client is reconnected", function() {
 });
 
 test("When Hub is missing", function() {
-    delete $.connection.eventAggregatorProxyHub;
+    delete signalR.HubConnectionBuilder;
 
     try {
         new signalR.EventAggregator(true);
     } catch (error) {
-        ok(typeof (error) === "string" && error.indexOf("/signalr/hubs") !== -1, "It should throw meaningful exception");
+        ok(typeof (error) === "string" && error.indexOf("library") !== -1, "It should throw meaningful exception");
     } finally {
         stubHub();
     }
