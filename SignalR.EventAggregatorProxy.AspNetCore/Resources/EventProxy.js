@@ -33,9 +33,7 @@
     
     function mapArgumentsToArray(genericArguments) {
         //SignalR does not like function argument arrays so we clone it
-        return genericArguments != null ? genericArguments.map(function (value) {
-            return value;
-        }) : null;
+        return genericArguments != null ? Array.from(genericArguments) : null;
     }
 
     signalR.getEvent = function(type) {
