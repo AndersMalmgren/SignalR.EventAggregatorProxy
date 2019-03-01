@@ -44,12 +44,12 @@
   <Target Name="MinimizeJS">
 
     <ItemGroup>
-      <JavaScriptFiles Include="..\SignalR.EventAggregatorProxy.Client.JS\jquery.signalR.eventAggregator.js;"/>
+      <JavaScriptFiles Include="..\SignalR.EventAggregatorProxy.Client.JS\signalR.eventAggregator.js;"/>
     </ItemGroup>
 
     <MakeDir Directories="$(NugetFolder)"/>
 
-    <Copy SourceFiles="@(JavaScriptFiles)" DestinationFiles="@(JavaScriptFiles -> '$(NugetFolder)\jquery.signalR.eventAggregator.js')"/>
+    <Copy SourceFiles="@(JavaScriptFiles)" DestinationFiles="@(JavaScriptFiles -> '$(NugetFolder)\signalR.eventAggregator.js')"/>
 
     <CompressorTask
         JavaScriptCompressionType="YuiStockCompression"
@@ -60,7 +60,7 @@
         EncodingType="Default"
         DeleteJavaScriptFiles="false"
         LineBreakPosition="-1"
-        JavaScriptOutputFile="$(NugetFolder)\jquery.signalR.eventAggregator.min.js"
+        JavaScriptOutputFile="$(NugetFolder)\signalR.eventAggregator.min.js"
         LoggingType="ALittleBit"
         ThreadCulture="en-US"
         IsEvalIgnored="false" />    
@@ -76,8 +76,8 @@
 
   <Target Name="PatchPackageJson">
     <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="$(Version)" JPath="version"/>
-    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="jquery.signalR.eventAggregator.js" JPath="main"/>
-    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="jquery.signalR.eventAggregator.min.js" JPath="unpkg"/>
+    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="signalR.eventAggregator.js" JPath="main"/>
+    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="signalR.eventAggregator.min.js" JPath="unpkg"/>
   </Target>
 
   <Target Name="Publish">
