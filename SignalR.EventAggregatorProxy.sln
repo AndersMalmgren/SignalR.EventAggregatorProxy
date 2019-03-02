@@ -51,11 +51,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{C4D89BEF-2912-4ADC-AFBD-2273EF3D757A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests.JS", "SignalR.EventAggregatorProxy.Tests.JS\SignalR.EventAggregatorProxy.Tests.JS.csproj", "{A95F482B-1F43-4F22-8DD8-0A8EE83C970B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Tests.JS", "SignalR.EventAggregatorProxy.Tests.JS\SignalR.EventAggregatorProxy.Tests.JS.csproj", "{A95F482B-1F43-4F22-8DD8-0A8EE83C970B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests", "SignalR.EventAggregatorProxy.Tests\SignalR.EventAggregatorProxy.Tests.csproj", "{D448A946-04D1-4890-ADA5-D200F0005734}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Tests", "SignalR.EventAggregatorProxy.Tests\SignalR.EventAggregatorProxy.Tests.csproj", "{D448A946-04D1-4890-ADA5-D200F0005734}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests.Server", "SignalR.EventAggregatorProxy.Tests.Server\SignalR.EventAggregatorProxy.Tests.Server.csproj", "{A634DEB0-9255-43F8-A922-9367434A1CF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Tests.Server", "SignalR.EventAggregatorProxy.Tests.Server\SignalR.EventAggregatorProxy.Tests.Server.csproj", "{A634DEB0-9255-43F8-A922-9367434A1CF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests.DotNetClient", "SignalR.EventAggregatorProxy.Tests.DotNetClient\SignalR.EventAggregatorProxy.Tests.DotNetClient.csproj", "{F140EDB8-92CF-4F96-AFCE-F88B95308E32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +97,10 @@ Global
 		{A634DEB0-9255-43F8-A922-9367434A1CF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A634DEB0-9255-43F8-A922-9367434A1CF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A634DEB0-9255-43F8-A922-9367434A1CF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,6 +111,7 @@ Global
 		{A95F482B-1F43-4F22-8DD8-0A8EE83C970B} = {C4D89BEF-2912-4ADC-AFBD-2273EF3D757A}
 		{D448A946-04D1-4890-ADA5-D200F0005734} = {C4D89BEF-2912-4ADC-AFBD-2273EF3D757A}
 		{A634DEB0-9255-43F8-A922-9367434A1CF4} = {C4D89BEF-2912-4ADC-AFBD-2273EF3D757A}
+		{F140EDB8-92CF-4F96-AFCE-F88B95308E32} = {C4D89BEF-2912-4ADC-AFBD-2273EF3D757A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CC9769D-E598-49AC-A91E-132664F0BE3A}

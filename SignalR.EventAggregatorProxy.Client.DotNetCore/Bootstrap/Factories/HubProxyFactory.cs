@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -6,13 +7,14 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 {
     public class HubProxyFactory : IHubProxyFactory
     {
-        public async Task<HubConnection> Create(string hubUrl, Action<HubConnection> configureConnection, Func<HubConnection, Task> onStarted, Func<Task> reconnected, Action<Exception> faulted, Action connected)
+        public async Task<IHub> Create(string hubUrl, Action<HubConnection> configureConnection, Func<IHub, Task> onStarted, Func<Task> reconnected, Action<Exception> faulted, Action connected)
         {
             var isConnected = false;
 
             var connection = new HubConnectionBuilder()
                 .WithUrl(hubUrl)
                 .Build();
+            var hub = new Hub(connection);
 
             configureConnection?.Invoke(connection);
 
@@ -28,7 +30,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
                     else
                     {
                         isConnected = true;
-                        await onStarted(connection);
+                        await onStarted(hub);
                         connected();
                     }
                 }
@@ -46,7 +48,32 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
             };
 
             await start();
-            return connection;
+            return hub;
+        }
+    }
+
+    public class Hub : IHub
+    {
+        private readonly HubConnection connection;
+
+        public Hub(HubConnection connection)
+        {
+            this.connection = connection;
+        }
+
+        public IDisposable On<T>(string methodName, Action<T> handler)
+        {
+            return connection.On(methodName, handler);
+        }
+
+        public Task InvokeAsync(string methodName, object arg, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return connection.InvokeAsync(methodName, arg, cancellationToken);
+        }
+
+        public Task InvokeAsync(string methodName, object arg1, object arg2, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return connection.InvokeAsync(methodName, arg1, arg2, cancellationToken);
         }
     }
 }

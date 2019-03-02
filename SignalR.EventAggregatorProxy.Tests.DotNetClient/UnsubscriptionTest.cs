@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNet.SignalR.Client;
-using Microsoft.AspNet.SignalR.Client.Hubs;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
-using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
-using SignalR.EventAggregatorProxy.Client.Constraint;
-using SignalR.EventAggregatorProxy.Client.EventAggregation;
-using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
+using Moq;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
+
 
 namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
     public class DummyUnsubscriptionEvent : Event
     {
-        
+
     }
 
     public abstract class UnsubscriptionTest<TEvent> : DotNetClientTest where TEvent : class
@@ -24,29 +20,30 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         private int unsubscriptionCount = 0;
         protected int exptectedUnsubscriptionCount = 1;
 
-        protected virtual IEnumerable<IConstraintInfo> GetConstraintInfos(int index)
+        protected virtual void BuildConstraints(int index, IConstraintinfoBuilder builder)
         {
-            return new List<IConstraintInfo>();
+
         }
 
         [TestInitialize]
         public void Context()
         {
-            Setup();
-
-            var handlers = Enumerable.Range(0, 2).Select(i => Mock<IHandle<TEvent>>())
+            var handlers = Enumerable.Range(0, 2).Select(i => new Mock<IHandle<TEvent>>().Object)
                 .Cast<object>()
                 .ToList();
-            
-            handlers.Add(Mock<IHandle<DummyUnsubscriptionEvent>>());
-            
+
+            handlers.Add(new Mock<IHandle<DummyUnsubscriptionEvent>>().Object);
+
             for (int i = 0; i < 2; i++)
-                eventAggregator.Subscribe(handlers[i], GetConstraintInfos(i));
-            
+            {
+                var index = i;
+                EventAggregator.Subscribe(handlers[i], builder => BuildConstraints(index, builder));
+            }
+
             reset.WaitOne();
 
             for (int i = 0; i < 2; i++)
-                eventAggregator.Unsubscribe(handlers[i]);
+                EventAggregator.Unsubscribe(handlers[i]);
 
             reset.WaitOne();
         }
@@ -67,7 +64,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     [TestClass]
     public class When_unsubscribing_to_a_event_that_is_subscribed_multiple_times : UnsubscriptionTest<StandardEvent>
     {
-        
+
     }
 
     [TestClass]
@@ -79,9 +76,9 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     [TestClass]
     public class When_unsubscribing_to_a_constrained_event_that_is_subscribed_multiple_times : UnsubscriptionTest<StandardEvent>
     {
-        protected override IEnumerable<IConstraintInfo> GetConstraintInfos(int index)
+        protected override void BuildConstraints(int index, IConstraintinfoBuilder builder)
         {
-            return new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }) };
+            builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint {Id = 1});
         }
     }
 }

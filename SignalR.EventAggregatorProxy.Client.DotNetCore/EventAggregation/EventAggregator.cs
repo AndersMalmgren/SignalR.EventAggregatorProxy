@@ -114,7 +114,6 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
         private IEnumerable<Type> GetProxyEventTypes(object subscriber)
         {
-            var type = subscriber.GetType();
             return typerFinder.GetSubscriberEventTypes(subscriber);
         }
 

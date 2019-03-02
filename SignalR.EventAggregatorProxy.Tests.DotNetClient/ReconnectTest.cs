@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNet.SignalR.Client;
-using Microsoft.AspNet.SignalR.Client.Hubs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
-using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
-using SignalR.EventAggregatorProxy.Client.Constraint;
-using SignalR.EventAggregatorProxy.Client.EventAggregation;
-using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
-using SignalR.EventAggregatorProxy.Client.Extensions;
+using Moq;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
@@ -24,34 +14,34 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         private int subscriptionCount = 0;
 
         [TestInitialize]
-        public void Context()
+        public async Task Context()
         {
-            Setup();
+            var removeSubscriber = new Mock<IHandle<NoneConstraintEvent>>().As<IHandle<GenericEvent<string>>>().As<IHandle<StandardEvent>>().Object; ;
+            var subscriberOne = new Mock<IHandle<NoneConstraintEvent>>().As<IHandle<GenericEvent<int>>>().As<IHandle<StandardEvent>>().Object;
+            var subscriberTwo = new Mock<IHandle<NoneConstraintEvent>>().As<IHandle<GenericEvent<int>>>().As<IHandle<StandardEvent>>().Object;
 
-            var removeSubscriber = MockRepository.GenerateMock<IHandle<NoneConstraintEvent>, IHandle<GenericEvent<string>>, IHandle<StandardEvent>>();
-            var subscriberOne = MockRepository.GenerateMock<IHandle<NoneConstraintEvent>, IHandle<GenericEvent<int>>, IHandle<StandardEvent>>();
-            var subscriberTwo = MockRepository.GenerateMock<IHandle<NoneConstraintEvent>, IHandle<GenericEvent<int>>, IHandle<StandardEvent>>();
+            var thirdConstraintSubscriber = new Mock<IHandle<StandardEvent>>().Object;
 
-            var thirdConstraintSubscriber = MockRepository.GenerateMock<IHandle<StandardEvent>>();
+            EventAggregator.Subscribe(removeSubscriber, builder => builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 2 }));
+            EventAggregator.Subscribe(subscriberOne, builder => builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }));
+            EventAggregator.Subscribe(subscriberTwo, builder => builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }));
 
-            eventAggregator.Subscribe(removeSubscriber, new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint{ Id = 2})});
-            eventAggregator.Subscribe(subscriberOne, new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }) });
-            eventAggregator.Subscribe(subscriberTwo, new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }) });
-
-            eventAggregator.Subscribe(thirdConstraintSubscriber, new[] { new ConstraintInfo<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 3 }) });
+            EventAggregator.Subscribe(thirdConstraintSubscriber, builder => builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 3 }));
 
 
             reset.WaitOne();
 
-            eventAggregator.Unsubscribe(removeSubscriber);
+            EventAggregator.Unsubscribe(removeSubscriber);
             reset.WaitOne();
 
-            reconnectedCallback();
-
+            await reconnectedCallback();
         }
+
+
 
         protected override void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
         {
+            System.Console.WriteLine("Called onsubscribe");
             subscriptionCount = subscriptions.Count();
             reset.Set();
         }

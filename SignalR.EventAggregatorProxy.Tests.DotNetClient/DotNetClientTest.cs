@@ -3,58 +3,76 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNet.SignalR.Client;
-using Microsoft.AspNet.SignalR.Client.Hubs;
-using Rhino.Mocks;
-using SignalR.EventAggregatorProxy.Client.Bootstrap;
-using SignalR.EventAggregatorProxy.Client.Bootstrap.Factories;
-using SignalR.EventAggregatorProxy.Client.EventAggregation;
-using SignalR.EventAggregatorProxy.Client.EventAggregation.ProxyEvents;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Model;
+
 
 namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 {
     public abstract class DotNetClientTest : Test
     {
-        protected Action reconnectedCallback;
-        protected EventAggregator<Event> eventAggregator;
+        protected Func<Task> reconnectedCallback;
+        protected IProxyEventAggregator EventAggregator => Get<IProxyEventAggregator>();
         protected AutoResetEvent reset;
 
-        public void Setup()
+        protected override void ConfigureCollection(IServiceCollection serviceCollection)
         {
+            Task<IHub> connectionFactory = null;
+
+            var eventType = typeof(Event);
+            var eventTypes = eventType.Assembly.GetTypes().Where(t => eventType.IsAssignableFrom(t)).ToList();
+
+
             reset = new AutoResetEvent(false);
-            Register<ISubscriptionStore>(new SubscriptionStore());
+            serviceCollection
+                .AddSignalREventAggregator()
+                .OnSubscriptionError(OnFaultedSubscription)
+                .OnConnected(OnConnected)
+                .Build()
+                .MockSingleton<IHub>(mock => 
+                { 
+                    mock.Setup(x => x.InvokeAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Callback((string method, object arg1, object arg2, CancellationToken token) =>
+                    {
+                        OnSubscribe(arg1 as IEnumerable<dynamic>, (bool)arg2);
+                    }).Returns(Task.CompletedTask);
+                    mock.Setup(x => x.InvokeAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Callback((string method, object arg, CancellationToken token) =>
+                    {
+                        OnUnsubscribe(arg as IEnumerable<dynamic>);
+                    }).Returns(Task.CompletedTask);
 
-            var task = new Task(() => { });
-            var proxy = Mock<IHubProxy>();
-            WhenCalling<IHubProxy>(x => x.Subscribe(Arg<string>.Is.Anything))
-                .Return(new Subscription());
-            WhenCalling<IHubProxy>(x => x.Invoke(Arg<string>.Is.Anything, Arg<object[]>.Is.Anything))
-                .Callback<string, object[]>((m, a) =>
-                {
-                    if(m == "subscribe")
-                        OnSubscribe(a[0] as IEnumerable<dynamic>, (bool)a[1]);
-                    else
-                        OnUnsubscribe(a[0] as IEnumerable<dynamic>);
-                    return true;
                 })
-                .Return(task);
-
-
-            Mock<IHubProxyFactory>();
-
-            WhenCalling<IHubProxyFactory>(x => x.Create(Arg<string>.Is.Anything, Arg<Action<IHubConnection>>.Is.Anything, Arg<Action<IHubProxy>>.Is.Anything, Arg<Action>.Is.Anything, Arg<Action<Exception>>.Is.Anything, Arg<Action>.Is.Anything))
-                .Callback<string, Action<IHubConnection>, Action<IHubProxy>, Action, Action<Exception>, Action>((u, c, started, reconnected, f, connected) =>
+                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(eventTypes))
+                .MockSingleton<IHubProxyFactory>(mock => mock.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Action<HubConnection>>(), It.IsAny<Func<IHub, Task>>(), It.IsAny<Func<Task>>(), It.IsAny<Action<Exception>>(), It.IsAny<Action>()))
+                .Callback((string url, Action<HubConnection> configure, Func<IHub, Task> onstarted, Func<Task> onreconnected, Action<Exception> faulted, Action connected) =>
                 {
-                    started(proxy);
-                    reconnectedCallback = reconnected;
+                    connectionFactory = Task.Run(async () =>
+                    {
+                        var hub = Get<IHub>();
 
-                    return true;
-                })
-                .Return(proxy);
+                        await onstarted(hub);
+                        reconnectedCallback = onreconnected;
+                        connected();
+                        return hub;
+                    });
+                }).Returns(() => connectionFactory));
+        }
 
+        protected virtual void OnFaultedSubscription(Exception exception, IList<Subscription> subscriptions)
+        {
 
-            eventAggregator = new EventAggregator<Event>()
-                .Init("foo");
+        }
+
+        protected virtual void OnConnected()
+        {
+
         }
 
         protected virtual void OnUnsubscribe(IEnumerable<object> enumerable)
@@ -65,25 +83,6 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         protected virtual void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
         {
             reset.Set();
-        }
-
-        protected override void Reset()
-        {
-        }
-
-        public override T Get<T>()
-        {
-            return DependencyResolver.Global.Get<T>();
-        }
-
-        public override void Register<T>(T stub)
-        {
-            DependencyResolver.Global.Register(() => stub);
-        }
-
-        public override void Register(object stub)
-        {
-            throw new NotImplementedException();
         }
     }
 }

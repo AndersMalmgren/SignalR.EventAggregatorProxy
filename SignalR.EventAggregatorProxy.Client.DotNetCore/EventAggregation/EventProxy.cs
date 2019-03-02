@@ -22,7 +22,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
         private Action connectedAction;
         private bool queueSubscriptions = true;
         private readonly List<Subscription> subscriptionQueue;
-        private HubConnection proxy;
+        private IHub proxy;
         private readonly ITypeFinder typeFinder;
         private readonly ISubscriptionThrottleHandler throttleHandler;
         private readonly ISubscriptionStore subscriptionStore;
@@ -129,14 +129,12 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
         private void FaultedSendingQueuedSubscriptions(Exception ex)
         {
-            if (faultedSubscriptionAction != null)
-                faultedSubscriptionAction(ex, new List<Subscription>(subscriptionQueue));
+            faultedSubscriptionAction?.Invoke(ex, new List<Subscription>(subscriptionQueue));
         }
 
         private void ConnectionComplete()
         {
-            if (connectedAction != null)
-                connectedAction();
+            connectedAction?.Invoke();
         }
 
         private Task Reconnected()
