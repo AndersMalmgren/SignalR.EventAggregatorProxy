@@ -1,58 +1,45 @@
-﻿using Microsoft.Owin;
+﻿using System.IO;
+using System.Text;
+using System.Threading;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
+using SignalR.EventAggregatorProxy.AspNetCore.Middlewares;
 using SignalR.EventAggregatorProxy.Event;
-using SignalR.EventAggregatorProxy.Owin;
+
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
-    public abstract class TestEventBase
-    {
-        
-    }
-
-    public class NoMembersEvent : TestEventBase
-    {
-        
-    }
-
-    public class MembersEvent : TestEventBase
-    {
-        public string TestPropety { get; set; }
-    }
-
-
     [TestClass]
-    public class When_rendering_proxy_script : ServerTest
+    public class When_rendering_proxy_script : Test
     {
         private string script;
         private const string Expected = "[{\"namespace\":\"SignalR.EventAggregatorProxy.Tests.Server\",\"name\":\"NoMembersEvent\",\"generic\":false},{\"namespace\":\"SignalR.EventAggregatorProxy.Tests.Server\",\"name\":\"MembersEvent\",\"generic\":false}]";
 
+        protected override void ConfigureCollection(IServiceCollection serviceCollection)
+        {
+            serviceCollection
+                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x  => x.ListEventsTypes()).Returns(new[] { typeof(NoMembersEvent), typeof(MembersEvent) }))
+                .MockSingleton<HttpContext>(mock =>
+                {
+                    mock.Setup(x => x.Request.Headers).Returns(new Mock<IHeaderDictionary>().Object);
+                    mock.Setup(x => x.Response.Headers).Returns(new Mock<IHeaderDictionary>().Object);
+                    mock.Setup(x => x.Response.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                        .Callback((byte[] data, int offset, int length, CancellationToken token) =>
+                        {
+                            if (length > 0)
+                                script = Encoding.UTF8.GetString(data); 
+                        });
+                });
+
+        }
+
         [TestInitialize]
         public void Context()
         {
-            WhenCalling<IOwinResponse>(x => x.WriteAsync(Arg<string>.Is.Anything))
-                .Return(null)
-                .Callback<string>(s =>
-                    {
-                        script = s;
-                        return true;
-                    });
-
-            WhenCalling<ITypeFinder>(x => x.ListEventTypes()).Return(new[] {typeof (NoMembersEvent), typeof (MembersEvent)});
-            Mock<IHeaderDictionary>();
-            
-            WhenAccessing<IOwinRequest, IHeaderDictionary>(x => x.Headers).Return(Get<IHeaderDictionary>());
-            WhenAccessing<IOwinResponse, IHeaderDictionary>(x => x.Headers).Return(Get<IHeaderDictionary>());
-
-            WhenAccessing<IOwinContext, IOwinResponse>(x => x.Response).Return(Get<IOwinResponse>());
-            WhenAccessing<IOwinContext, IOwinRequest>(x => x.Request).Return(Get<IOwinRequest>());
-            
-
-            var eventScriptMiddleware = new EventScriptMiddleware<TestEventBase>(null);
-
-            eventScriptMiddleware.Invoke(Get<IOwinContext>());
-            //script = context.Response.Output.ToString();
+            var eventScriptMiddleware = new EventScriptMiddleware(null);
+            eventScriptMiddleware.Invoke(Get<HttpContext>(), Get<IEventTypeFinder>());
         }
 
         [TestMethod]

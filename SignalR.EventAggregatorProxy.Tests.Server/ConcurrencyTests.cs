@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Security.Principal;
 using System.Threading;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using Microsoft.AspNet.SignalR.Infrastructure;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
-using SignalR.EventAggregatorProxy.Event;
-using SignalR.EventAggregatorProxy.EventAggregation;
-using SignalR.EventAggregatorProxy.Hubs;
-using SignalR.EventAggregatorProxy.Model;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
@@ -22,12 +13,17 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         private AutoResetEvent reset;
         private bool failed = false;
         private TimeSpan benchmarkTime = TimeSpan.FromSeconds(5);
-            
+
+        protected override void ConfigureCollection(IServiceCollection serviceCollection)
+        {
+            SetupProxy(serviceCollection, typeof(MembersEvent));
+        }
+
         [TestInitialize]
         public void Context()
         {
             reset = new AutoResetEvent(false);
-            var handler = SetupProxy(typeof(MembersEvent));
+            var dummy = EventProxy; //Make sure handler is setup
 
             FailIfThreadCrashes(Subscribe);
             FailIfThreadCrashes(() =>
@@ -52,10 +48,10 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
                     }
                 });
 
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
-            FailIfThreadCrashes(() => handler(new MembersEvent()));
+            FailIfThreadCrashes(() => handler(new MembersEvent()).Wait());
+            FailIfThreadCrashes(() => handler(new MembersEvent()).Wait());
+            FailIfThreadCrashes(() => handler(new MembersEvent()).Wait());
+            FailIfThreadCrashes(() => handler(new MembersEvent()).Wait());
 
             var timer = new System.Timers.Timer(benchmarkTime.TotalMilliseconds);
             timer.Elapsed += (s, e) => reset.Set();

@@ -2,20 +2,21 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
-    public class TypeFinderTest<TEvent> : ServerTest
+    public class TypeFinderTest<TEvent> : Test
     {
-        protected TypeFinder<TEvent> typeFinder;
-
-        public TypeFinderTest()
+        protected override void ConfigureCollection(IServiceCollection serviceCollection)
         {
-            WhenCalling<IAssemblyLocator>(x => x.GetAssemblies()).Return(new[] { Assembly.GetExecutingAssembly() });
-            typeFinder = new TypeFinder<TEvent>();
+            serviceCollection.MockSingleton<IAssemblyLocator>(mock => mock.Setup(x => x.GetAssemblies()).Returns(new[] {Assembly.GetExecutingAssembly()}))
+                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(new[] {typeof(TEvent)}))
+                .AddSingleton<TypeFinder>();
         }
     }
 
@@ -28,7 +29,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             GenericEventConstraintHandler.Called = false;
             var type = typeof(OuterGeneric<EntityOne>);
 
-            var handlerType = typeFinder.GetConstraintHandlerTypes(type).Single();
+            var handlerType = Get<TypeFinder>().GetConstraintHandlerTypes(type).Single();
             var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
             eventConstraintHandler.Allow(new OuterGeneric<EntityOne>(), null, null);
         }
@@ -103,7 +104,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             var types = new List<Type> {typeof (MySub), typeof(MySubTwo)};
             foreach (var type in types)
             {
-                var handlerType = typeFinder.GetConstraintHandlerTypes(type).Single();
+                var handlerType = Get<TypeFinder>().GetConstraintHandlerTypes(type).Single();
                 var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
                 result = eventConstraintHandler.Allow(Activator.CreateInstance(type), null, null);
             }
@@ -147,7 +148,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         [TestInitialize]
         public void Context()
         {
-            handlerTypes = typeFinder.GetConstraintHandlerTypes(typeof(MySub)).Where(t => new[] { typeof(Handler), typeof(HandlerTwo) }.Contains(t));
+            handlerTypes = Get<TypeFinder>().GetConstraintHandlerTypes(typeof(MySub)).Where(t => new[] { typeof(Handler), typeof(HandlerTwo) }.Contains(t));
         }
 
         [TestMethod]

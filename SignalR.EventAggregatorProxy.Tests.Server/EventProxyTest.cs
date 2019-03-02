@@ -2,12 +2,16 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using Microsoft.AspNet.SignalR.Infrastructure;
-using Rhino.Mocks;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using Moq;
 using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.EventAggregation;
 using SignalR.EventAggregatorProxy.Extensions;
@@ -16,85 +20,75 @@ using SignalR.EventAggregatorProxy.Model;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
-    public class EventProxyTest : ServerTest
+    public abstract class EventProxyTest : Test
     {
-        private EventProxy eventProxy;
         protected ConcurrentBag<string> ids;
         protected string typeName;
         protected ConcurrentBag<object> events;
+        protected Func<object, Task> handler;
         private List<EventType> typeNames;
 
-        protected Action<object> SetupProxy(Type eventType, IEnumerable<Type> constraintHandlerTypes = null)
+        protected void SetupProxy(IServiceCollection collection, Type eventType, IEnumerable<Type> constraintHandlerTypes = null)
         {
             ids = new ConcurrentBag<string>();
             events = new ConcurrentBag<object>();
             typeName = eventType.FullName;
             typeNames = new[] { typeName }.Select(t => new EventType { Type = t }).ToList();
-
-            Action<object> handler = null;
-            WhenCalling<ITypeFinder>(x => x.ListEventTypes()).Return(new[] { eventType });
-            WhenCalling<ITypeFinder>(x => x.GetEventType(Arg<string>.Is.Anything)).Return(eventType);
-            if (constraintHandlerTypes != null)
-                constraintHandlerTypes.ForEach(t => Register(Activator.CreateInstance((Type) t)));
-            WhenCalling<ITypeFinder>(x => x.GetConstraintHandlerTypes(Arg<Type>.Is.Anything))
-                    .Return(constraintHandlerTypes != null ? constraintHandlerTypes : Enumerable.Empty<Type>());
-
-            WhenCalling<IEventAggregator>(x => x.Subscribe(Arg<Action<object>>.Is.Anything)).Callback<Action<object>>(h =>
+            
+            collection.AddSingleton<EventProxy>()
+            .MockSingleton<ITypeFinder>(mock =>
             {
-                handler = h;
-                return true;
-            });
-            WhenAccessing<IRequest, IPrincipal>(x => x.User).Return(Thread.CurrentPrincipal);
+                mock.Setup(x => x.ListEventTypes()).Returns(new[] {eventType});
+                mock.Setup(x => x.GetEventType(It.IsAny<string>())).Returns(eventType);
+                mock.Setup(x => x.GetConstraintHandlerTypes(It.IsAny<Type>())).Returns(constraintHandlerTypes ?? Enumerable.Empty<Type>());
+            })
+            .MockSingleton<IEventAggregator>(mock => mock.Setup(x => x.Subscribe(It.IsAny<Func<object, Task>>())).Callback((Func<object, Task> h) => handler = h))
+            .MockTransiant<HubCallerContext>(mock =>
+            {
+                var id = CreateNewConnectionId();
+                mock.Setup(x => x.ConnectionId).Returns(id);
+                mock.Setup(x => x.User.Identity.Name).Returns("foobar");
+            })
+            .MockSingleton<IHubContext<EventAggregatorProxyHub>>(mock => mock.Setup(x => x.Clients.Client(It.IsAny<string>()).SendCoreAsync("onEvent", It.IsAny<object[]>(), It.IsAny<CancellationToken>())).Callback((string method, object[] obj, CancellationToken cancel) => events.Add(obj[0])).Returns(Task.CompletedTask))
+            .MockSingleton<ILogger<EventProxy>>();
 
-            var client = new Client(events);
 
-            WhenCalling<IHubConnectionContext<dynamic>>(x => x.Client(Arg<string>.Is.Anything)).Return(client);
-            WhenAccessing<IHubContext, IHubConnectionContext<dynamic>>(x => x.Clients).Return(Get<IHubConnectionContext<dynamic>>());
-            Mock<IConnectionManager>();
-            WhenCalling<IConnectionManager>(x => x.GetHubContext<EventAggregatorProxyHub>()).Return(Get<IHubContext>());
 
-            eventProxy = new EventProxy();
+            constraintHandlerTypes?.ForEach(t => collection.AddSingleton(t));
+            //WhenAccessing<IRequest, IPrincipal>(x => x.User).Return(Thread.CurrentPrincipal);
 
-            return handler;
+            //var client = new Client(events);
+
+            //WhenCalling<IHubConnectionContext<dynamic>>(x => x.Client(Arg<string>.Is.Anything)).Return(client);
+            //WhenAccessing<IHubContext, IHubConnectionContext<dynamic>>(x => x.Clients).Return(Get<IHubConnectionContext<dynamic>>());
+            //Mock<IConnectionManager>();
+            //WhenCalling<IConnectionManager>(x => x.GetHubContext<EventAggregatorProxyHub>()).Return(Get<IHubContext>());
+            
+        
         }
 
-        private HubCallerContext CreateHubContext()
+        private string CreateNewConnectionId()
         {
-            var id = Guid.NewGuid().ToString();
-            ids.Add(id);
-
-            return new HubCallerContext(Get<IRequest>(), id);
+           var id = Guid.NewGuid().ToString();
+           ids.Add(id);
+           return id;
         }
+
+        protected EventProxy EventProxy => Get<EventProxy>();
 
         protected void Subscribe()
         {
-            eventProxy.Subscribe(CreateHubContext(), typeName, new string[0], null, null);
+            EventProxy.Subscribe(Get<HubCallerContext>(), typeName, new string[0], null, null);
         }
 
         protected void Unsubscribe(string id)
         {
-            eventProxy.Unsubscribe(id, typeNames);
+            EventProxy.Unsubscribe(id, typeNames);
         }
 
         protected void UnsubscribeConnection(string id)
         {
-            eventProxy.UnsubscribeConnection(id);
-        }
-           
-
-        public class Client
-        {
-            private readonly ConcurrentBag<object> events;
-
-            public Client(ConcurrentBag<object> events)
-            {
-                this.events = events;
-            }
-
-            public void onEvent(object message)
-            {
-                events.Add(message);
-            }
+            EventProxy.UnsubscribeConnection(id);
         }
     }
 }
