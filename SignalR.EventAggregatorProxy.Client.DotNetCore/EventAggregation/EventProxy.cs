@@ -94,7 +94,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             if (unsubsscriptions.Any())
             {
                 queueSubscriptions = true;
-                await proxy.InvokeAsync("unsubscribe", unsubsscriptions);
+                await proxy.InvokeAsync("unsubscribe", new object[] { unsubsscriptions});
                 await SendQueuedSubscriptions();
             }
         }
@@ -119,7 +119,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
                 }
 
                 if (subscriptions.Any())
-                    await proxy.InvokeAsync("subscribe", subscriptions, reconnected);
+                    await proxy.InvokeAsync("subscribe", new object[] { subscriptions, reconnected });
             }
             catch (Exception ex)
             {

@@ -63,17 +63,19 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 
         public IDisposable On<T>(string methodName, Action<T> handler)
         {
-            return connection.On(methodName, handler);
+            void InternalHandler(object[] args) => handler((T)args[0]);
+
+            return connection.On(methodName, new[] { typeof(T) }, (parameters, state) =>
+            {
+                var currentHandler = (Action<object[]>)state;
+                currentHandler(parameters);
+                return Task.CompletedTask;
+            }, (Action<object[]>)InternalHandler);
         }
 
-        public Task InvokeAsync(string methodName, object arg, CancellationToken cancellationToken = default(CancellationToken))
+        public Task InvokeAsync(string methodName, object[] args, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return connection.InvokeAsync(methodName, arg, cancellationToken);
-        }
-
-        public Task InvokeAsync(string methodName, object arg1, object arg2, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return connection.InvokeAsync(methodName, arg1, arg2, cancellationToken);
+            return connection.InvokeCoreAsync(methodName, typeof(object), args, cancellationToken);
         }
     }
 }
