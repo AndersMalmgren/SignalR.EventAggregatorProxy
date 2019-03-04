@@ -18,10 +18,10 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 
             configureConnection?.Invoke(connection);
 
+            Func<int, Task> delayedStart = null;
+
             Func<Task> start = async () =>
             {
-                
-
                 try
                 {
                     await connection.StartAsync();
@@ -37,15 +37,17 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
                 catch (Exception ex)
                 {
                     faulted(ex);
+                    await delayedStart(5000);
                 }
             };
 
-
-            connection.Closed += async (error) =>
+            delayedStart = async delay =>
             {
-                await Task.Delay(new Random().Next(0, 5) * 1000); //Best practice acccording to demo :P
+                await Task.Delay(delay); 
                 await start();
             };
+            
+            connection.Closed += async (error) => await delayedStart(new Random().Next(0, 5) * 1000); //Best practice acccording to demo :P
 
             await start();
             return hub;
