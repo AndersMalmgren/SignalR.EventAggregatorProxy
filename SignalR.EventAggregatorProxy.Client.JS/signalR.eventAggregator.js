@@ -65,7 +65,7 @@
             if (newSubscription.type.genericArguments == null && newSubscription.constraint == null) return false;
 
             var should = true;
-            subscribers.forEach(function (s) {
+            subscribers.every(function (s) {
                 if (newSubscription.type.genericArguments != null &&
                     !genericArgumentsCorrect(newSubscription.type.genericArguments, s.type.genericArguments)) return true;
 
@@ -193,7 +193,7 @@
                     id: typeData.constraintId
                 });
 
-            }.bind(this));
+            }.bind(this)).filter(function (name) { return name !== null });
 
             if (typeNames.length > 0) {
                 this.queueSubscriptions = true;
