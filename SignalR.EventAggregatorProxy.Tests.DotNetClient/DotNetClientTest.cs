@@ -39,15 +39,13 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
                 .Build()
                 .MockSingleton<IHub>(mock => 
                 { 
-                    mock.Setup(x => x.InvokeAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Callback((string method, object arg1, object arg2, CancellationToken token) =>
+                    mock.Setup(x => x.InvokeAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>())).Callback((string method, object[] args, CancellationToken token) =>
                     {
-                        OnSubscribe(arg1 as IEnumerable<dynamic>, (bool)arg2);
+                        if(method == "subscribe")
+                            OnSubscribe(args[0] as IEnumerable<dynamic>, (bool)args[1]);
+                        else
+                            OnUnsubscribe(args[0] as IEnumerable<dynamic>);
                     }).Returns(Task.CompletedTask);
-                    mock.Setup(x => x.InvokeAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Callback((string method, object arg, CancellationToken token) =>
-                    {
-                        OnUnsubscribe(arg as IEnumerable<dynamic>);
-                    }).Returns(Task.CompletedTask);
-
                 })
                 .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(eventTypes))
                 .MockSingleton<IHubProxyFactory>(mock => mock.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Action<HubConnection>>(), It.IsAny<Func<IHub, Task>>(), It.IsAny<Func<Task>>(), It.IsAny<Action<Exception>>(), It.IsAny<Action>()))
