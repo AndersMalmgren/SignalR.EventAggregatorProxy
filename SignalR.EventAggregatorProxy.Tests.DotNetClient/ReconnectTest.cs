@@ -12,6 +12,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     public class When_a_client_is_reconnected : DotNetClientTest
     {
         private int subscriptionCount = 0;
+        private int connectedCount;
 
         [TestInitialize]
         public async Task Context()
@@ -37,11 +38,15 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
             await reconnectedCallback();
         }
 
+       
+        protected override void OnConnected()
+        {
+            connectedCount++;
+        }
 
 
         protected override void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
         {
-            System.Console.WriteLine("Called onsubscribe");
             subscriptionCount = subscriptions.Count();
             reset.Set();
         }
@@ -50,6 +55,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         public void It_should_resubscribe_correctly()
         {
             Assert.AreEqual(4, subscriptionCount);
+            Assert.AreEqual(2, connectedCount);
         }
 
         public class NoneConstraintEvent : Event

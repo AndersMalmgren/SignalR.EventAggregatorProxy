@@ -139,6 +139,8 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
         private Task Reconnected()
         {
+            connectedAction();
+
             subscriptionQueue.AddRange(subscriptionStore.ListUniqueSubscriptions());
             return  SendQueuedSubscriptions(true);
         }
