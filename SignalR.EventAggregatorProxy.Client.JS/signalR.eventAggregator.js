@@ -162,7 +162,9 @@
 
     Proxy.prototype = {
         start: function () {
-            this.hub.start().then(this.isConnected ? this.reconnected.bind(this) : this.sendSubscribeQueue.bind(this));
+            this.hub.start()
+                .catch(function () { setTimeout(this.start.bind(this), 5000); }.bind(this))
+                .then(this.isConnected ? this.reconnected.bind(this) : this.sendSubscribeQueue.bind(this));
         },
         onEvent: function (message) {
             var type = signalR.getEvent(message.type);
