@@ -6,8 +6,8 @@
   </PropertyGroup>
   
   <UsingTask
-        TaskName="CompressorTask"
-        AssemblyFile="Yahoo.Yui.Compressor.MsBuildTask.dll"></UsingTask>
+        TaskName="JavaScriptCompressorTask"
+        AssemblyFile="Yahoo.Yui.Compressor.MsBuild.dll"></UsingTask>
 
   <UsingTask
         TaskName="VersionInfoTask"
@@ -27,7 +27,7 @@
     <CallTarget Targets="MinimizeJS"/>
     <CallTarget Targets="CopyFiles"/>
     <CallTarget Targets="PatchPackageJson"/>
-    <CallTarget Targets="Publish"/>
+    <!--<CallTarget Targets="Publish"/>-->
   </Target>
 
   <Target Name="DeleteNugetFolder">
@@ -51,17 +51,17 @@
 
     <Copy SourceFiles="@(JavaScriptFiles)" DestinationFiles="@(JavaScriptFiles -> '$(NugetFolder)\signalR.eventAggregator.js')"/>
 
-    <CompressorTask
-        JavaScriptCompressionType="YuiStockCompression"
-        JavaScriptFiles="@(JavaScriptFiles)"
+    <JavaScriptCompressorTask
+        CompressionType ="standard"
+        SourceFiles ="@(JavaScriptFiles)"
         ObfuscateJavaScript="True"
         PreserveAllSemicolons="True"
-        DisableOptimizations="Nope"
+        DisableOptimizations="False"
         EncodingType="Default"
-        DeleteJavaScriptFiles="false"
+        DeleteSourceFiles ="false"
         LineBreakPosition="-1"
-        JavaScriptOutputFile="$(NugetFolder)\signalR.eventAggregator.min.js"
-        LoggingType="ALittleBit"
+        OutputFile ="$(NugetFolder)\signalR.eventAggregator.min.js"
+        LoggingType="info"
         ThreadCulture="en-US"
         IsEvalIgnored="false" />    
   </Target>
@@ -76,8 +76,6 @@
 
   <Target Name="PatchPackageJson">
     <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="$(Version)" JPath="version"/>
-    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="signalR.eventAggregator.js" JPath="main"/>
-    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="signalR.eventAggregator.min.js" JPath="unpkg"/>
   </Target>
 
   <Target Name="Publish">

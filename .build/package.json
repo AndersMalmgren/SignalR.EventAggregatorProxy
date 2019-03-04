@@ -15,6 +15,6 @@
     "type": "git",
     "url": "https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy.git"
   },
-  "main": "my.js",
-  "unpkg": "my.min.js"
+  "main": "signalR.eventAggregator.js",
+  "unpkg": "signalR.eventAggregator.min.js"
 }
