@@ -1,6 +1,9 @@
-window.TestEvent = function() {
+/// <reference path="stubs.js" />
+/// <reference path="../SignalR.EventAggregatorProxy.Client.JS/signalR.eventAggregator.js"/>
 
-};
+constructClientEvent = function () {
+    return window.TestEvent = function () { }
+}
 
 constructEvent = function (genericArgument, event, proxyEvent, typeName) {
     if (event == null) {
@@ -30,11 +33,24 @@ constructEvent = function (genericArgument, event, proxyEvent, typeName) {
     }  : event;
 };
 
+test = function (name, setup) {
+    var runner = function (assert) {
+        if (currentHub) {
+            delete currentHub;
+        }
+
+        signalR.eventAggregator = new signalR.EventAggregator(true);
+        setup(assert);
+    };
+
+    QUnit.test(name, runner);
+};
+
 throttleTest = function (name, setup) {
-    asyncTest(name, function () {
-        
-        var throttleAssert = setup();
-        start();
+    test(name, function (assert) {
+        var done = assert.async();
+        var throttleAssert = setup(assert);
+        done();
         
         if (throttleAssert) {
             throttleAssert();
@@ -42,42 +58,43 @@ throttleTest = function (name, setup) {
     });
 };
 
-test("Event aggregator class should have correct casing on closure (signalR) Issue #1 ", function () {
-    ok(window.signalR !== undefined);
-    ok(window.signalR.eventAggregator !== undefined);
+test("Event aggregator class should have correct casing on closure (signalR) Issue #1 ", function (assert) {
+    assert.ok(window.signalR !== undefined);
+    assert.ok(window.signalR.eventAggregator !== undefined);
 });
 
-throttleTest("When subscribing to client side event Issue #2", function () {
-    expect(0);
+throttleTest("When subscribing to client side event Issue #2", function (assert) {
+    assert.expect(0);
     currentHub.invoke = function () {
-        ok(false, "Server side subscribe should not be called for client side events");
+        assert.ok(false, "Server side subscribe should not be called for client side events");
     };
 
-    signalR.eventAggregator.subscribe(TestEvent, function() {
+    signalR.eventAggregator.subscribe(constructClientEvent(), function() {
     }, {});
 });
 
-test("When unsubscribing to client side event Issue #5", function () {
+test("When unsubscribing to client side event Issue #5", function (assert) {
     var context = {};
     currentHub.invoke = function () {
-        ok(false, "Server side unsubscribe should not be called for client side events");
+        assert.ok(false, "Server side unsubscribe should not be called for client side events");
     };
 
-    signalR.eventAggregator.subscribe(TestEvent, function () {
+    signalR.eventAggregator.subscribe(constructClientEvent(), function () {
     }, context);
     signalR.eventAggregator.unsubscribe(context);
-    ok(true, "Server side unsubscribe was not called");
+    assert.ok(true, "Server side unsubscribe was not called");
 });
 
-test("When subscribing to client side event", function () {
+test("When subscribing to client side event", function (assert) {
     var context = {};
-    var event = new TestEvent();
+    var eventType = constructClientEvent();
+    var event = new eventType();
     var failIfPublished = false;
-    signalR.eventAggregator.subscribe(TestEvent, function (e) {
+    signalR.eventAggregator.subscribe(eventType, function (e) {
         if (failIfPublished) {
-            ok(false, "Listener should not have been called");
+            assert.ok(false, "Listener should not have been called");
         }
-        equal(event, e);
+        assert.equal(event, e);
     }, context);
 
     signalR.eventAggregator.publish(event);
@@ -86,18 +103,18 @@ test("When subscribing to client side event", function () {
     signalR.eventAggregator.publish(event);
 });
 
-test("When unsubscribing a context that never were subscribed", function () {
+test("When unsubscribing a context that never were subscribed", function (assert) {
     var context = {};
     try {
         signalR.eventAggregator.unsubscribe(context);
     } catch (err) {
-        ok(false, "Should not crash");
+        assert.ok(false, "Should not crash");
     }
 
-    ok(true, "It should exit function call without exception");
+    assert.ok(true, "It should exit function call without exception");
 });
 
-throttleTest("When unsubscribing and subscribing directly after to server side events", function () {
+throttleTest("When unsubscribing and subscribing directly after to server side events", function (assert) {
     var event = constructEvent();
     var eventData = { type: event };
 
@@ -112,9 +129,9 @@ throttleTest("When unsubscribing and subscribing directly after to server side e
 				}
 			};
 		if(method === "Subscribe")
-			ok(unsubscribeDone, "It should not call subscribe while unsubscribe is working");
+			assert.ok(unsubscribeDone, "It should not call subscribe while unsubscribe is working");
 		else			
-			ok(false, "No method mapped");
+			assert.ok(false, "No method mapped");
     };
 
 
@@ -129,33 +146,21 @@ throttleTest("When unsubscribing and subscribing directly after to server side e
     };
 });
 
-throttleTest("When doing subsequent calls to subscribe Issue #12", function () {
+throttleTest("When doing subsequent calls to subscribe Issue #12", function (assert) {
     currentHub.invoke = function (method, arr) {
-        equal(arr.length, 2, "Should throttle subscriptions");
+        assert.equal(arr.length, 2, "Should throttle subscriptions");
     };
-
-    var eventAggregator = new signalR.EventAggregator(true);
-
+    
     for (var i = 0; i < 2; i++) {
         var event = constructEvent();
         
-        eventAggregator.subscribe(event, function() {
+        signalR.eventAggregator.subscribe(event, function() {
         }, {});
     }
 });
 
-test("When not subscribing to any events from start", function () {
-    currentHub.invoke = function () {
-        ok(false, "Should not call subscribe");
-    };
-
-    var eventAggregator = new signalR.EventAggregator(true);
-
-    ok(true, "Did not call subscribe");
-});
-
-throttleTest("When a third party lib is traversing object tree that has reference to eventAggregator", function () {
-    expect(0);
+throttleTest("When a third party lib is traversing object tree that has reference to eventAggregator", function (assert) {
+    assert.expect(0);
     var traverse = function (obj) {
         for (var member in obj) {
             var child = obj[member];
@@ -186,10 +191,10 @@ throttleTest("When a third party lib is traversing object tree that has referenc
 });
 
 multipleSameEventSubscriptionTest = function(name, genericArgument, constraint, expectedCount) {
-    throttleTest(name, function () {
+    throttleTest(name, function (assert) {
         currentHub.invoke = function (method, s) {
             expectedCount = expectedCount || 1;
-            equal(s.length, expectedCount, "It should subscribe " + expectedCount + " times to same event");
+            assert.equal(s.length, expectedCount, "It should subscribe " + expectedCount + " times to same event");
         };
 
         var event = function () {
@@ -216,8 +221,8 @@ multipleSameEventSubscriptionTest = function(name, genericArgument, constraint, 
         }
 
         return function () {
-            ok(constraint == null || constructor.__subscribers[0].constraintId != null, "ConstraintId should be set");
-            (singleConstraint ? equal : notEqual)(constructor.__subscribers[0].constraintId, constructor.__subscribers[1].constraintId, "ConstraintId should be correct");
+            assert.ok(constraint == null || constructor.__subscribers[0].constraintId != null, "ConstraintId should be set");
+            (singleConstraint ? assert.equal : assert.notEqual).bind(assert)(constructor.__subscribers[0].constraintId, constructor.__subscribers[1].constraintId, "ConstraintId should be correct");
         };
     });
 };
@@ -231,7 +236,7 @@ multipleSameEventSubscriptionTest("When subscribing multiple times to same const
 multipleSameEventSubscriptionTest("When subscribing multiple times to event with different generic parameters but same constraint", ["One", "Two"], [{ id: 1 }, { id: 1 }], 2);
 
 multipleSameEventUnsubscriptionTest = function (name, genericArgument, constraint, subscribeCount, unsubscribeCount) {
-    throttleTest(name, function () {
+    throttleTest(name, function (assert) {
         subscribeCount = subscribeCount || 2;
         unsubscribeCount = unsubscribeCount || subscribeCount - 1;
         var removeAll = subscribeCount - unsubscribeCount === 0;
@@ -239,7 +244,7 @@ multipleSameEventUnsubscriptionTest = function (name, genericArgument, constrain
         var eventAggregator = new signalR.EventAggregator(true);
 
         if (removeAll)
-            expect(2);
+            assert.expect(2);
 
         currentHub.invoke = function (method) {
 			switch(method) {
@@ -247,16 +252,15 @@ multipleSameEventUnsubscriptionTest = function (name, genericArgument, constrain
 					for (var i = 0; i < unsubscribeCount; i++) {
 						eventAggregator.unsubscribe(contexts[i]);
 					}
-					equal(constructor.__subscribers.length, subscribeCount - unsubscribeCount, "Should remove " + unsubscribeCount + " subscriptions client side");				
+                    assert.equal(constructor.__subscribers.length, subscribeCount - unsubscribeCount, "Should remove " + unsubscribeCount + " subscriptions client side");				
 				break;
 				case "Unsubscribe":
-					ok(removeAll, "Should " + (removeAll ? "" : "not") + " unsubscribe");
+                    assert.ok(removeAll, "Should " + (removeAll ? "" : "not") + " unsubscribe");
 
 					return {
 						then: function() {
 						}
-					};				
-				break;
+					};
 			}				
 
         };
@@ -287,40 +291,35 @@ multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same e
 multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same generic event - Issue #1", "One", null);
 multipleSameEventUnsubscriptionTest("When unsubscribing multiple times to same constrained event - Issue #13", null, { id: 1 });
 
-throttleTest("When two contexts subcribe to different generic arguments of same event", function() {
-    expect(0);
+throttleTest("When two contexts subcribe to different generic arguments of same event", function(assert) {
+    assert.expect(0);
     currentHub.invoke = function() {
     };
 
     var eventOne = constructEvent("One");
     var eventTwo = constructEvent("Two", eventOne);
-
-    var assert = function(e) {
-        ok(false, "It should not trigger on wrong generic event");
-    };
-
+    
     var eventAggregator = new signalR.EventAggregator(true);
-    eventAggregator.subscribe(eventOne.event, assert, {});
+    eventAggregator.subscribe(eventOne.event, function (e) { assert.ok(false, "It should not trigger on wrong generic event"); }, {});
 
     return function() {
         eventAggregator.publish(new eventOne.constructor(), eventTwo.event.genericArguments);
     };
 });
 
-throttleTest("When two contexts subcribe to different generic arguments of same event and unsubscribes", function () {
+throttleTest("When two contexts subcribe to different generic arguments of same event and unsubscribes", function (assert) {
 	currentHub.invoke = function (method, events) {
 		switch(method) {
 			case "Subscribe":							
 			break;
 			case "Unsubscribe":
-				equal(events.length, 1, "It should only unsubscribe one event")
-				equal(events[0].genericArguments[0], "One", "It should unsubscribe event one");
+                assert.equal(events.length, 1, "It should only unsubscribe one event")
+                assert.equal(events[0].genericArguments[0], "One", "It should unsubscribe event one");
 
 				return {
 					then: function() {
 					}
-				};				
-			break;
+				};
 		}				
 
 	}; 
@@ -340,9 +339,11 @@ throttleTest("When two contexts subcribe to different generic arguments of same 
     };
 });
 
-asyncTest("When a client is reconnected", function() {
+test("When a client is reconnected", function(assert) {
 	var reconnected = false;
-	var startAssert = false;
+    var startAssert = false;
+
+    var done = assert.async();
 	
 	currentHub.invoke = function (method, events) {
 		switch(method) {
@@ -353,12 +354,12 @@ asyncTest("When a client is reconnected", function() {
 				
 				//Wait for unsubscribe
 				if(!startAssert) {
-					startAssert = true;
-					start();
-					window.currentOnClose();
-					return;
+                    startAssert = true;
+                    done();
+                    window.currentOnClose();
+                    return;
 				}
-				equal(events.length, 4, "It should resubscribe to the events: " + events.length);			
+                assert.equal(events.length, 4, "It should resubscribe to the events: " + events.length);			
 				
 			
 			break;
@@ -369,8 +370,7 @@ asyncTest("When a client is reconnected", function() {
 					then: function (callback) {
 						callback();
 					}		
-				};				
-			break;
+				};
 		}
 	}; 
 	
@@ -404,13 +404,13 @@ asyncTest("When a client is reconnected", function() {
     eventAggregator.subscribe(constraintEvent, function () { },thirdConstraintSubscriber, { foo: 3 });
 });
 
-test("When Hub is missing", function() {
+QUnit.test("When Hub is missing", function(assert) {
     delete signalR.HubConnectionBuilder;
 
     try {
         new signalR.EventAggregator(true);
     } catch (error) {
-        ok(typeof (error) === "string" && error.indexOf("library") !== -1, "It should throw meaningful exception");
+        assert.ok(typeof (error) === "string" && error.indexOf("library") !== -1, "It should throw meaningful exception");
     } finally {
         stubHub();
     }
