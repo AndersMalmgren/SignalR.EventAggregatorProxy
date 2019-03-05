@@ -1,0 +1,24 @@
+{
+  "name": "signalr.eventaggregatorproxy.vue",
+  "version": "1.0.0",
+  "dependencies": {
+    "signalr.eventaggregatorproxy": "signalr.eventaggregatorproxy_version"
+  },
+  "description": "Vue client library for SignalR.EventAggregatorProxy",
+  "keywords": [
+    "signalr",
+    "servicebus",
+    "EventAggregator",
+    "proxy",
+    "Vue"
+  ],
+  "homepage": "https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy",
+  "license": "mit",
+  "author": "Anders Malmgren (https://github.com/AndersMalmgren/)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy.git"
+  },
+  "main": "signalR.eventAggregator.vue.js",
+  "unpkg": "signalR.eventAggregator.vue.min.js"
+}

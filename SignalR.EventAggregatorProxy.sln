@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{47FBF1
 		.build\build_js_client.proj = .build\build_js_client.proj
 		.build\build_server_output.proj = .build\build_server_output.proj
 		.build\build_server_web_output.proj = .build\build_server_web_output.proj
+		.build\build_vue_client.proj = .build\build_vue_client.proj
 		.build\create_nuget_package.cmd = .build\create_nuget_package.cmd
 		.build\EcmaScript.NET.modified.dll = .build\EcmaScript.NET.modified.dll
 		.build\get_git_version.proj = .build\get_git_version.proj
@@ -31,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{47FBF1
 		.build\package.json = .build\package.json
 		.build\Package.Server.nuspec = .build\Package.Server.nuspec
 		.build\Package.Server.Web.nuspec = .build\Package.Server.Web.nuspec
+		.build\package.vue.json = .build\package.vue.json
 		.build\Sharpen.dll = .build\Sharpen.dll
 		.build\versions.xml = .build\versions.xml
 		.build\write_VersionInfo.proj = .build\write_VersionInfo.proj
@@ -57,7 +59,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Tests.Server", "SignalR.EventAggregatorProxy.Tests.Server\SignalR.EventAggregatorProxy.Tests.Server.csproj", "{A634DEB0-9255-43F8-A922-9367434A1CF4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Tests.DotNetClient", "SignalR.EventAggregatorProxy.Tests.DotNetClient\SignalR.EventAggregatorProxy.Tests.DotNetClient.csproj", "{F140EDB8-92CF-4F96-AFCE-F88B95308E32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Tests.DotNetClient", "SignalR.EventAggregatorProxy.Tests.DotNetClient\SignalR.EventAggregatorProxy.Tests.DotNetClient.csproj", "{F140EDB8-92CF-4F96-AFCE-F88B95308E32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Client.Vue", "SignalR.EventAggregatorProxy.Client.Vue\SignalR.EventAggregatorProxy.Client.Vue.csproj", "{D683E47D-2059-4544-8134-F70069DF69D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +105,10 @@ Global
 		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F140EDB8-92CF-4F96-AFCE-F88B95308E32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D683E47D-2059-4544-8134-F70069DF69D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D683E47D-2059-4544-8134-F70069DF69D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D683E47D-2059-4544-8134-F70069DF69D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D683E47D-2059-4544-8134-F70069DF69D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

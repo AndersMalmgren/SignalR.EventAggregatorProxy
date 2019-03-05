@@ -16,3 +16,5 @@ dotnet msbuild build_constraint_output.proj /property:BuildDir=..\Output /proper
 
 msbuild build_js_client.proj /property:NugetFolder=..\NugetOutput 
 
+msbuild build_vue_client.proj /property:NugetFolder=..\NugetOutput 
+
