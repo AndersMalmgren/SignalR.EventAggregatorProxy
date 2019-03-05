@@ -44,7 +44,7 @@ new Vue({
             this.post("api/service/fireConstrainedEvent", this.text);
         },
         fireClientSideEvent: function () {
-            signalR.eventAggregator.publish(new ClientSideEvent(this.text));
+            this.publish(new ClientSideEvent(this.text));
         }
     }
 });

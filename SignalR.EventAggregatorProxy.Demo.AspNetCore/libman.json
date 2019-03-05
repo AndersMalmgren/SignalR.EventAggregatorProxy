@@ -32,7 +32,7 @@
     },
     {
       "provider": "unpkg",
-      "library": "signalr.eventaggregatorproxy.vue@2.0.19-8.0",
+      "library": "signalr.eventaggregatorproxy.vue@2.0.20-3.0",
       "destination": "wwwroot/lib/signalr.eventaggregatorproxy.vue/",
       "files": [
         "signalR.eventAggregator.vue.js",
