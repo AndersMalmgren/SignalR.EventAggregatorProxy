@@ -10,3 +10,7 @@ This will create a VersionInfo.cs required by the project to compile
 
 ### Install using nuget
 Install-Package SignalR.EventAggregatorProxyCore 
+
+### Docs
+
+https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy/wiki
