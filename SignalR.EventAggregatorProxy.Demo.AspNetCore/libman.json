@@ -29,6 +29,15 @@
         "signalR.eventAggregator.min.js",
         "signalR.eventAggregator.js"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "signalr.eventaggregatorproxy.vue@2.0.19-8.0",
+      "destination": "wwwroot/lib/signalr.eventaggregatorproxy.vue/",
+      "files": [
+        "signalR.eventAggregator.vue.js",
+        "signalR.eventAggregator.vue.min.js"
+      ]
     }
   ]
 }

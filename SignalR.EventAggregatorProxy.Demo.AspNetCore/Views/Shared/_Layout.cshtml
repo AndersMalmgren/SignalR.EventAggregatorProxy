@@ -29,7 +29,10 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Vanilla client</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Vue">Vue client</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -41,6 +44,10 @@
     </header>
     <div class="container">
         <partial name="_CookieConsentPartial" />
+        <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+        <script src="~/lib/signalr.eventaggregatorproxy/signalR.eventAggregator.js" asp-append-version="true"></script>
+        <script src="~/lib/knockout/build/output/knockout-latest.js" asp-append-version="true"></script>  
+        <script src="/eventAggregation/events" asp-append-version="true"></script>
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -54,7 +61,6 @@
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/signalr/dist/browser/signalr.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     </environment>
     <environment exclude="Development">
@@ -71,10 +77,7 @@
                 integrity="sha256-E/V4cWE4qvAeO5MOhjtGtqDzPndRO1LBk8lJ/PR7CA4=">
         </script>
     </environment>
-    <script src="~/lib/signalr.eventaggregatorproxy/signalR.eventAggregator.js" asp-append-version="true"></script>
-    <script src="~/lib/knockout/build/output/knockout-latest.js" asp-append-version="true"></script>  
-    <script src="/eventAggregation/events" asp-append-version="true"></script>
-    <script src="~/js/TestViewModel.js" asp-append-version="true"></script>
+    @*<script src="~/js/TestViewModel.js" asp-append-version="true"></script>*@
 
 
     @RenderSection("Scripts", required: false)

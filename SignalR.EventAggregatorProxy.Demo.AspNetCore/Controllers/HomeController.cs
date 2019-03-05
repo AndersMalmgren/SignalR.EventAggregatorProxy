@@ -20,6 +20,12 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore.Controllers
             return View();
         }
 
+        [Route("Vue")]
+        public IActionResult Vue()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

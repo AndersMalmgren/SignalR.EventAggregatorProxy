@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewData["Title"] = "Vue";
+}
+
+<div class="text-center" id="app">
+    <h1>Vue demo</h1>
+    
+    <label>Message</label><input v-model="text" type="text" />
+    <div>
+        <button v-bind:disabled="!canFire" v-on:click="fireStandardEvent">Fire standard event</button>
+        <button v-bind:disabled="!canFire" v-on:click="fireGenericEvent">Fire generic event</button>
+        <button v-bind:disabled="!canFire" v-on:click="fireConstrainedEvent">Fire constrained event (Message must be 'HelloWorld' for the event to fire on this client</button>
+        <button v-bind:disabled="!canFire" v-on:click="fireClientSideEvent">Fire client side event</button>
+    </div>
+
+    <h3>Events</h3>
+    <div v-for="e in events">
+        {{e}}
+    </div>
+</div>
+<script src="https://unpkg.com/vue"></script>
+<script src="~/lib/signalr.eventaggregatorproxy.vue/signalR.eventAggregator.vue.min.js" asp-append-version="true"></script>
+<script src="~/js/Vue.js" asp-append-version="true"></script>
