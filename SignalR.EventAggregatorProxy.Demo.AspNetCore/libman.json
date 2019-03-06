@@ -38,6 +38,14 @@
         "signalR.eventAggregator.vue.js",
         "signalR.eventAggregator.vue.min.js"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "signalr.eventaggregatorproxy.react@2.0.20-6.0",
+      "destination": "wwwroot/lib/signalr.eventaggregatorproxy.react/",
+      "files": [
+        "signalR.eventAggregator.react.jsx"
+      ]
     }
   ]
 }
