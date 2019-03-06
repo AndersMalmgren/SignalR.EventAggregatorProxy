@@ -1,19 +1,17 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using React.AspNet;
 using SignalR.EventAggregatorProxy.AspNetCore.Middlewares;
 using SignalR.EventAggregatorProxy.Boostrap;
-using SignalR.EventAggregatorProxy.Constraint;
-using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints;
-using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 using SignalR.EventAggregatorProxy.Event;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+
 
 namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
 {
@@ -23,6 +21,7 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
         {
             Configuration = configuration;
         }
+        
 
         public IConfiguration Configuration { get; }
 
@@ -36,6 +35,11 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services
+                .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+                .AddReact();
+            services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName)
+                .AddChakraCore();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -60,6 +64,25 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseReact(config =>
+            {
+                // If you want to use server-side rendering of React components,
+                // add all the necessary JavaScript files here. This includes
+                // your components as well as all of their dependencies.
+                // See http://reactjs.net/ for more information. Example:
+                //config
+                //  .AddScript("~/Scripts/First.jsx")
+                //  .AddScript("~/Scripts/Second.jsx");
+
+                // If you use an external build too (for example, Babel, Webpack,
+                // Browserify or Gulp), you can improve performance by disabling
+                // ReactJS.NET's version of Babel and loading the pre-transpiled
+                // scripts. Example:
+                //config
+                //  .SetLoadBabel(false)
+                //  .AddScriptWithoutTransform("~/Scripts/bundle.server.js");
+            });
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
