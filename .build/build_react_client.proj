@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Start">
+  <PropertyGroup>
+    <NugetFolder></NugetFolder>
+    <Version></Version>
+    <CoreClientVersion></CoreClientVersion>
+  </PropertyGroup>
+
+  <UsingTask
+        TaskName="VersionInfoTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <UsingTask
+        TaskName="CreateVersionInfoFileTask"
+        AssemblyFile="GitVersionInfo.dll"></UsingTask>
+
+  <UsingTask
+    TaskName="JsonPoke"
+    AssemblyFile="JsonPeek.MSBuild.dll"></UsingTask>
+
+  <Target Name="Start">
+    <CallTarget Targets="DeleteNugetFolder"/>
+    <CallTarget Targets="GetGitVersion"/>
+    <CallTarget Targets="CopyFiles"/>
+    <CallTarget Targets="PatchPackageJson"/>
+    <!--<CallTarget Targets="Publish"/>-->
+  </Target>
+
+  <Target Name="DeleteNugetFolder">
+    <RemoveDir Directories="$(NugetFolder)"/>
+  </Target>
+
+  <Target Name="GetGitVersion">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.React">
+      <Output PropertyName="Version" TaskParameter="Version" />
+    </VersionInfoTask>
+
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.JS">
+      <Output PropertyName="CoreClientVersion" TaskParameter="Version" />
+    </VersionInfoTask>
+  </Target>
+
+  <Target Name="CopyFiles">
+    <ItemGroup>
+      <SpecFile Include="package.react.json">
+      </SpecFile>
+    </ItemGroup>
+    <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\package.json')"/>
+
+    <ItemGroup>
+      <JsFile Include="..\SignalR.EventAggregatorProxy.Client.React\signalR.eventAggregator.react.jsx"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(JsFile)" DestinationFiles="@(JsFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+  </Target>
+
+  <UsingTask TaskName="ReplaceContentTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <InputFilename ParameterType="System.String" Required="true" />
+      <ReplaceContent ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            File.WriteAllText(InputFilename, File.ReadAllText(InputFilename).Replace(ReplaceContent, Version));
+          ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="PatchPackageJson">
+    <JsonPoke JsonInputPath="$(NugetFolder)\package.json" JValue="$(Version)" JPath="version"/>
+    <ReplaceContentTask InputFilename="$(NugetFolder)\package.json" ReplaceContent="signalr.eventaggregatorproxy_version"  Version="$(CoreClientVersion)" />
+  </Target>
+
+  <Target Name="Publish">
+    <Exec WorkingDirectory="$(NugetFolder)" Command="npm publish"/>
+    <RemoveDir Directories="$(NugetFolder)"/>
+  </Target>
+</Project>
