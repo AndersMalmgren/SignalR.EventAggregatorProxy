@@ -11,7 +11,7 @@
                 this.queuedSubscriptions.forEach(s => {
                     this.subscribe(s.event, s.handler, s.constraint);
                 });
-                this.queuedSubscriptions = null; //Only support deferred subscriptions at mount time. 
+                this.queuedSubscriptions = null;  //Only support deferred subscriptions at mount time. 
             }
         }
 

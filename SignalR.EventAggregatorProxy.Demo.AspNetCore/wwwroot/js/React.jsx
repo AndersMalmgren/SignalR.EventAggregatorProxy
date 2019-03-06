@@ -11,12 +11,10 @@ class ReactExample extends React.Component {
     }
 
     componentDidMount() {
-        this.props.hookSubscriptions(subscribe => {
-            subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.StandardEvent, this.onEvent);
-            subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.GenericEvent.of("System.String"), this.onEvent);
-            subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.ConstrainedEvent, this.onEvent, { message: "HelloWorld" });
-            subscribe(ClientSideEvent, this.onEvent);
-        });
+        this.props.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.StandardEvent, this.onEvent);
+        this.props.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.GenericEvent.of("System.String"), this.onEvent);
+        this.props.subscribe(SignalR.EventAggregatorProxy.Demo.Contracts.Events.ConstrainedEvent, this.onEvent, { message: "HelloWorld" });
+        this.props.subscribe(ClientSideEvent, this.onEvent);
     }
 
     onEvent(e) {
@@ -47,7 +45,7 @@ class ReactExample extends React.Component {
         this.post("api/service/fireConstrainedEvent", this.state.text);
     }
     fireClientSideEvent() {
-        this.publish(new ClientSideEvent(this.state.text));
+        this.props.publish(new ClientSideEvent(this.state.text));
     }
 
     render() {
@@ -55,7 +53,7 @@ class ReactExample extends React.Component {
 
         return (
             <div>
-                <h1>Vue demo</h1>
+                <h1>React demo</h1>
 
                 <label>Message</label> <input type="text" value={this.state.text} onChange={this.handleChange.bind(this)} />
                 <div>
