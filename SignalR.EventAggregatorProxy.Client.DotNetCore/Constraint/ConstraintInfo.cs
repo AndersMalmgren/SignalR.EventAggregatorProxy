@@ -11,9 +11,15 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint
         int Id { get; }
     }
 
+    public interface IConstraintinfoBuilderResult<TEvent>
+    {
+        IConstraintinfoBuilder Add<TConstraint>(TConstraint constraint);
+    }
+
     public interface IConstraintinfoBuilder
     {
         IConstraintinfoBuilder Add<TEvent, TConstraint>(TConstraint constraint);
+        IConstraintinfoBuilderResult<TEvent> For<TEvent>();
     }
 
     public class ConstraintinfoBuilder : IConstraintinfoBuilder
@@ -32,6 +38,26 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint
             subscriptionStore.AddConstraint(constraintInfo);
             constraintInfos.Add(constraintInfo);
             return this;
+        }
+
+        public IConstraintinfoBuilderResult<TEvent> For<TEvent>() 
+        {
+            return new ConstraintinfoBuilderResult<TEvent>(this);
+        }
+    }
+
+    public class ConstraintinfoBuilderResult<TEvent> : IConstraintinfoBuilderResult<TEvent>
+    {
+        private readonly ConstraintinfoBuilder constraintinfoBuilder;
+
+        public ConstraintinfoBuilderResult(ConstraintinfoBuilder constraintinfoBuilder)
+        {
+            this.constraintinfoBuilder = constraintinfoBuilder;
+        }
+
+        public IConstraintinfoBuilder Add<TConstraint>(TConstraint constraint)
+        {
+            return constraintinfoBuilder.Add<TEvent, TConstraint>(constraint);
         }
     }
 

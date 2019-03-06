@@ -70,6 +70,17 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     }
 
     [TestClass]
+    public class When_subscribing_using_fluent_constraint_synstax : SubscriptionTest<StandardEvent>
+    {
+        protected override void BuildConstraints(int index, IConstraintinfoBuilder builder)
+        {
+            builder
+                .For<StandardEvent>()
+                .Add(new StandardEventConstraint {Id = 1});
+        }
+    }
+
+    [TestClass]
     public class When_subscribing_to_multiple_constrained_events_of_same_type_but_different_constraint : SubscriptionTest<StandardEvent>
     {
         public When_subscribing_to_multiple_constrained_events_of_same_type_but_different_constraint()
