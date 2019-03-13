@@ -1,11 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+<package>
   <metadata>
     <id>SignalR.EventAggregatorProxy.AspNetCore.DotnetCli</id>
-    <version>1.0.6</version>
+    <version>1.0.0</version>
     <authors>dotnet-signalreventproxy</authors>
     <owners>dotnet-signalreventproxy</owners>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
     <description>Package Description</description>
     <packageTypes>
       <packageType name="DotnetCliTool" />
@@ -14,7 +15,7 @@
       <group targetFramework=".NETCoreApp2.2">
         <dependency id="Microsoft.Extensions.DependencyModel" version="2.1.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.NETCore.App" version="2.2.0" exclude="Build,Analyzers" />
-        <dependency id="SignalR.EventAggregatorProxyCore" version="2.0.168" exclude="Build,Analyzers" />
+        <dependency id="SignalR.EventAggregatorProxyCore" version="1.0.0" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

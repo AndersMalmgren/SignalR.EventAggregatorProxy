@@ -60,7 +60,7 @@
 
   <Target Name="CopyOutput">
     <ItemGroup>
-      <ReleaseFiles Include="$(BuildDir)\dotnet-signalreventproxy.dll.dll">
+      <ReleaseFiles Include="$(BuildDir)\dotnet-signalreventproxy.dll">
       </ReleaseFiles>
     </ItemGroup>
     <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\netcoreapp2.2\%(RecursiveDir)%(Filename)%(Extension)')"/>
@@ -69,15 +69,15 @@
 
   <Target Name="CopyFiles">
     <ItemGroup>
-      <SpecFile Include="Package.server.web.nuspec;readme\SignalR.EventAggregatorProxy.AspNetCore.DonetCli\readme.txt">
+      <SpecFile Include="Package.DotnetCli.nuspec;readme\SignalR.EventAggregatorProxy.AspNetCore.DonetCli\readme.txt">
       </SpecFile>
     </ItemGroup>
     <Copy SourceFiles="@(SpecFile)" DestinationFiles="@(SpecFile -> '$(NugetFolder)\%(RecursiveDir)%(Filename)%(Extension)')"/>
   </Target>
 
   <Target Name="PatchNuspec">
-    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
-    <XmlPoke XmlInputPath="$(NugetFolder)\Package.server.web.nuspec" Query="package/metadata/dependencies/group/dependency[@id='SignalR.EventAggregatorProxyCore']/@version" Value="$(CoreVersion)" />
+    <XmlPoke Condition="'$(ReleaseNotes)'!=''" XmlInputPath="$(NugetFolder)\Package.DotnetCli.nuspec" Query="package/metadata/releaseNotes" Value="$(ReleaseNotes)" />
+    <XmlPoke XmlInputPath="$(NugetFolder)\Package.DotnetCli.nuspec" Query="package/metadata/dependencies/group/dependency[@id='SignalR.EventAggregatorProxyCore']/@version" Value="$(CoreVersion)" />
   </Target>
 
   <Target Name="Pack">
