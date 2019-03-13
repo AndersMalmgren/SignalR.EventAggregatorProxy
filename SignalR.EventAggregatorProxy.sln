@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{47FBF1
 		.build\build_angular_client_output.proj = .build\build_angular_client_output.proj
 		.build\build_constraint_output.proj = .build\build_constraint_output.proj
 		.build\build_dot_net_client_output.proj = .build\build_dot_net_client_output.proj
+		.build\build_dotnet_cli.proj = .build\build_dotnet_cli.proj
 		.build\build_js_client.proj = .build\build_js_client.proj
 		.build\build_server_output.proj = .build\build_server_output.proj
 		.build\build_server_web_output.proj = .build\build_server_web_output.proj
@@ -29,6 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{47FBF1
 		.build\Package.Angular.Client.nuspec = .build\Package.Angular.Client.nuspec
 		.build\Package.Constraint.nuspec = .build\Package.Constraint.nuspec
 		.build\Package.DotNet.Client.nuspec = .build\Package.DotNet.Client.nuspec
+		.build\Package.DotnetCli.nuspec = .build\Package.DotnetCli.nuspec
 		.build\package.json = .build\package.json
 		.build\Package.Server.nuspec = .build\Package.Server.nuspec
 		.build\Package.Server.Web.nuspec = .build\Package.Server.Web.nuspec
@@ -63,7 +65,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Client.Vue", "SignalR.EventAggregatorProxy.Client.Vue\SignalR.EventAggregatorProxy.Client.Vue.csproj", "{D683E47D-2059-4544-8134-F70069DF69D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Client.React", "SignalR.EventAggregatorProxy.Client.React\SignalR.EventAggregatorProxy.Client.React.csproj", "{664D09C4-9B59-445F-80C4-6176388CB872}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Client.React", "SignalR.EventAggregatorProxy.Client.React\SignalR.EventAggregatorProxy.Client.React.csproj", "{664D09C4-9B59-445F-80C4-6176388CB872}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.AspNetCore.DonetCli", "SignalR.EventAggregatorProxy.AspNetCore.DonetCli\SignalR.EventAggregatorProxy.AspNetCore.DonetCli.csproj", "{DCB4A40D-C678-406D-9339-D88774B10E52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +119,10 @@ Global
 		{664D09C4-9B59-445F-80C4-6176388CB872}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{664D09C4-9B59-445F-80C4-6176388CB872}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{664D09C4-9B59-445F-80C4-6176388CB872}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCB4A40D-C678-406D-9339-D88774B10E52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCB4A40D-C678-406D-9339-D88774B10E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCB4A40D-C678-406D-9339-D88774B10E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCB4A40D-C678-406D-9339-D88774B10E52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

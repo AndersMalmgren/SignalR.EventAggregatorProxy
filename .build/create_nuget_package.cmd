@@ -18,5 +18,7 @@ rem msbuild build_js_client.proj /property:NugetFolder=..\NugetOutput
 
 rem msbuild build_vue_client.proj /property:NugetFolder=..\NugetOutput 
 
+dotnet msbuild build_dotnet_cli.proj /property:BuildDir=..\Output /property:NugetFolder=..\NugetOutput /property:DeliverFolder=..\Deliver /property:ReleaseNotes="%~5"
+
 msbuild build_react_client.proj /property:NugetFolder=..\NugetOutput 
 
