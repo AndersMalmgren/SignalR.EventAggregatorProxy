@@ -60,7 +60,7 @@
 
   <Target Name="CopyOutput">
     <ItemGroup>
-      <ReleaseFiles Include="$(BuildDir)\dotnet-signalreventproxy.dll">
+      <ReleaseFiles Include="$(BuildDir)\dotnet-signalreventproxy.dll;$(BuildDir)\dotnet-signalreventproxy.runtimeconfig.json">
       </ReleaseFiles>
     </ItemGroup>
     <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\netcoreapp2.2\%(RecursiveDir)%(Filename)%(Extension)')"/>
