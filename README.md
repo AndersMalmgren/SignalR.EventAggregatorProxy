@@ -11,6 +11,9 @@ This will create a VersionInfo.cs required by the project to compile
 ### Install using nuget
 Install-Package SignalR.EventAggregatorProxyCore 
 
+### Live demo Dot Net Core
+http://malmgrens.org/signalrcore/
+
 ### Docs
 
 https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy/wiki
