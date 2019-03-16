@@ -5,23 +5,20 @@ using SignalR.EventAggregatorProxy.Event;
 
 namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
 {
-    public partial class Startup
+    public class EventTypeFinder : IEventTypeFinder
     {
-        private class EventTypeFinder : IEventTypeFinder
+        private readonly List<Type> types;
+
+        public EventTypeFinder()
         {
-            private readonly List<Type> types;
-
-            public EventTypeFinder()
-            {
-                var type = typeof(Contracts.Events.Event);
-                types = type.Assembly.GetTypes().Where(t => type.IsAssignableFrom(t)).ToList();
-            }
+            var type = typeof(Contracts.Events.Event);
+            types = type.Assembly.GetTypes().Where(t => type.IsAssignableFrom(t)).ToList();
+        }
 
 
-            public IEnumerable<Type> ListEventsTypes()
-            {
-                return types;
-            }
+        public IEnumerable<Type> ListEventsTypes()
+        {
+            return types;
         }
     }
 }
