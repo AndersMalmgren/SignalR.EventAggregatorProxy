@@ -78,7 +78,9 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     {
         protected override void BuildConstraints(int index, IConstraintinfoBuilder builder)
         {
-            builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint {Id = 1});
+            builder
+                .For<StandardEvent>()
+                .Add(new StandardEventConstraint {Id = 1});
         }
     }
 }

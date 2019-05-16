@@ -65,7 +65,8 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
     {
         protected override void BuildConstraints(int index, IConstraintinfoBuilder builder)
         {
-            builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint {Id = 1});
+            builder.For<StandardEvent>()
+                .Add(new StandardEventConstraint {Id = 1});
         }
     }
 
@@ -90,7 +91,9 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
         protected override void BuildConstraints(int index, IConstraintinfoBuilder builder)
         {
-            builder.Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint {Id = index});
+            builder
+                .For<StandardEvent>()
+                .Add(new StandardEventConstraint {Id = index});
         }
     }
 
@@ -104,8 +107,9 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         {
             var subscriber = new Mock<IHandle<StandardEvent>>().Object;
             EventAggregator.Subscribe(subscriber, builder => builder
-                .Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 })
-                .Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 2 }));
+                .For<StandardEvent>()
+                .Add(new StandardEventConstraint {Id = 1})
+                .Add(new StandardEventConstraint {Id = 2}));
 
             reset.WaitOne();
         }
@@ -134,8 +138,9 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         {
             var subscriber = new Mock<IHandle<StandardEvent>>().Object;
             EventAggregator.Subscribe(subscriber, builder => builder
-                .Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 })
-                .Add<StandardEvent, StandardEventConstraint>(new StandardEventConstraint { Id = 1 }));
+                .For<StandardEvent>()
+                .Add(new StandardEventConstraint {Id = 1})
+                .Add(new StandardEventConstraint {Id = 1}));
         }
     }
 
