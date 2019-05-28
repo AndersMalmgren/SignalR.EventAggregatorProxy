@@ -16,7 +16,7 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNet.Views
 
             Events = new BindableCollection<IMessageEvent<string>>();
 
-            eventAggregator.Subscribe(this, builder => builder.Add<ConstrainedEvent, ConstrainedEventConstraint>(new ConstrainedEventConstraint { Message = "HelloWorld" }));
+            eventAggregator.Subscribe(this, builder => builder.For<ConstrainedEvent>().Add(new ConstrainedEventConstraint { Message = "HelloWorld" }));
         }
 
         public SendMessageViewModel SendMessage { get; private set; }
