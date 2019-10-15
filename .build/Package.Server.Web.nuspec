@@ -13,7 +13,7 @@
     <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
-      <group targetFramework=".NETStandard2.0">
+      <group targetFramework=".NETStandard2.1">
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
         <dependency id="Newtonsoft.Json" version="12.0.1" />
         <dependency id="SignalR.EventAggregatorProxyCore" version="1.0" />
