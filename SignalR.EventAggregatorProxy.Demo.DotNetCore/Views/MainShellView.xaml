@@ -1,0 +1,11 @@
+﻿<Window x:Class="SignalR.EventAggregatorProxy.Demo.DotNetCore.Views.MainShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainShellView">
+    <Grid>
+        <StackPanel  Orientation="Vertical">
+            <ContentControl x:Name="SendMessage"></ContentControl>
+            <ItemsControl x:Name="Events" DisplayMemberPath="Message"></ItemsControl>
+        </StackPanel>
+    </Grid>
+</Window>

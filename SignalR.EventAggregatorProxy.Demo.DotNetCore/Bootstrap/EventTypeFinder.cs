@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
 
-namespace SignalR.EventAggregatorProxy.Demo.DotNet.Bootstrap
+namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Bootstrap
 {
 
     public class EventTypeFinder : IEventTypeFinder
