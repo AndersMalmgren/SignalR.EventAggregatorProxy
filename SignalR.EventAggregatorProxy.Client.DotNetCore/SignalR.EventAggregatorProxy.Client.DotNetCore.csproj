@@ -13,7 +13,6 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="3.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
 </Project>

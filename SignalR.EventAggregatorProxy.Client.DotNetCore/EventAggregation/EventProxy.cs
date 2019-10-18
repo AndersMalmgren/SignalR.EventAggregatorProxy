@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using Newtonsoft.Json.Linq;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
@@ -73,6 +73,8 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             eventAggregator.Publish(@event, message.Id);
         }
 
+        private static readonly JsonSerializerOptions Options = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true};
+
         private dynamic ParseTypeData(Message message)
         {
             Type type = typeFinder.GetEventType(message.Type);
@@ -84,8 +86,9 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
                 type = type.MakeGenericType(genericArguments);
             }
-            
-            return message.Event.ToObject(type);
+
+            var json = message.Event.GetRawText();
+            return JsonSerializer.Deserialize(json, type, Options);
         }
         
         public async Task Unsubscribe(IEnumerable<Subscription> subscriptions)
@@ -163,7 +166,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
         private class Message
         {
             public string Type { get; set; }
-            public JObject Event { get; set; }
+            public JsonElement Event { get; set; }
             public string[] GenericArguments { get; set; }
             public int? Id { get; set; }
         }
