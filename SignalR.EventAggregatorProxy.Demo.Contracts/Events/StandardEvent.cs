@@ -4,9 +4,12 @@
     {
         public string Message { get; set; }
 
+        public StandardEvent() { }
+
         public StandardEvent(string message)
         {
             Message = message;
         }
+
     }
 }

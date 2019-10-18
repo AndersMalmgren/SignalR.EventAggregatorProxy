@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Extensions;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Model;
@@ -85,7 +85,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation.ProxyE
         {
             var eventType = typeof (TEvent);
 
-            var hash = (eventType.FullName + JsonConvert.SerializeObject(constraint.GetConstraint())).GetHashCode();
+            var hash = (eventType.FullName + JsonSerializer.Serialize(constraint.GetConstraint())).GetHashCode();
 
             if (!eventConstraints.ContainsKey(eventType))
             {

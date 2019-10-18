@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,7 +32,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
             var handlerType = Get<TypeFinder>().GetConstraintHandlerTypes(type).Single();
             var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
-            eventConstraintHandler.Allow(new OuterGeneric<EntityOne>(), null, null);
+            eventConstraintHandler.Allow(new OuterGeneric<EntityOne>(), null, new JsonElement());
         }
 
         [TestMethod]
@@ -52,7 +53,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         {
             public static bool Called { get; set; }
 
-            public override bool Allow(IOuterGeneric<EntityBase> message, ConstraintContext context, dynamic constraint)
+            public override bool Allow(IOuterGeneric<EntityBase> message, ConstraintContext context, JsonElement constraint)
             {
                 Called = true;
                 return true;
@@ -106,7 +107,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             {
                 var handlerType = Get<TypeFinder>().GetConstraintHandlerTypes(type).Single();
                 var eventConstraintHandler = Activator.CreateInstance(handlerType) as IEventConstraintHandler;
-                result = eventConstraintHandler.Allow(Activator.CreateInstance(type), null, null);
+                result = eventConstraintHandler.Allow(Activator.CreateInstance(type), null, new JsonElement());
             }
         }
 
@@ -133,7 +134,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class Handler : EventConstraintHandler<MyBase>
         {
-            public override bool Allow(MyBase message, ConstraintContext context, dynamic constraint)
+            public override bool Allow(MyBase message, ConstraintContext context, JsonElement constraint)
             {
                 return true;
             }
@@ -169,7 +170,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class Handler : EventConstraintHandler<MyBase>
         {
-            public override bool Allow(MyBase message, ConstraintContext context, dynamic constraint)
+            public override bool Allow(MyBase message, ConstraintContext context, JsonElement constraint)
             {
                 return true;
             }
@@ -177,7 +178,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class HandlerTwo : EventConstraintHandler<MySub>
         {
-            public override bool Allow(MySub message, ConstraintContext context, dynamic constraint)
+            public override bool Allow(MySub message, ConstraintContext context, JsonElement constraint)
             {
                 return true;
             }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
 
 namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 {
@@ -65,14 +67,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 
         public IDisposable On<T>(string methodName, Action<T> handler)
         {
-            void InternalHandler(object[] args) => handler((T)args[0]);
-
-            return connection.On(methodName, new[] { typeof(T) }, (parameters, state) =>
-            {
-                var currentHandler = (Action<object[]>)state;
-                currentHandler(parameters);
-                return Task.CompletedTask;
-            }, (Action<object[]>)InternalHandler);
+            return connection.On(methodName, handler);
         }
 
         public Task InvokeAsync(string methodName, object[] args, CancellationToken cancellationToken = default(CancellationToken))

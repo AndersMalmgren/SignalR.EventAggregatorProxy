@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,7 +50,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class Handler : EventConstraintHandler<MyBase>
         {
-            public override bool Allow(MyBase message, ConstraintContext context, dynamic constraint)
+            public override bool Allow(MyBase message, ConstraintContext context, JsonElement constraint)
             {
                 called[GetType()] = true;
                 return results[GetType()];
@@ -58,7 +59,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class HandlerTwo : EventConstraintHandler<MySub>
         {
-            public override bool Allow(MySub message, ConstraintContext context, dynamic constraint)
+            public override bool Allow(MySub message, ConstraintContext context, JsonElement constraint)
             {
                 called[GetType()] = true;
                 return results[GetType()];

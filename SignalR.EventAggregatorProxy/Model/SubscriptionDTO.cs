@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text.Json;
 
 namespace SignalR.EventAggregatorProxy.Model
 {
@@ -9,7 +6,7 @@ namespace SignalR.EventAggregatorProxy.Model
     {
         public string Type { get; set; }
         public string[] GenericArguments { get; set; }
-        public dynamic Constraint { get; set; }
+        public JsonElement Constraint { get; set; }
         public int? ConstraintId { get; set; }
     }
 }
