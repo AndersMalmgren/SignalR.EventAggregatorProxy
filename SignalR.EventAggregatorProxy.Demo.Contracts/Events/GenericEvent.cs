@@ -4,6 +4,8 @@
     {
         public T Message { get; set; }
 
+        public GenericEvent() { }
+
         public GenericEvent(T message)
         {
             Message = message;
