@@ -24,6 +24,7 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Bootstrap
         protected override void Configure()
         {
             serviceProvider = new ServiceCollection()
+                .AddHttpClient()
                 .AddSignalREventAggregator()
                 .WithHubUrl("http://localhost:60976/EventAggregatorProxyHub")
                 .OnConnectionError(e => Debug.WriteLine(e.Message))

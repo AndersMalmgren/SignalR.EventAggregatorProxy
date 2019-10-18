@@ -15,11 +15,13 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Views
     public class SendMessageViewModel : PropertyChangedBase
     {
         private readonly IEventAggregator eventAggregator;
+        private readonly IHttpClientFactory clientFactory;
         private string message;
 
-        public SendMessageViewModel(IEventAggregator eventAggregator)
+        public SendMessageViewModel(IEventAggregator eventAggregator, IHttpClientFactory clientFactory)
         {
             this.eventAggregator = eventAggregator;
+            this.clientFactory = clientFactory;
         }
 
         public string Message
@@ -67,11 +69,13 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Views
 
         private async Task Post(string method)
         {
-            var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri($"http://localhost:60976/api/service/{method}"));
             request.Content = new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Message))));
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var result = await client.SendAsync(request);
+            var result = await clientFactory
+                .CreateClient()
+                .SendAsync(request);
+
             if(!result.IsSuccessStatusCode) throw new Exception(await result.Content.ReadAsStringAsync());
         }
     }
