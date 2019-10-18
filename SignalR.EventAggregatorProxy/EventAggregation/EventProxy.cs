@@ -2,10 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.Extensions;
@@ -39,7 +39,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             eventAggregator.Subscribe(Handle);
         }
 
-        public void Subscribe(HubCallerContext context, string typeName, IEnumerable<string> genericArguments, dynamic constraint, int? constraintId)
+        public void Subscribe(HubCallerContext context, string typeName, IEnumerable<string> genericArguments, JsonElement constraint, int? constraintId)
         {
             lock (this)
             {
@@ -157,13 +157,9 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 ConstraintId = constraintId;
             }
 
-            [JsonProperty("type")]
             public string Type { get; set; }
-            [JsonProperty("event")]
             public object Event { get; set; }
-            [JsonProperty("genericArguments")]
             public string[] GenericArguments { get; set; }
-            [JsonProperty("id")]
             public int? ConstraintId { get; set; }
 
         }

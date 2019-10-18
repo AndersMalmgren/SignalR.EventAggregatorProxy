@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.Extensions;
 
@@ -70,7 +70,7 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
             var definitons = types.Select(t => new { @namespace = t.Namespace, name = t.GetNameWihoutGenerics(), generic = t.ContainsGenericParameters });
             var template = GetScriptTemplate();
 
-            js = template.Replace("{{Data}}", JsonConvert.SerializeObject(definitons));
+            js = template.Replace("{{Data}}", JsonSerializer.Serialize(definitons));
             scriptBuildDate = types.Max(t => t.Assembly.GetBuildDate());
         }
 

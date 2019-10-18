@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.IO.Pipelines;
 using System.Text;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
@@ -20,26 +22,19 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         protected override void ConfigureCollection(IServiceCollection serviceCollection)
         {
             serviceCollection
-                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x  => x.ListEventsTypes()).Returns(new[] { typeof(NoMembersEvent), typeof(MembersEvent) }))
-                .MockSingleton<HttpContext>(mock =>
-                {
-                    mock.Setup(x => x.Request.Headers).Returns(new Mock<IHeaderDictionary>().Object);
-                    mock.Setup(x => x.Response.Headers).Returns(new Mock<IHeaderDictionary>().Object);
-                    mock.Setup(x => x.Response.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                        .Callback((byte[] data, int offset, int length, CancellationToken token) =>
-                        {
-                            if (length > 0)
-                                script = Encoding.UTF8.GetString(data); 
-                        });
-                });
-
+                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x  => x.ListEventsTypes()).Returns(new[] { typeof(NoMembersEvent), typeof(MembersEvent) }));
         }
 
         [TestInitialize]
         public void Context()
         {
+            var context = new DefaultHttpContext();
+            var mem = new MemoryStream();
+            context.Response.Body = mem;
+
             var eventScriptMiddleware = new EventScriptMiddleware(null);
-            eventScriptMiddleware.Invoke(Get<HttpContext>(), Get<IEventTypeFinder>());
+            eventScriptMiddleware.Invoke(context, Get<IEventTypeFinder>());
+            script = Encoding.UTF8.GetString(mem.ToArray());
         }
 
         [TestMethod]

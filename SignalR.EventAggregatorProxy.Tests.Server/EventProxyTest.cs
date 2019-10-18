@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -78,7 +78,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         protected void Subscribe()
         {
-            EventProxy.Subscribe(Get<HubCallerContext>(), typeName, new string[0], null, null);
+            EventProxy.Subscribe(Get<HubCallerContext>(), typeName, new string[0], new JsonElement(), null);
         }
 
         protected void Unsubscribe(string id)

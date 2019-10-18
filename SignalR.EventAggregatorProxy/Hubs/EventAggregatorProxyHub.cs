@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using SignalR.EventAggregatorProxy.Event;
 using SignalR.EventAggregatorProxy.EventAggregation;
 using SignalR.EventAggregatorProxy.Extensions;
 using SignalR.EventAggregatorProxy.Model;
