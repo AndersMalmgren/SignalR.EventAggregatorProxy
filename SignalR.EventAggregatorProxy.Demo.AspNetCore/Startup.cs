@@ -42,9 +42,7 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
             services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName)
                 .AddChakraCore();
 
-            services.AddMvc(options => options.EnableEndpointRouting = false)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
+            services.AddControllersWithViews();
 
             services
                 .AddSignalREventAggregator()
@@ -89,11 +87,13 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseMvcWithDefaultRoute();
 
             app.UseRouting();
-            app.UseEventProxy()
+            app
+                .UseEventProxy()
                 .UseSignalREventAggregator();
+
+            app.UseEndpoints(c => c.MapDefaultControllerRoute());
         }
     }
 }
