@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -157,9 +157,13 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 ConstraintId = constraintId;
             }
 
+            [JsonPropertyName("type")]
             public string Type { get; set; }
+            [JsonPropertyName("event")]
             public object Event { get; set; }
+            [JsonPropertyName("genericArguments")]
             public string[] GenericArguments { get; set; }
+            [JsonPropertyName("id")]
             public int? ConstraintId { get; set; }
 
         }
