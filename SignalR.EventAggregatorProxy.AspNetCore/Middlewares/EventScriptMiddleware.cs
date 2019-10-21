@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -40,10 +39,10 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
                 response.Body.Close();
                 response.Body = Stream.Null;
 
-                return Task.FromResult<Object>(null);
+                return Task.CompletedTask;
             }
 
-            response.Headers["Last-Modified"] = scriptBuildDate.ToUniversalTime().ToString("r");
+            response.Headers["Last-Modified"] = scriptBuildDate.ToString("r");
             response.Headers["Cache-Control"] = "must-revalidate";
             return response.WriteAsync(js);
         }
@@ -57,7 +56,7 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
                 DateTime isModifiedSince;
                 if (DateTime.TryParse(header, out isModifiedSince))
                 {
-                    return isModifiedSince >= contentModified;
+                    return isModifiedSince.ToUniversalTime() >= contentModified;
                 }
             }
 
@@ -71,7 +70,9 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
             var template = GetScriptTemplate();
 
             js = template.Replace("{{Data}}", JsonSerializer.Serialize(definitons));
-            scriptBuildDate = types.Max(t => t.Assembly.GetBuildDate());
+            scriptBuildDate = types
+                .Max(t => File.GetLastWriteTimeUtc(t.Assembly.Location))
+                .StripMilliseconds();
         }
 
         private static string GetScriptTemplate()
