@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using React.AspNet;
 using SignalR.EventAggregatorProxy.AspNetCore.Middlewares;
 using SignalR.EventAggregatorProxy.Boostrap;
@@ -55,7 +56,7 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -90,6 +91,7 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
 
             app.UseMvcWithDefaultRoute();
 
+            app.UseRouting();
             app.UseEventProxy()
                 .UseSignalREventAggregator();
         }
