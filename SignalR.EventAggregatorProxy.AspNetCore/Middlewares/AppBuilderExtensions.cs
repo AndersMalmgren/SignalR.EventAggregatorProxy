@@ -18,11 +18,7 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
 
         public static IApplicationBuilder UseSignalREventAggregator(this IApplicationBuilder app)
         {
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<EventAggregatorProxyHub>("/EventAggregatorProxyHub");
-            });
-
+            app.UseEndpoints(config => config.MapHub<EventAggregatorProxyHub>("/EventAggregatorProxyHub"));
             return app;
         }
     }
