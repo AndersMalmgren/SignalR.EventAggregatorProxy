@@ -123,4 +123,31 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             Assert.AreEqual(2, called.Count);
         }
     }
+
+    public class MyGenericEvent<T> 
+    {
+        public T Foo { get; set; }
+    }
+
+    [TestClass]
+    public class When_subscribing_to_a_generic_event : EventProxyTest
+    {
+        protected override void ConfigureCollection(IServiceCollection serviceCollection)
+        {
+            SetupProxy(serviceCollection, typeof(MyGenericEvent<string>));
+        }
+
+        [TestInitialize]
+        public Task Context()
+        {
+            Subscribe();
+            return handler(new MyGenericEvent<string>{ Foo = "bar"});
+        }
+
+        [TestMethod]
+        public void It_should_publish_correctly()
+        {
+            Assert.AreEqual(1, events.Count);
+        }
+    }
 }

@@ -27,6 +27,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         protected ConcurrentBag<object> events;
         protected Func<object, Task> handler;
         private List<EventType> typeNames;
+        private List<string> genericArguments;
 
         protected void SetupProxy(IServiceCollection collection, Type eventType, IEnumerable<Type> constraintHandlerTypes = null)
         {
@@ -34,10 +35,13 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             events = new ConcurrentBag<object>();
             typeName = eventType.FullName;
             typeNames = new[] { typeName }.Select(t => new EventType { Type = t }).ToList();
-            
+            genericArguments = eventType.GetGenericArguments().Select(ga => ga.FullName).ToList();
+
+
             collection.AddSingleton<EventProxy>()
             .MockSingleton<ITypeFinder>(mock =>
             {
+                eventType.GetGenericArguments().ForEach(ga => mock.Setup(x => x.GetType(ga.FullName)).Returns(ga));
                 mock.Setup(x => x.ListEventTypes()).Returns(new[] {eventType});
                 mock.Setup(x => x.GetEventType(It.IsAny<string>())).Returns(eventType);
                 mock.Setup(x => x.GetConstraintHandlerTypes(It.IsAny<Type>())).Returns(constraintHandlerTypes ?? Enumerable.Empty<Type>());
@@ -78,7 +82,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         protected void Subscribe()
         {
-            EventProxy.Subscribe(Get<HubCallerContext>(), typeName, new string[0], new JsonElement(), null);
+            EventProxy.Subscribe(Get<HubCallerContext>(), typeName, genericArguments, new JsonElement(), null);
         }
 
         protected void Unsubscribe(string id)
