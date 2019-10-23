@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace dotnet_signalreventproxy
+namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
 {
     public class Namespace
     {

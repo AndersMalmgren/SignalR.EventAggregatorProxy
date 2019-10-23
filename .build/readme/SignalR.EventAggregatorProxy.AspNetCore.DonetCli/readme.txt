@@ -1,1 +1,0 @@
-Please see https://github.com/AndersMalmgren/SignalR.EventAggregatorProxy/wiki/Donet-CLI for more information on using this lib with SignalR.

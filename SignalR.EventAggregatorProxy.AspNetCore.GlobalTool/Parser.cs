@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SignalR.EventAggregatorProxy.Extensions;
 
-namespace dotnet_signalreventproxy
+namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
 {
     internal class Parser
     {

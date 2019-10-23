@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SignalR.EventAggregatorProxy.AspNetCore.DonetCli": {
-      "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\SignalR.EventAggregatorProxy.Demo.AspNetCore\\bin\\debug\\netcoreapp2.2\\SignalR.EventAggregatorProxy.Demo.AspNetCore.dll "
-    }
-  }
-}

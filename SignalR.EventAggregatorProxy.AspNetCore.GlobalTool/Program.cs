@@ -6,7 +6,7 @@ using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
 using SignalR.EventAggregatorProxy.Event;
 
-namespace dotnet_signalreventproxy
+namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
 {
     class Program
     {
@@ -17,6 +17,7 @@ namespace dotnet_signalreventproxy
             if(args.Length < 2) throw new ArgumentException("dotnet signalreventproxy [Path_to_event_type_finder_dll] [Path_to_output_js] [Event_type_finder_type(optional)]");
 
             var starPath = Directory.GetCurrentDirectory();
+            var info = new DirectoryInfo(Path.Combine(starPath, @"..\..\..\..\SignalR.EventAggregatorProxy.Demo.AspNetCore\bin\debug\netcoreapp3.0"));
             var eventTypeFinderAssembly = AssemblyLoader.LoadFromAssemblyPath($"{starPath}\\{args[0]}");
 
             var lookup = typeof(IEventTypeFinder);
