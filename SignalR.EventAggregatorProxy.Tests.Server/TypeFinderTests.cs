@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -15,8 +18,16 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
     {
         protected override void ConfigureCollection(IServiceCollection serviceCollection)
         {
-            serviceCollection.MockSingleton<IAssemblyLocator>(mock => mock.Setup(x => x.GetAssemblies()).Returns(new[] {Assembly.GetExecutingAssembly()}))
-                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(new[] {typeof(TEvent)}))
+            MockTypeFinder(serviceCollection);
+        }
+
+        protected void MockTypeFinder(IServiceCollection serviceCollection)
+        {
+            var type = typeof(TEvent);
+            var eventTypes = type.Assembly.GetTypes().Where(t => type.IsAssignableFrom(t)).ToList();
+
+            serviceCollection.MockSingleton<IAssemblyLocator>(mock => mock.Setup(x => x.GetAssemblies()).Returns(new[] { Assembly.GetExecutingAssembly() }))
+                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(eventTypes))
                 .AddSingleton<TypeFinder>();
         }
     }
@@ -91,6 +102,46 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 
         public class EntityTwo : EntityBase
         {
+        }
+    }
+
+
+
+    [TestClass]
+    public class When_trying_to_find_a_constraint_handler_from_multiple_threads_issue_32 : TypeFinderTest<When_trying_to_find_a_constraint_handler_from_multiple_threads_issue_32.MyEvent>
+    {
+        [TestInitialize]
+        public async Task Context()
+        {
+            var type = typeof(MyEvent);
+            var work = Enumerable.Range(0, 1000).Select(async i =>
+            {
+                var provider = new ServiceCollection();
+                MockTypeFinder(provider);
+                var service = provider.BuildServiceProvider();
+
+                var typeFinder = service.GetService<TypeFinder>();
+                var tasks = Enumerable.Range(0, 16)
+                    .Select(cpu => Task.Run(() => typeFinder.GetConstraintHandlerTypes(type))).ToList();
+                await Task.WhenAll(tasks);
+            });
+            foreach (var task in work)
+                await task;
+        }
+
+        [TestMethod]
+        public void It_should_invoke_handlers_without_concurrencyl_problem()
+        {
+        }
+
+        public class MyEvent { }
+
+        public class Handler : EventConstraintHandler<MyEvent>
+        {
+            public override bool Allow(MyEvent message, ConstraintContext context, JsonElement constraint)
+            {
+                return true;
+            }
         }
     }
 
