@@ -121,7 +121,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
                 var service = provider.BuildServiceProvider();
 
                 var typeFinder = service.GetService<TypeFinder>();
-                var tasks = Enumerable.Range(0, 16)
+                var tasks = Enumerable.Range(0, Environment.ProcessorCount)
                     .Select(cpu => Task.Run(() => typeFinder.GetConstraintHandlerTypes(type))).ToList();
                 await Task.WhenAll(tasks);
             });
@@ -130,7 +130,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         }
 
         [TestMethod]
-        public void It_should_invoke_handlers_without_concurrencyl_problem()
+        public void It_should_invoke_handlers_without_concurrency_problem()
         {
         }
 
