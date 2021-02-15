@@ -5,31 +5,35 @@ using System.Linq;
 using System.Reflection;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Extensions;
+using Type = System.Type;
 
 namespace SignalR.EventAggregatorProxy.Event
 {
     public class TypeFinder : ITypeFinder
     {
         private readonly IAssemblyLocator assemblyLocator;
-        private readonly IDictionary<string, Type> eventTypeLookup;
-        private readonly IDictionary<string, Type> types;
-        private readonly IDictionary<Type, IEnumerable<Type>> constraintHandlerTypes;
+        private IDictionary<string, Type> eventTypes;
+        private IDictionary<string, Type> types;
+        private IDictionary<Type, IEnumerable<Type>> constraintHandlerTypes;
+        private IDictionary<Type, IEnumerable<Type>> lookup;
         
         public TypeFinder(IAssemblyLocator assemblyLocator, IEventTypeFinder eventTypeFinder)
         {
             this.assemblyLocator = assemblyLocator;
             types = new Dictionary<string, Type>();
 
-            var eventTypes = eventTypeFinder
-                    .ListEventsTypes();
-
-            eventTypeLookup = eventTypes
+            eventTypes = eventTypeFinder
+                .ListEventsTypes()
                 .ToDictionary(t => t.GetFullNameWihoutGenerics(), t => t);
+            InitConstraintHandlerTypes();
+        }
 
+        private void InitConstraintHandlerTypes()
+        {
             var lookupType = typeof(IEventConstraintHandler<>);
             var predicate = new Func<Type, bool>(t => t.IsGenericType && t.GetGenericTypeDefinition() == lookupType);
 
-            var lookup = assemblyLocator
+            lookup = assemblyLocator
                 .GetAssemblies()
                 .SelectMany(GetTypesSafely)
                 .Where(t => t.GetInterfaces().Any(predicate))
@@ -37,22 +41,7 @@ namespace SignalR.EventAggregatorProxy.Event
                 .GroupBy(t => t.Type)
                 .ToDictionary(g => g.Key, g => g.Select(t => t.Handler));
 
-            constraintHandlerTypes = eventTypes
-                .SelectMany(ListInheritanceChange)
-                .Distinct()
-                .ToDictionary(type => type, type => lookup
-                    .Where(kvp => kvp.Key.IsAssignableFrom(type))
-                    .SelectMany(kvp => kvp.Value)
-                    .ToList() as IEnumerable<Type>);
-        }
-
-        private IEnumerable<Type> ListInheritanceChange(Type type)
-        {
-            if(type == null) yield break;
-
-            yield return type;
-            foreach (var t in ListInheritanceChange(type.BaseType))
-                yield return t;
+            constraintHandlerTypes = new ConcurrentDictionary<Type, IEnumerable<Type>>();
         }
 
         private IEnumerable<Type> GetTypesSafely(Assembly assembly)
@@ -69,12 +58,12 @@ namespace SignalR.EventAggregatorProxy.Event
 
         public IEnumerable<Type> ListEventTypes()
         {
-            return eventTypeLookup.Values;
+            return eventTypes.Values;
         }
 
         public Type GetEventType(string typeName)
         {
-            return eventTypeLookup[typeName];
+            return eventTypes[typeName];
         }
 
         public Type GetType(string typeName)
@@ -91,11 +80,18 @@ namespace SignalR.EventAggregatorProxy.Event
 
             return type;
         }
+
         public IEnumerable<Type> GetConstraintHandlerTypes(Type type)
         {
-            if (type.IsGenericType)
-                type = type.GetGenericTypeDefinition();
+            if (!constraintHandlerTypes.ContainsKey(type))
+            {
+                var handlers = lookup
+                    .Where(kvp => kvp.Key.IsAssignableFrom(type))
+                    .SelectMany(kvp => kvp.Value)
+                    .ToList();
 
+                constraintHandlerTypes[type] = handlers;
+            }
             return constraintHandlerTypes[type];
         }
     }
