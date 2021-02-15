@@ -13,10 +13,10 @@
     <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator Proxy</tags>
     <dependencies>
-      <group targetFramework=".NETCoreApp3.0">
-        <dependency id="SignalR.EventAggregatorProxy.ConstraintCore" version="3.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="3.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.0.0" exclude="Build,Analyzers" />
+      <group targetFramework="net5.0">
+        <dependency id="SignalR.EventAggregatorProxy.ConstraintCore" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="5.0.0" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
