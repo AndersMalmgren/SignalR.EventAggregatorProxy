@@ -13,7 +13,7 @@
     <PackageReference Include="JavaScriptEngineSwitcher.Core" Version="3.3.0" />
     <PackageReference Include="JavaScriptEngineSwitcher.Extensions.MsDependencyInjection" Version="3.3.0" />
     <PackageReference Include="React.AspNet" Version="5.2.11" />
-    <PackageReference Include="SignalR.EventAggregatorProxy.AspNetCore" Version="5.0.242" />
+    <PackageReference Include="SignalR.EventAggregatorProxy.AspNetCore" Version="5.1.242" />
   </ItemGroup>
 
 
