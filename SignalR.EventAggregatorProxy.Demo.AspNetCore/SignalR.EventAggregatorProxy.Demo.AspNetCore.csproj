@@ -14,10 +14,13 @@
     <PackageReference Include="JavaScriptEngineSwitcher.Extensions.MsDependencyInjection" Version="3.3.0" />
     <PackageReference Include="React.AspNet" Version="5.2.11" />
     <PackageReference Include="SignalR.EventAggregatorProxy.AspNetCore" Version="5.1.242" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.3" />
   </ItemGroup>
 
 
   <ItemGroup>
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.BlazorWasm\Client\SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.csproj" />
+    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.BlazorWasm\Shared\SignalR.EventAggregatorProxy.Demo.BlazorWasm.Shared.csproj" />
     <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj" />
   </ItemGroup>
 

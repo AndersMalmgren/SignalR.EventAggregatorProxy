@@ -29,6 +29,8 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRazorPages();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -59,6 +61,7 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseWebAssemblyDebugging();
             }
             else
             {
@@ -84,16 +87,22 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
                 //  .AddScriptWithoutTransform("~/Scripts/bundle.server.js");
             });
 
+
+            app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
 
             app.UseRouting();
             app
                 .UseEventProxy()
                 .UseSignalREventAggregator();
 
-            app.UseEndpoints(c => c.MapDefaultControllerRoute());
+            app.UseEndpoints(c =>
+            {
+                c.MapDefaultControllerRoute();
+                c.MapRazorPages();
+                c.MapFallbackToFile("index.html");
+            });
         }
     }
 }
