@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
 using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.ClientEvents;
 using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints;
@@ -19,6 +20,7 @@ namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models
 
 
         public List<IMessageEvent<string>> Events { get; }
+        public Action StateHasChanged { get; set; }
 
         public void Handle(StandardEvent message)
         {
@@ -43,6 +45,7 @@ namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models
         private void Add(IMessageEvent<string> message)
         {
             Events.Add(message);
+            StateHasChanged();
         }
     }
 }
