@@ -69,7 +69,7 @@
       <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.AspNetCore.dll">
       </ReleaseFiles>
     </ItemGroup>
-    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\netcoreapp3.0\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net5.0\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <RemoveDir Directories="$(BuildDir)" />
   </Target>
 

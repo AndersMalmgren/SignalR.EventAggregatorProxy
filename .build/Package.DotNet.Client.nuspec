@@ -13,7 +13,7 @@
     <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator</tags>
     <dependencies>
-      <group targetFramework=".NETStandard2.1">
+      <group targetFramework="net5.0">
         <dependency id="Microsoft.AspNetCore.SignalR.Client" version="5.0.3" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.SignalR.Client.Core" version="5.0.3" exclude="Build,Analyzers" />
         <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />

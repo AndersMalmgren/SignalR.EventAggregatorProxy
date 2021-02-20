@@ -12,7 +12,7 @@
     <copyright>Copyright 2013-2019</copyright>
     <tags>SignalR EventAggregator</tags>
     <dependencies>
-      <group targetFramework=".NETStandard2.1">
+      <group targetFramework="net5.0">
         <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />
         <dependency id="System.Dynamic.Runtime" version="4.3.0" exclude="Build,Analyzers" />
       </group>
