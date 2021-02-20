@@ -2,6 +2,7 @@
 @using SignalR.EventAggregatorProxy.Demo.Contracts.Events
 @using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 @using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models
+@using System.Diagnostics
 @inject SendMessageViewModel SendMessage
 @inject EventsViewModel Events
 
@@ -29,6 +30,5 @@
 
         Events.StateHasChanged = StateHasChanged;
     }
-
 }
     

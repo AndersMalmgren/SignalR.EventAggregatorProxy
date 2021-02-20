@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.BlazorWasm\Client\SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.csproj" />
-    <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.BlazorWasm\Shared\SignalR.EventAggregatorProxy.Demo.BlazorWasm.Shared.csproj" />
     <ProjectReference Include="..\SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj" />
   </ItemGroup>
 

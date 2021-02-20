@@ -55,7 +55,7 @@ namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models
 
         private async Task Post(string method)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri($"/api/service/{method}"));
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri($"/api/service/{method}", UriKind.Relative));
             request.Content = new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Message))));
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var result = await http
