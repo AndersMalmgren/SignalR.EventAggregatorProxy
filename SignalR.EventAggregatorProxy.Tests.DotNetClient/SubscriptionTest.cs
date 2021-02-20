@@ -230,4 +230,38 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         }
 
     }
+
+    [TestClass]
+    public class When_subscribing_from_two_models_at_the_same_time : DotNetClientTest
+    {
+        private int subscriptionCount = 0;
+        protected int exptectedSubscriptionCount = 1;
+
+        protected virtual void BuildConstraints(int index, IConstraintinfoBuilder builder)
+        {
+
+        }
+
+        [TestInitialize]
+        public void Context()
+        {
+            EventAggregator.Subscribe(new Mock<IHandle<StandardEvent>>().Object);
+            EventAggregator.Subscribe(new Mock<IHandle<GenericEvent<string>>>().Object);
+
+            reset.WaitOne();
+        }
+
+        protected override void OnSubscribe(IEnumerable<dynamic> subscriptions, bool reconnected)
+        {
+            subscriptionCount++;
+            reset.Set();
+        }
+
+        [TestMethod]
+        public virtual void It_should_only_call_server_side_subscribe_correct_number_of_times()
+        {
+            Assert.AreEqual(exptectedSubscriptionCount, subscriptionCount);
+        }
+    }
+
 }
