@@ -16,6 +16,8 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
 {
     public class TypeFinderTest<TEvent> : Test
     {
+        protected List<Type> EventTypes;
+
         protected override void ConfigureCollection(IServiceCollection serviceCollection)
         {
             MockTypeFinder(serviceCollection);
@@ -24,10 +26,10 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         protected void MockTypeFinder(IServiceCollection serviceCollection)
         {
             var type = typeof(TEvent);
-            var eventTypes = type.Assembly.GetTypes().Where(t => type.IsAssignableFrom(t)).ToList();
+            EventTypes = type.Assembly.GetTypes().Where(t => type.IsAssignableFrom(t)).ToList();
 
             serviceCollection.MockSingleton<IAssemblyLocator>(mock => mock.Setup(x => x.GetAssemblies()).Returns(new[] { Assembly.GetExecutingAssembly() }))
-                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(eventTypes))
+                .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(EventTypes))
                 .AddSingleton<TypeFinder>();
         }
     }
@@ -233,6 +235,64 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
             {
                 return true;
             }
+        }
+    }
+
+
+    [TestClass]
+    public class When_using_covariance_in_a_constainthandler : TypeFinderTest<When_using_covariance_in_a_constainthandler.CovarianceBase> 
+    {
+        [TestMethod]
+        public void It_should_find_all_constraint_handlers()
+        {
+            var typeFinder = Get<TypeFinder>();
+            var concreteEvents = EventTypes
+                .Where(et => !et.IsAbstract)
+                .Union(new [] { typeof(Generic<string>) })
+                .ToList();
+
+            var handlers = concreteEvents
+                .Select(t => typeFinder.GetConstraintHandlerTypes(t))
+                .ToList();
+
+            Assert.AreEqual(concreteEvents.Count, handlers.Count(ch => ch.Any()));
+            Assert.AreEqual(1, handlers.Count(ch => ch.Count() == 2));
+        }
+
+        public class CovarianceHandler : EventConstraintHandler<CovarianceBase>
+        {
+            public override bool Allow(CovarianceBase message, ConstraintContext context, JsonElement constraint)
+            {
+                return true;
+            }
+        }
+
+        public class ClosedGenericHandler : EventConstraintHandler<Generic<string>>
+        {
+            public override bool Allow(Generic<string> message, ConstraintContext context, JsonElement constraint)
+            {
+                return true;
+            }
+        }
+
+        public abstract class CovarianceBase
+        {
+
+        }
+
+        public class CoVariantSubOne : CovarianceBase
+        {
+
+        }
+
+        public class CoVariantSubTwo : CovarianceBase
+        {
+
+        }
+
+        public class Generic<T> : CovarianceBase
+        {
+            public T Foo { get; set; }
         }
     }
 }
