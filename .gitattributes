@@ -1,0 +1,6 @@
+SignalR.EventAggregatorProxy.Demo.AspNetCore/* linguist-documentation
+SignalR.EventAggregatorProxy.Demo.BlazorWasm/* linguist-documentation
+SignalR.EventAggregatorProxy.Demo.Contracts/* linguist-documentation
+SignalR.EventAggregatorProxy.Demo.CqsClient/* linguist-documentation
+SignalR.EventAggregatorProxy.Demo.DotNetCore/* linguist-documentation
+SignalR.EventAggregatorProxy.Demo.MVC4/* linguist-documentation
