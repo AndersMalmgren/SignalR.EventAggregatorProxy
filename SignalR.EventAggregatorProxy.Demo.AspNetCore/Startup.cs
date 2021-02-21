@@ -3,15 +3,18 @@ using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using React.AspNet;
 using SignalR.EventAggregatorProxy.AspNetCore.Middlewares;
 using SignalR.EventAggregatorProxy.Boostrap;
+using SignalR.EventAggregatorProxy.Demo.AspNetCore.CommandHandlers;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Commands;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
 using SignalR.EventAggregatorProxy.Event;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+
+
 
 
 namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
@@ -53,6 +56,10 @@ namespace SignalR.EventAggregatorProxy.Demo.AspNetCore
                 .AddSingleton<IEventTypeFinder, EventTypeFinder>()
                 .AddTransient<ConstrainedEventConstraintHandler>()
                 .AddSignalR();
+
+            services.AddScoped<ICommandHandler<EventCommand<StandardEvent>>, EventCommandHandler<StandardEvent>>();
+            services.AddScoped<ICommandHandler<EventCommand<GenericEvent<string>>>, EventCommandHandler<GenericEvent<string>>>();
+            services.AddScoped<ICommandHandler<EventCommand<ConstrainedEvent>>, EventCommandHandler<ConstrainedEvent>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

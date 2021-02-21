@@ -7,6 +7,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Caliburn.Micro;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Commands;
+using SignalR.EventAggregatorProxy.Demo.Contracts.Events;
+using SignalR.EventAggregatorProxy.Demo.CqsClient;
 using SignalR.EventAggregatorProxy.Demo.DotNetCore.ClientEvents;
 using IEventAggregator = SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation.IEventAggregator;
 
@@ -15,13 +18,13 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Views
     public class SendMessageViewModel : PropertyChangedBase
     {
         private readonly IEventAggregator eventAggregator;
-        private readonly IHttpClientFactory clientFactory;
+        private readonly ICqsClient client;
         private string message;
 
-        public SendMessageViewModel(IEventAggregator eventAggregator, IHttpClientFactory clientFactory)
+        public SendMessageViewModel(IEventAggregator eventAggregator, ICqsClient client)
         {
             this.eventAggregator = eventAggregator;
-            this.clientFactory = clientFactory;
+            this.client = client;
         }
 
         public string Message
@@ -46,19 +49,19 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Views
         public bool CanFireStandardEvent { get; private set; }
         public Task FireStandardEvent()
         {
-            return Post("fireStandardEvent");
+            return Post<StandardEvent>();
         }
 
         public bool CanFireGenericEvent { get; private set; }
         public Task FireGenericEvent()
         {
-            return Post("fireGenericEvent");
+            return Post<GenericEvent<string>>();
         }
 
         public bool CanFireConstrainedEvent { get; private set; }
         public Task FireConstrainedEvent()
         {
-            return Post("fireConstrainedEvent");
+            return Post<ConstrainedEvent>();
         }
 
         public bool CanFireClientSideEvent { get; private set; }
@@ -67,16 +70,10 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Views
             eventAggregator.Publish(new ClientSideEvent(Message));
         }
 
-        private async Task Post(string method)
+        private async Task Post<TEvent>() where TEvent : IMessageEvent<string>
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri($"http://localhost:60976/api/service/{method}"));
-            request.Content = new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Message))));
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var result = await clientFactory
-                .CreateClient()
-                .SendAsync(request);
-
-            if(!result.IsSuccessStatusCode) throw new Exception(await result.Content.ReadAsStringAsync());
+            var cmd = new EventCommand<TEvent> { Message = message };
+            await client.ExecuteCommand(cmd);
         }
     }
 }

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\SignalR.EventAggregatorProxy.Demo.Contracts\SignalR.EventAggregatorProxy.Demo.Contracts.csproj" />
+    <ProjectReference Include="..\..\SignalR.EventAggregatorProxy.Demo.CqsClient\SignalR.EventAggregatorProxy.Demo.CqsClient.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,6 +8,7 @@ using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
 using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models;
+using SignalR.EventAggregatorProxy.Demo.CqsClient;
 
 namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client
 {
@@ -18,7 +19,8 @@ namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+                .AddScoped<ICqsClient, CqsClient.CqsClient>();
 
             builder.Services.AddSignalREventAggregator()
                 .WithHubUrl($"{builder.HostEnvironment.BaseAddress}EventAggregatorProxyHub")
@@ -28,8 +30,7 @@ namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client
                 .AddSingleton<IEventTypeFinder, EventTypeFinder>()
                 .AddScoped<EventsViewModel>()
                 .AddScoped<SendMessageViewModel>();
-
-
+            
             await builder.Build().RunAsync();
         }
     }
