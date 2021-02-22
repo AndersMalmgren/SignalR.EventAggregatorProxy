@@ -1,0 +1,62 @@
+﻿@using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
+@using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.ClientEvents
+@using SignalR.EventAggregatorProxy.Demo.Contracts.Constraints
+@using SignalR.EventAggregatorProxy.Demo.Contracts.Events
+
+@inject IProxyEventAggregator EventAggregator
+@implements IHandle<StandardEvent>
+@implements IHandle<GenericEvent<string>>
+@implements IHandle<ConstrainedEvent>
+@implements IHandle<ClientSideEvent>
+@implements IDisposable
+
+@foreach (var message in events)
+{
+    <div>
+        @message.Message
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        EventAggregator.Subscribe(this,
+            builder => builder.For<ConstrainedEvent>()
+                .Add(new ConstrainedEventConstraint { Message = "HelloWorld" }));
+    }
+
+    public void Dispose()
+    {
+        EventAggregator.Unsubscribe(this);
+    }
+
+    private readonly List<IMessageEvent<string>> events = new();
+
+    public void Handle(StandardEvent message)
+    {
+        Add(message);
+    }
+
+    public void Handle(GenericEvent<string> message)
+    {
+        Add(message);
+    }
+
+    public void Handle(ConstrainedEvent message)
+    {
+        Add(message);
+    }
+
+    public void Handle(ClientSideEvent message)
+    {
+        Add(message);
+    }
+
+    private void Add(IMessageEvent<string> message)
+    {
+        events.Add(message);
+        StateHasChanged();
+    }
+}

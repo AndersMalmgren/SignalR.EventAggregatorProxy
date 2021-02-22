@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client", "SignalR.EventAggregatorProxy.Demo.BlazorWasm\Client\SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.csproj", "{953FA581-D7FE-4FB4-B96A-77A13B3E2ABB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.EventAggregatorProxy.Demo.CqsClient", "SignalR.EventAggregatorProxy.Demo.CqsClient\SignalR.EventAggregatorProxy.Demo.CqsClient.csproj", "{C9486B59-3E6B-43AA-9D3D-838561ED5926}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalR.EventAggregatorProxy.Demo.CqsClient", "SignalR.EventAggregatorProxy.Demo.CqsClient\SignalR.EventAggregatorProxy.Demo.CqsClient.csproj", "{C9486B59-3E6B-43AA-9D3D-838561ED5926}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

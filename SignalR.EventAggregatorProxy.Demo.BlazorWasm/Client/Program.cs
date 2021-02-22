@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
-using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models;
 using SignalR.EventAggregatorProxy.Demo.CqsClient;
 
 namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client
@@ -27,9 +26,7 @@ namespace SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client
                 .OnConnectionError(e => Debug.WriteLine(e.Message))
                 .Build()
                 .AddSingleton<IEventAggregator>(p => p.GetService<IProxyEventAggregator>())
-                .AddSingleton<IEventTypeFinder, EventTypeFinder>()
-                .AddScoped<EventsViewModel>()
-                .AddScoped<SendMessageViewModel>();
+                .AddSingleton<IEventTypeFinder, EventTypeFinder>();
             
             await builder.Build().RunAsync();
         }

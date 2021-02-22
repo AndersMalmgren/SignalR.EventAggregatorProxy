@@ -1,0 +1,59 @@
+﻿@using SignalR.EventAggregatorProxy.Demo.CqsClient
+@using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
+@using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.ClientEvents
+@using SignalR.EventAggregatorProxy.Demo.Contracts.Commands
+@using SignalR.EventAggregatorProxy.Demo.Contracts.Events
+@inject ICqsClient Client
+@inject IProxyEventAggregator EventAggregator
+
+<label>Message</label>
+
+<input @bind=Message />
+<div>
+    <button disabled="@(!CanFireEvent)" @onclick="FireStandardEvent">Fire standard event</button>
+    <button disabled="@(!CanFireEvent)" @onclick="FireGenericEvent">Fire generic event</button>
+    <button disabled="@(!CanFireEvent)" @onclick="FireConstrainedEvent">Fire constrained event (Message must be 'HelloWorld' for the event to fire on this client</button>
+    <button disabled="@(!CanFireEvent)" @onclick="FireClientSideEvent">Fire client side event</button>
+</div>
+
+@code {
+    private string message;
+
+
+    public string Message
+    {
+        get { return message; }
+        set {
+            message = value;
+            CanFireEvent = !string.IsNullOrEmpty(value);
+        }
+    }
+
+    public bool CanFireEvent { get; private set; }
+
+    public Task FireStandardEvent()
+    {
+        return Post<StandardEvent>();
+    }
+
+    public Task FireGenericEvent()
+    {
+        return Post<GenericEvent<string>>();
+    }
+
+    public Task FireConstrainedEvent()
+    {
+        return Post<ConstrainedEvent>();
+    }
+
+    public void FireClientSideEvent()
+    {
+        EventAggregator.Publish(new ClientSideEvent(Message));
+    }
+
+    private async Task Post<TEvent>() where TEvent : IMessageEvent<string>
+    {
+        var cmd = new EventCommand<TEvent> { Message = message };
+        await Client.ExecuteCommand(cmd);
+    }
+}

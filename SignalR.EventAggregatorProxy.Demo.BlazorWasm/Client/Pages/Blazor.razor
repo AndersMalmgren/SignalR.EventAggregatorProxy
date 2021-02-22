@@ -1,34 +1,5 @@
 ﻿@page "/blazor"
-@using SignalR.EventAggregatorProxy.Demo.Contracts.Events
-@using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
-@using SignalR.EventAggregatorProxy.Demo.BlazorWasm.Client.Models
-@using System.Diagnostics
-@inject SendMessageViewModel SendMessage
-@inject EventsViewModel Events
-
 <h1>Blazor demo</h1>
 
-<label>Message</label><input @bind=SendMessage.Message />
-<div>
-    <button disabled="@(!SendMessage.CanFireEvent)" @onclick="SendMessage.FireStandardEvent">Fire standard event</button>
-    <button disabled="@(!SendMessage.CanFireEvent)" @onclick="SendMessage.FireGenericEvent">Fire generic event</button>
-    <button disabled="@(!SendMessage.CanFireEvent)" @onclick="SendMessage.FireConstrainedEvent">Fire constrained event (Message must be 'HelloWorld' for the event to fire on this client</button>
-    <button disabled="@(!SendMessage.CanFireEvent)" @onclick="SendMessage.FireClientSideEvent">Fire client side event</button>
-</div>
-
-@foreach (var message in Events.Events)
-{
-    <div>
-        @message.Message
-    </div>
-}
-
-@code {
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        Events.StateHasChanged = StateHasChanged;
-    }
-}
-    
+<SendMessage/>
+<Events/>
