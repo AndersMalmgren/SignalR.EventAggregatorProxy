@@ -106,7 +106,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
             idProp.SetValue(message, id);
 
-            onEvent.Method.Invoke(Get<EventProxy>(), new[] { message });
+            onEvent.Method.Invoke(onEvent.Target, new[] { message });
         }
 
         protected virtual void OnFaultedSubscription(Exception exception, IList<Subscription> subscriptions)
