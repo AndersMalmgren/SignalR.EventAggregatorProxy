@@ -264,4 +264,39 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         }
     }
 
+    [TestClass]
+    public class When_subscribing_to_events_and_publishing_from_server : DotNetClientTest, IHandle<StandardEvent>, IHandle<GenericEvent<string>>
+    {
+        private int called;
+
+        [TestInitialize]
+        public void Context()
+        {
+            var constraint = new StandardEventConstraint {Id = 1};
+            EventAggregator.Subscribe(this, builder => builder.For<StandardEvent>().Add(constraint));
+            reset.WaitOne();
+
+            PublishEvent(new StandardEvent());
+            PublishEvent(new GenericEvent<string>{ FooBar = "MyBar"});
+            PublishEvent(new StandardEvent(), constraint);
+        }
+
+        [TestMethod]
+        public void It_should_publish_all_subscribed_events()
+        {
+            Assert.AreEqual(3, called);
+        }
+
+        public void Handle(StandardEvent message)
+        {
+            called++;
+        }
+
+        public void Handle(GenericEvent<string> message)
+        {
+            called++;
+            Assert.AreEqual("MyBar", message.FooBar);
+        }
+    }
+
 }

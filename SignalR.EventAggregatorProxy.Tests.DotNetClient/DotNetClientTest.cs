@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -12,6 +14,7 @@ using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Extensions;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Model;
 
 
@@ -22,6 +25,22 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
         protected Func<Task> reconnectedCallback;
         protected IProxyEventAggregator EventAggregator => Get<IProxyEventAggregator>();
         protected AutoResetEvent reset;
+
+        private MulticastDelegate onEvent;
+        private readonly PropertyInfo typeProp;
+        private readonly Type messageType;
+        private PropertyInfo genericProp;
+        private PropertyInfo eventProp;
+        private PropertyInfo idProp;
+
+        protected DotNetClientTest()
+        {
+            messageType = typeof(EventProxy).Assembly.GetType("SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation.EventProxy+Message");
+            typeProp = messageType.GetProperty("Type");
+            genericProp = messageType.GetProperty("GenericArguments");
+            eventProp = messageType.GetProperty("Event");
+            idProp = messageType.GetProperty("Id");
+        }
 
         protected override void ConfigureCollection(IServiceCollection serviceCollection)
         {
@@ -46,6 +65,12 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
                         else
                             OnUnsubscribe(args[0] as IEnumerable<dynamic>);
                     }).Returns(Task.CompletedTask);
+
+                    mock.Setup(x => x.On("onEvent", It.IsAny<Action<It.IsSubtype<object>>>())).Callback(
+                        (string e, MulticastDelegate callback) =>
+                        {
+                            onEvent = callback;
+                        });
                 })
                 .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(eventTypes))
                 .MockSingleton<IHubProxyFactory>(mock => mock.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Action<HubConnection>>(), It.IsAny<Func<IHub, Task>>(), It.IsAny<Func<Task>>(), It.IsAny<Action<Exception>>(), It.IsAny<Action>()))
@@ -61,6 +86,27 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
                         return hub;
                     });
                 }).Returns(() => connectionFactory));
+        }
+
+        protected void PublishEvent<T>(T @event, object constraint = null)
+        {
+            var type = typeof(T);
+            var message = Activator.CreateInstance(messageType!);
+            
+            typeProp.SetValue(message, type.GetFullNameWihoutGenerics());
+            genericProp.SetValue(message, type.GetGenericArguments().Select(t => t.FullName).ToArray());
+            eventProp.SetValue(message, JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(@event)).RootElement);
+
+            int? id = null;
+            if (constraint != null)
+            {
+                id = (type.FullName + JsonSerializer.Serialize(constraint)).GetHashCode();
+            }
+
+
+            idProp.SetValue(message, id);
+
+            onEvent.Method.Invoke(Get<EventProxy>(), new[] { message });
         }
 
         protected virtual void OnFaultedSubscription(Exception exception, IList<Subscription> subscriptions)

@@ -17,7 +17,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
 
     public class GenericEvent<T> : Event
     {
-
+        public T FooBar { get; set; }
     }
 
     public class StandardEventConstraint
