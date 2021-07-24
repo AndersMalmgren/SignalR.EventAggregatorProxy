@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SignalR.EventAggregatorProxy")]
-[assembly: AssemblyCopyright("Copyright © Anders Malmgren 2013-2019")]
+[assembly: AssemblyCopyright("Copyright © Anders Malmgren 2013-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
