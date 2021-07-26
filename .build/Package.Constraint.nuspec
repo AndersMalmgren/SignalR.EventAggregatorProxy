@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>SignalR.EventAggregatorProxy.ConstraintCore</id>
-    <version>5.0</version>
+    <version>5.2</version>
     <authors>Anders Malmgren</authors>
     <owners>Anders Malmgren</owners>
     <license type="expression">MIT</license>

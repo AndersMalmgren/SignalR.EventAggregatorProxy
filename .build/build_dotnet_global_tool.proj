@@ -64,8 +64,7 @@
   </Target>
 
   <Target Name="Build">
-    <Exec Command="..\.nuget\nuget.exe restore $(NugetFolder)\SignalR.EventAggregatorProxy.AspNetCore.GlobalTool.csproj" />
-    <MSBuild Projects="$(NugetFolder)\SignalR.EventAggregatorProxy.AspNetCore.GlobalTool.csproj" Properties="Configuration=Release;OutDir=$(NugetFolder)\out\"/>
+	  <Exec WorkingDirectory="$(NugetFolder)" Command="dotnet build --configuration Release" />
   </Target>
 
   <Target Name="Deliver">
