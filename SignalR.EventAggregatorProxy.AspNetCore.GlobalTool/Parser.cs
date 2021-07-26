@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
@@ -53,6 +54,7 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
             foreach (var contract in contracts)
             {
                 var typeName = contract.GetFullNameWihoutGenerics();
+                var properties = contract.GetProperties();
                 var generics = string.Empty;
                 if (contract.ContainsGenericParameters)
                 {
@@ -68,7 +70,14 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
 
 
                 yield return $@"    (function() {{
-        var $class=function() {{}};
+        var $class=function() {{";
+
+                foreach (var property in properties)
+                {
+                    yield return $"           this.{CamelCased(property.Name)}=undefined;";
+                }
+
+                yield return $@"        }};
         $class.type=""{typeName}"";{generics}      
         $class.proxyEvent = true;
         {typeName} = $class;
