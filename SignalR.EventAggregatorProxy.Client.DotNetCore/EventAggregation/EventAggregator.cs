@@ -45,19 +45,19 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
         }
     }
 
-    public class ProxyEventAggregator : EventAggregator, IProxyEventAggregator
+    internal class ProxyEventAggregator : EventAggregator, IProxyEventAggregator
     {
         private readonly EventProxy eventProxy;
         private readonly ITypeFinder typerFinder;
         private readonly ISubscriptionStore subscriptionStore;
         
-        public ProxyEventAggregator(ISubscriptionStore subscriptionStore, EventProxy eventProxy, ITypeFinder typerFinder, IOptions options)
+        public ProxyEventAggregator(ISubscriptionStore subscriptionStore, EventProxy eventProxy, ITypeFinder typerFinder, IOptionsBuilder options)
         {
             this.subscriptionStore = subscriptionStore;
             this.eventProxy = eventProxy;
             this.typerFinder = typerFinder;
 
-            (options as OptionsBuilder).ConfigureProxy(eventProxy, this);
+            options.ConfigureProxy(eventProxy, this);
         }
 
         public override void Subscribe(object subscriber)

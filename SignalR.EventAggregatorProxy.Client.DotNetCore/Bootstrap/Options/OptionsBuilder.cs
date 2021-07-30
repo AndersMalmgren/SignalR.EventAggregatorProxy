@@ -9,7 +9,7 @@ using SignalR.EventAggregatorProxy.Client.DotNetCore.Model;
 
 namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Options
 {
-    internal class OptionsBuilder : IOptions
+    internal class OptionsBuilder : IOptionsBuilder
     {
         private IServiceCollection collection;
         private Action<Exception> faultedConnectingAction;

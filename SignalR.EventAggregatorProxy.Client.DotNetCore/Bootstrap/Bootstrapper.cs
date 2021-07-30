@@ -14,7 +14,8 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap
         {
             var options = new OptionsBuilder(collection);
             collection
-                .AddSingleton<IOptions>(options)
+                .AddSingleton<IOptionsBuilder>(options)
+                .AddSingleton<IOptions>(p => p.GetRequiredService<IOptionsBuilder>())
                 .AddSingleton<IHubProxyFactory, HubProxyFactory>()
                 .AddSingleton<ISubscriptionStore, SubscriptionStore>()
                 .AddTransient<ISubscriptionThrottleHandler, SubscriptionThrottleHandler>()
