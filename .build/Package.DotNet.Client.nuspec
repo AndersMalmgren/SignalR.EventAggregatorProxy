@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>.NET client for SignalR Event Aggregator proxy</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2013-2019</copyright>
+    <copyright>Copyright 2013-2021</copyright>
     <tags>SignalR EventAggregator</tags>
     <dependencies>
       <group targetFramework="net5.0">
