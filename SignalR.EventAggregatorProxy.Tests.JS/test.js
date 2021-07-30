@@ -43,6 +43,7 @@ test = function (name, setup) {
         setup(assert);
     };
 
+    window.stubHub();
     QUnit.test(name, runner);
 };
 
@@ -340,25 +341,24 @@ throttleTest("When two contexts subcribe to different generic arguments of same 
 });
 
 test("When a client is reconnected", function(assert) {
-	var reconnected = false;
     var startAssert = false;
 
     var done = assert.async();
+    var eventAggregator = signalR.eventAggregator;
 	
 	currentHub.invoke = function (method, events) {
 		switch(method) {
 			case "Subscribe":
-				if(!reconnected) return;
-
 				eventAggregator.unsubscribe(instanceRemove);
 				
 				//Wait for unsubscribe
 				if(!startAssert) {
                     startAssert = true;
-                    done();
                     window.currentOnClose();
                     return;
-				}
+                }
+
+                done();
                 assert.equal(events.length, 4, "It should resubscribe to the events: " + events.length);			
 				
 			
@@ -386,9 +386,6 @@ test("When a client is reconnected", function(assert) {
     var instanceRemove = {};
     var thirdConstraintSubscriber = {};
 
-    var eventAggregator = new signalR.EventAggregator(true);
-	reconnected = true;    
-
     eventAggregator.subscribe(eventRemove, function () { }, instanceRemove);
     eventAggregator.subscribe(genericEventTwo.event, function () { }, instanceRemove);
     eventAggregator.subscribe(constraintEvent, function () { }, instanceRemove, { foo: 2 });
@@ -411,7 +408,5 @@ QUnit.test("When Hub is missing", function(assert) {
         new signalR.EventAggregator(true);
     } catch (error) {
         assert.ok(typeof (error) === "string" && error.indexOf("library") !== -1, "It should throw meaningful exception");
-    } finally {
-        stubHub();
     }
 });

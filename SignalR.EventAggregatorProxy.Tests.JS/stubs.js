@@ -1,5 +1,5 @@
 ﻿(window.stubHub = function () {
-	window.signalR = {};
+    window.signalR = window.signalR || {};
     window.signalR.HubConnectionBuilder = function() {
 
     };
