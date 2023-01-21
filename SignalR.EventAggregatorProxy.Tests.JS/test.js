@@ -51,11 +51,12 @@ throttleTest = function (name, setup) {
     test(name, function (assert) {
         var done = assert.async();
         var throttleAssert = setup(assert);
-        done();
-        
-        if (throttleAssert) {
-            throttleAssert();
-        }
+        setTimeout(() => {
+            done();                
+            if (throttleAssert) {
+                throttleAssert();
+            }
+        }, 1);
     });
 };
 
