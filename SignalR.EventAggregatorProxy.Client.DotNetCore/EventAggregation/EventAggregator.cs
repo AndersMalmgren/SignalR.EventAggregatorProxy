@@ -119,14 +119,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
         private void CheckSubscriberConstraints(IEnumerable<IConstraintInfo> constraintInfos)
         {
-            try
-            {
-                constraintInfos.GroupBy(c => c.Id).Select(c => c.Single()).ToList();
-            }
-            catch (InvalidOperationException)
-            {
-                throw new ArgumentException("One subscriber cant subscribe to the same constraint twice");
-            }
+            if(constraintInfos.GroupBy(c => c.Id).Any(c => c.Count() != 1)) throw new ArgumentException("One subscriber cant subscribe to the same constraint twice");
         }
 
     }
