@@ -223,8 +223,8 @@ multipleSameEventSubscriptionTest = function(name, genericArgument, constraint, 
         }
 
         return function () {
-            assert.ok(constraint == null || constructor.__subscribers[0].constraintId != null, "ConstraintId should be set");
-            (singleConstraint ? assert.equal : assert.notEqual).bind(assert)(constructor.__subscribers[0].constraintId, constructor.__subscribers[1].constraintId, "ConstraintId should be correct");
+            assert.ok(constraint == null || eventAggregator.eventSubscriptions.get(constructor)[0].constraintId != null, "ConstraintId should be set");
+            (singleConstraint ? assert.equal : assert.notEqual).bind(assert)(eventAggregator.eventSubscriptions.get(constructor)[0].constraintId, eventAggregator.eventSubscriptions.get(constructor)[1].constraintId, "ConstraintId should be correct");
         };
     });
 };
@@ -254,7 +254,7 @@ multipleSameEventUnsubscriptionTest = function (name, genericArgument, constrain
 					for (var i = 0; i < unsubscribeCount; i++) {
 						eventAggregator.unsubscribe(contexts[i]);
 					}
-                    assert.equal(constructor.__subscribers.length, subscribeCount - unsubscribeCount, "Should remove " + unsubscribeCount + " subscriptions client side");				
+                    assert.equal(eventAggregator.eventSubscriptions.get(constructor).length, subscribeCount - unsubscribeCount, "Should remove " + unsubscribeCount + " subscriptions client side");				
 				break;
 				case "Unsubscribe":
                     assert.ok(removeAll, "Should " + (removeAll ? "" : "not") + " unsubscribe");
