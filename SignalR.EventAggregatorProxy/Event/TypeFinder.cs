@@ -25,11 +25,8 @@ namespace SignalR.EventAggregatorProxy.Event
             eventTypes = eventTypeFinder
                 .ListEventsTypes()
                 .ToDictionary(t => t.GetFullNameWihoutGenerics(), t => t);
-            InitConstraintHandlerTypes();
-        }
 
-        private void InitConstraintHandlerTypes()
-        {
+
             var lookupType = typeof(IEventConstraintHandler<>);
             var predicate = new Func<Type, bool>(t => t.IsGenericType && t.GetGenericTypeDefinition() == lookupType);
 
@@ -73,7 +70,7 @@ namespace SignalR.EventAggregatorProxy.Event
             {
                 if (!types.ContainsKey(typeName))
                 {
-                    types[typeName] = assemblyLocator.GetAssemblies().Select(a => a.GetType(typeName)).Single(t => t != null);
+                    types[typeName] = assemblyLocator.GetAssemblies().Select(a => a.GetType(typeName)).Single(t => t != null).NotNull();
                 }
                 type = types[typeName];
             }

@@ -13,7 +13,7 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
     public class EventScriptMiddleware
     {
         private readonly RequestDelegate _next;
-        private static string js;
+        private static string? js;
         private static DateTime scriptBuildDate;
 
         public EventScriptMiddleware(RequestDelegate next)
@@ -44,12 +44,12 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
 
             response.Headers["Last-Modified"] = scriptBuildDate.ToString("r");
             response.Headers["Cache-Control"] = "must-revalidate";
-            return response.WriteAsync(js);
+            return response.WriteAsync(js ?? throw new NullReferenceException());
         }
 
         private bool ClientCached(HttpRequest request, DateTime contentModified)
         {
-            string header = request.Headers["If-Modified-Since"];
+            string? header = request.Headers["If-Modified-Since"];
 
             if (header != null)
             {
@@ -79,7 +79,7 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.Middlewares
         {
             var stream = typeof(EventScriptMiddleware)
                 .Assembly
-                .GetManifestResourceStream("SignalR.EventAggregatorProxy.AspNetCore.Resources.EventProxy.js");
+                .GetManifestResourceStream("SignalR.EventAggregatorProxy.AspNetCore.Resources.EventProxy.js") ?? throw new NullReferenceException();
 
             var reader = new StreamReader(stream);
             return reader.ReadToEnd();

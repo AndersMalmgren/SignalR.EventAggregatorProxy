@@ -25,13 +25,4 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="NGit">
-      <HintPath>..\.build\NGit.dll</HintPath>
-    </Reference>
-    <Reference Include="Sharpen">
-      <HintPath>..\.build\Sharpen.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

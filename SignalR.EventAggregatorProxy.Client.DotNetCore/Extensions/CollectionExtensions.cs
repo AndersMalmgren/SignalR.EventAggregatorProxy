@@ -7,15 +7,13 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Extensions
     {
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> collection, Action<T> action)
         {
-            if(collection != null)
+            var result = new List<T>();
+            foreach(var item in collection)
             {
-                foreach(var item in collection)
-                {
-                    action(item);
-                }
+                action(item);
+                result.Add(item);
             }
-
-            return collection;
+            return result;
         }
     }
 }

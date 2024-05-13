@@ -6,9 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Moq;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories;
@@ -53,6 +51,7 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
             reset = new AutoResetEvent(false);
             serviceCollection
                 .AddSignalREventAggregator()
+                .WithHubUrl(string.Empty)
                 .OnSubscriptionError(OnFaultedSubscription)
                 .OnConnected(OnConnected)
                 .Build()
@@ -73,8 +72,8 @@ namespace SignalR.EventAggregatorProxy.Tests.DotNetClient
                         });
                 })
                 .MockSingleton<IEventTypeFinder>(mock => mock.Setup(x => x.ListEventsTypes()).Returns(eventTypes))
-                .MockSingleton<IHubProxyFactory>(mock => mock.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Action<HubConnection>>(), It.IsAny<Func<IHub, Task>>(), It.IsAny<Func<Task>>(), It.IsAny<Action<Exception>>(), It.IsAny<Action>()))
-                .Callback((string url, Action<HubConnection> configure, Func<IHub, Task> onstarted, Func<Task> onreconnected, Action<Exception> faulted, Action connected) =>
+                .MockSingleton<IHubProxyFactory>(mock => mock.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Func<IHub, Task>>(), It.IsAny<Func<Task>>(), It.IsAny<Action<Exception>>(), It.IsAny<Action>(), It.IsAny<Action<HubConnection>>()))
+                .Callback((string url, Func<IHub, Task> onstarted, Func<Task> onreconnected, Action<Exception> faulted, Action connected, Action<HubConnection> configure) =>
                 {
                     connectionFactory = Task.Run(async () =>
                     {

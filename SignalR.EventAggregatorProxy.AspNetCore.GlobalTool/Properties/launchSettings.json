@@ -2,7 +2,7 @@
   "profiles": {
     "SignalR.EventAggregatorProxy.AspNetCore.GlobalTool": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\SignalR.EventAggregatorProxy.Demo.AspNetCore\\bin\\debug\\netcoreapp3.0\\SignalR.EventAggregatorProxy.Demo.AspNetCore.dll js.js SignalR.EventAggregatorProxy.Demo.AspNetCore.EventTypeFinder"
+      "commandLineArgs": "..\\..\\..\\..\\SignalR.EventAggregatorProxy.Demo.AspNetCore\\bin\\debug\\net8.0\\SignalR.EventAggregatorProxy.Demo.AspNetCore.dll js.js SignalR.EventAggregatorProxy.Demo.AspNetCore.EventTypeFinder"
     }
   }
 }

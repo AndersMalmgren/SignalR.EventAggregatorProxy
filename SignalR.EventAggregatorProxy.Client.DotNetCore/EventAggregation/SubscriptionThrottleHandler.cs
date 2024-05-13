@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 {
     public class SubscriptionThrottleHandler : ISubscriptionThrottleHandler
     {
-        private Func<Task> onThrottled;
-        private CancellationTokenSource cancelSource = new CancellationTokenSource();
+        private Func<Task> onThrottled = null!;
+        private CancellationTokenSource cancelSource = new();
 
         public void Init(Func<Task> onThrottled)
         {

@@ -44,7 +44,8 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Event
             {
                 types[type] = AppDomain.CurrentDomain.GetAssemblies()
                 .Select(a => a.GetType(type))
-                .First(t => t != null);
+                .First(t => t != null)
+                .NotNull();
             }
 
             return types[type];

@@ -4,7 +4,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Model
 {
     public class Subscription
     {
-        public Subscription(Type eventType, object constraint, int? constraintId)
+        public Subscription(Type eventType, object? constraint, int? constraintId)
         {
             EventType = eventType;
             Constraint = constraint;
@@ -12,7 +12,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Model
         }
 
         public Type EventType { get; set; }
-        public object Constraint { get; set; }
+        public object? Constraint { get; set; }
         public int? ConstraintId { get; set; }
     }
 }

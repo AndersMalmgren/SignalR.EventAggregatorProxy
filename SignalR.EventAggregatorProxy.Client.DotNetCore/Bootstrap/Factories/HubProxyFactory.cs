@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 {
     public class HubProxyFactory : IHubProxyFactory
     {
-        public async Task<IHub> Create(string hubUrl, Action<HubConnection> configureConnection, Func<IHub, Task> onStarted, Func<Task> reconnected, Action<Exception> faulted, Action connected)
+        public async Task<IHub> Create(string hubUrl, Func<IHub, Task> onStarted, Func<Task> reconnected, Action<Exception> faulted, Action connected, Action<HubConnection>? configureConnection)
         {
             var isConnected = false;
 
@@ -20,7 +19,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
 
             configureConnection?.Invoke(connection);
 
-            Func<int, Task> delayedStart = null;
+            Func<int, Task>? delayedStart = null;
 
             Func<Task> start = async () =>
             {
@@ -39,7 +38,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
                 catch (Exception ex)
                 {
                     faulted(ex);
-                    await delayedStart(5000);
+                    await delayedStart.NotNull()(5000);
                 }
             };
 
@@ -49,7 +48,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories
                 await start();
             };
             
-            connection.Closed += async (error) => await delayedStart(new Random().Next(0, 5) * 1000); //Best practice acccording to demo :P
+            connection.Closed += async _ => await delayedStart(new Random().Next(0, 5) * 1000); //Best practice acccording to demo :P
 
             await start();
             return hub;

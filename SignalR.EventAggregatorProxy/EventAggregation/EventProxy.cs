@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SignalR.EventAggregatorProxy.Constraint;
 using SignalR.EventAggregatorProxy.Event;
@@ -45,7 +46,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             {
                 var type = typeFinder.GetEventType(typeName);
                 var genericArgumentTypes = genericArguments.Select(typeFinder.GetType).ToList();
-                var subscription = new Subscription(type, context.ConnectionId, context.User.Identity.Name, constraint,
+                var subscription = new Subscription(type, context.ConnectionId, context.User?.Identity?.Name, constraint,
                                                     constraintId, genericArgumentTypes);
                 subscriptions[type.GUID] = new List<Subscription>(subscriptions[type.GUID]) { subscription };
 
@@ -65,8 +66,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 {
                     foreach (var subscription in userSubscriptions[connectionId])
                     {
-                        subscriptions[subscription.EventType.GUID] =
-                            new List<Subscription>(subscriptions[subscription.EventType.GUID].Where(c => c.ConnectionId != connectionId));
+                        subscriptions[subscription.EventType.GUID] = subscriptions[subscription.EventType.GUID].Where(c => c.ConnectionId != connectionId).ToList();
 
                     }
                     userSubscriptions.Remove(connectionId);
@@ -82,11 +82,9 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                 {
                     if (userSubscriptions.ContainsKey(connectionId))
                     {
-                        userSubscriptions[connectionId] =
-                            new List<Subscription>(userSubscriptions[connectionId].Where(s => !(s.EventType.GUID == type.Type.GUID && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && ConstraintIdCorrect(s, type.ClientData.ConstraintId))));
+                        userSubscriptions[connectionId] = userSubscriptions[connectionId].Where(s => !(s.EventType.GUID == type.Type.GUID && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && ConstraintIdCorrect(s, type.ClientData.ConstraintId))).ToList();
                     }
-                    subscriptions[type.Type.GUID] =
-                        new List<Subscription>(subscriptions[type.Type.GUID].Where(s => !(s.ConnectionId == connectionId && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && ConstraintIdCorrect(s, type.ClientData.ConstraintId))));
+                    subscriptions[type.Type.GUID] = subscriptions[type.Type.GUID].Where(s => !(s.ConnectionId == connectionId && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && GenericArgumentsCorrect(s, type.ClientData.GenericArguments) && ConstraintIdCorrect(s, type.ClientData.ConstraintId))).ToList();
                 }
             }
         }
@@ -94,14 +92,11 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
         private async Task Handle(object message)
         {
             var eventType = message.GetType();
-            var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName).ToArray();
+            var genericArguments = eventType.GetGenericArguments().Select(t => t.FullName.NotNull()).ToArray();
             
-            var constraintHandlerTypes = typeFinder.GetConstraintHandlerTypes(eventType);
+            var constraintHandlerTypes = typeFinder.GetConstraintHandlerTypes(eventType).AsReadOnlyCollection();
             var hasHandlerTypes = constraintHandlerTypes.Any();
-            var constraintHandlers = (hasHandlerTypes ? constraintHandlerTypes.Select(t => serviceProvider.GetService(t) as IEventConstraintHandler).ToList() : Enumerable.Empty<IEventConstraintHandler>());
-
-            if (hasHandlerTypes && constraintHandlers.Any(h => h == null))
-                throw new Exception(string.Format("Constraint(s) {0} not registered correctly with the DependencyResolver", string.Join("; ",constraintHandlerTypes.Select(t=> t.Name))));
+            var constraintHandlers = constraintHandlerTypes.Select(t => (IEventConstraintHandler)serviceProvider.GetRequiredService(t)).ToList();
 
             foreach (var subscription in subscriptions[eventType.GUID])
             {
@@ -113,7 +108,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
                         continue;
 
                     var client = hubContext.Clients.Client(subscription.ConnectionId);
-                    await client.SendCoreAsync("onEvent", new object[] { new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId) } );
+                    await client.SendCoreAsync("onEvent", [new Message(eventType.GetFullNameWihoutGenerics(), message, genericArguments, subscription.ConstraintId)]);
                 }
                 catch(Exception e)
                 {
@@ -127,7 +122,7 @@ namespace SignalR.EventAggregatorProxy.EventAggregation
             return subscription.ConstraintId == null || subscription.ConstraintId == constraintId;
         }
 
-        private bool GenericArgumentsCorrect(Subscription subscription, string[] genericArguments)
+        private bool GenericArgumentsCorrect(Subscription subscription, string[]? genericArguments)
         {
             if (genericArguments == null) return true;
 

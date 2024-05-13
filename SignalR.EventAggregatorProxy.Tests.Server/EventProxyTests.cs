@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sharpen;
 using SignalR.EventAggregatorProxy.Constraint;
-using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
@@ -84,9 +81,6 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         [TestMethod]
         public void It_should_invoke_both_base_and_sub_implementaion_of_constraint_handers()
         {
-            
-            var git = NGit.Api.Git.Open(new FilePath("C:\\git\\SignalR.EventAggregatorProxy3"));
-            var count = git.Log().Call().Count();
             Assert.AreEqual(2, called.Count);
         }
     }

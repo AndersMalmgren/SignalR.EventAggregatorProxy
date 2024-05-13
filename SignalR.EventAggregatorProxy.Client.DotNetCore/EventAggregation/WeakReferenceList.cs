@@ -7,11 +7,11 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 {
     public class WeakReferenceList<T> : ICollection<T> where T : class
     {
-        private readonly List<WeakReference> list = new List<WeakReference>();
+        private readonly List<WeakReference> list = new();
 
         public IEnumerator<T> GetEnumerator()
         {
-            return GetAlive().Select(item => item.Target as T).GetEnumerator();
+            return GetAlive().Select(item => (T)item.Target!).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -32,7 +32,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
         public bool Contains(T item)
         {
-            return GetAlive().Any(weakItem => weakItem.Target.Equals(item));
+            return GetAlive().Any(weakItem => weakItem.Target!.Equals(item));
         }
 
         public void CopyTo(T[] array, int arrayIndex)
@@ -43,7 +43,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
         public bool Remove(T item)
         {
             CleanDeadReferences();
-            return list.RemoveAll(weakItem => weakItem.Target.Equals(item)) > 0;
+            return list.RemoveAll(weakItem => weakItem.Target?.Equals(item) == true) > 0;
         }
 
         public int Count

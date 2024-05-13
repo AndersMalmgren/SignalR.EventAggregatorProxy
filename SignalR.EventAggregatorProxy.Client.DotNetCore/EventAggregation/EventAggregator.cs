@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
-using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Options;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
@@ -47,7 +44,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 
     internal class ProxyEventAggregator : EventAggregator, IProxyEventAggregator
     {
-        private readonly EventProxy eventProxy;
+        private readonly EventProxy? eventProxy;
         private readonly ITypeFinder typerFinder;
         private readonly ISubscriptionStore subscriptionStore;
         
@@ -65,7 +62,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             Subscribe(subscriber, null);
         }
 
-        public void Subscribe(object subscriber, Action<IConstraintinfoBuilder> buildConstraints)
+        public void Subscribe(object subscriber, Action<IConstraintinfoBuilder>? buildConstraints)
         {
             base.Subscribe(subscriber);
             if (eventProxy != null)
@@ -85,7 +82,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
                 var subscriptions = from pe in proxyEvents
                                     join ci in constraintInfos on pe equals ci.GetType().GetGenericArguments()[0] into eci
                             from ciOuter in eci.DefaultIfEmpty()
-                                    select new Subscription(pe, ciOuter != null ? ciOuter.GetConstraint() : null, ciOuter.GetConstraintId());
+                                    select new Subscription(pe, ciOuter?.GetConstraint(), ciOuter.GetConstraintId());
 
                 var actualSubscriptions = subscriptionStore.GetActualSubscriptions(subscriptions.ToList());
 
