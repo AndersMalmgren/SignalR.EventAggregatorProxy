@@ -58,7 +58,7 @@
       <ReleaseFiles Include="$(BuildDir)\SignalR.EventAggregatorProxy.Client.DotNetCore.dll">
       </ReleaseFiles>
     </ItemGroup>
-    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net5.0\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles -> '$(NugetFolder)\lib\net8.0\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <RemoveDir Directories="$(BuildDir)" />
   </Target>
 

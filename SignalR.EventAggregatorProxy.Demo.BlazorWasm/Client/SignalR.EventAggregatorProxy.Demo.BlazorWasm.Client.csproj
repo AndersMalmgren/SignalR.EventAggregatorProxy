@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.4" PrivateAssets="all" />
-    <PackageReference Include="SignalR.EventAggregatorProxy.Client.DotNetCore" Version="8.0.288" />
+    <PackageReference Include="SignalR.EventAggregatorProxy.Client.DotNetCore" Version="8.1.288" />
     <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     

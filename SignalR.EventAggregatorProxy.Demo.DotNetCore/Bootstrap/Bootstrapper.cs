@@ -54,7 +54,7 @@ namespace SignalR.EventAggregatorProxy.Demo.DotNetCore.Bootstrap
 
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
-            DisplayRootViewFor<MainShellViewModel>();
+            DisplayRootViewForAsync<MainShellViewModel>();
         }
     }
 }
