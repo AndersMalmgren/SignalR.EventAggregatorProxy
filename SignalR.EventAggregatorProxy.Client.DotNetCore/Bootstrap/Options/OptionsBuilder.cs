@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation;
+using SignalR.EventAggregatorProxy.Client.DotNetCore.Extensions;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Model;
 
 namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Options
 {
     internal class OptionsBuilder : IOptionsBuilder
     {
-        private IServiceCollection collection;
-        private Action<Exception> faultedConnectingAction;
-        private Action<Exception, IList<Subscription>> faultedSubscriptionAction;
-        private Action connectedAction;
-        private string hubUrl;
-        private Action<HubConnection> configureConnection;
+        private IServiceCollection? collection;
+        private Action<Exception>? faultedConnectingAction;
+        private Action<Exception, IList<Subscription>>? faultedSubscriptionAction;
+        private Action? connectedAction;
+        private string? hubUrl;
+        private Action<HubConnection>? configureConnection;
 
         public OptionsBuilder(IServiceCollection collection)
         {
@@ -61,7 +61,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Options
         public IServiceCollection Build()
         {
             EnsureBuild();
-            var col = collection;
+            var col = collection.NotNull();
             collection = null;
             return col;
         }
@@ -74,7 +74,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Options
 
         public void ConfigureProxy(EventProxy eventProxy, IProxyEventAggregator eventAggregator)
         {
-            Task.Run(() => eventProxy.Init(hubUrl, eventAggregator, configureConnection, faultedConnectingAction, faultedSubscriptionAction, connectedAction));
+            Task.Run(() => eventProxy.Init(hubUrl.NotNull(), eventAggregator, configureConnection, faultedConnectingAction, faultedSubscriptionAction, connectedAction));
         }
     }
 }

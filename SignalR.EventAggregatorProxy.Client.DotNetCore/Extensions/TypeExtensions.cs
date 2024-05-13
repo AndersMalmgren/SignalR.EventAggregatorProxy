@@ -11,7 +11,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Extensions
 
         public static string GetFullNameWihoutGenerics(this Type type)
         {
-            return type.GetNameWihoutGenerics(t => t.FullName);
+            return type.GetNameWihoutGenerics(t => t.FullName.NotNull());
         }
 
         private static string GetNameWihoutGenerics(this Type type, Func<Type, string> nameProvider)

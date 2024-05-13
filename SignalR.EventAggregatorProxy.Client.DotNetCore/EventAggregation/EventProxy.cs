@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Bootstrap.Factories;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.Event;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation.ProxyEvents;
@@ -15,14 +14,14 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
 {
     public class EventProxy
     {
-        private IProxyEventAggregator eventAggregator;
+        private IProxyEventAggregator eventAggregator = null!;
+        private IHub proxy = null!;
         private readonly IHubProxyFactory hubProxyFactory;
-        private Action<Exception> faultedConnectingAction;
-        private Action<Exception, IList<Subscription>> faultedSubscriptionAction;
-        private Action connectedAction;
+        private Action<Exception>? faultedConnectingAction;
+        private Action<Exception, IList<Subscription>>? faultedSubscriptionAction;
+        private Action? connectedAction;
         private bool queueSubscriptions = true;
         private readonly List<Subscription> subscriptionQueue;
-        private IHub proxy;
         private readonly ITypeFinder typeFinder;
         private readonly ISubscriptionThrottleHandler throttleHandler;
         private readonly ISubscriptionStore subscriptionStore;
@@ -39,7 +38,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             this.subscriptionStore = subscriptionStore;
         }
 
-        public async Task Init(string hubUrl, IProxyEventAggregator eventAggregator, Action<HubConnection> configureConnection, Action<Exception> faultedConnectingAction, Action<Exception, IList<Subscription>> faultedSubscriptionAction, Action connectedAction)
+        public async Task Init(string hubUrl, IProxyEventAggregator eventAggregator, Action<HubConnection>? configureConnection, Action<Exception>? faultedConnectingAction, Action<Exception, IList<Subscription>>? faultedSubscriptionAction, Action? connectedAction)
         {
             this.eventAggregator = eventAggregator;
             this.faultedConnectingAction = faultedConnectingAction;
@@ -47,13 +46,13 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             this.connectedAction = connectedAction;
 
             await hubProxyFactory
-                .Create(hubUrl, configureConnection, async p =>
+                .Create(hubUrl, async p =>
                     {
                         proxy = p;
                         await SendQueuedSubscriptions();
                         p.On<Message>("onEvent", OnEvent);
                     },
-                    Reconnected, FaultedConnection, ConnectionComplete);
+                    Reconnected, FaultedConnection, ConnectionComplete, configureConnection);
         }
 
         public void Subscribe(IEnumerable<Subscription> subscriptions)
@@ -73,7 +72,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             eventAggregator.Publish(@event, message.Id);
         }
 
-        private static readonly JsonSerializerOptions Options = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true};
+        private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true};
 
         private dynamic ParseTypeData(Message message)
         {
@@ -88,7 +87,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
             }
 
             var json = message.Event.GetRawText();
-            return JsonSerializer.Deserialize(json, type, Options);
+            return JsonSerializer.Deserialize(json, type, Options).NotNull();
         }
         
         public async Task Unsubscribe(IEnumerable<Subscription> subscriptions)
@@ -122,7 +121,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
                 }
 
                 if (subscriptions.Any())
-                    await proxy.InvokeAsync("subscribe", new object[] { subscriptions, reconnected });
+                    await proxy.InvokeAsync("subscribe", [subscriptions, reconnected]);
             }
             catch (Exception ex)
             {
@@ -151,10 +150,9 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
         private void FaultedConnection(Exception ex)
         {
             /* Since we are using tasks, most of the time we will get an AggregateException with only one InnerException */
-            var aggregateException = ex as AggregateException;
 
-            if (aggregateException != null && aggregateException.InnerExceptions.Count == 1)
-                ex = aggregateException.InnerException;
+            if (ex is AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1)
+                ex = aggregateException.InnerException.NotNull();
          
             if (faultedConnectingAction != null)
                 faultedConnectingAction(ex);
@@ -165,9 +163,9 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation
         
         private class Message
         {
-            public string Type { get; set; }
+            public required string Type { get; set; }
             public JsonElement Event { get; set; }
-            public string[] GenericArguments { get; set; }
+            public required string[] GenericArguments { get; set; }
             public int? Id { get; set; }
         }
 

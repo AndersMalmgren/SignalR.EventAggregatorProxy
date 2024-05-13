@@ -1,4 +1,4 @@
-﻿(function (signalR, vue) {
+﻿(function (signalR) {
     signalR.install = function (vue) {
         vue.mixin({
             destroyed: function () {
@@ -6,12 +6,12 @@
             }
         });
 
-        vue.prototype.subscribe = function (type, handler, constraint) {
+        vue.config.globalProperties.subscribe = function (type, handler, constraint) {
             signalR.eventAggregator.subscribe(type, handler, this, constraint);
         };
 
-        vue.prototype.publish = function (event) {
+        vue.config.globalProperties.publish = function (event) {
             signalR.eventAggregator.publish(event);
         };
     };
-})(signalR || {}, Vue);
+})(signalR || {});

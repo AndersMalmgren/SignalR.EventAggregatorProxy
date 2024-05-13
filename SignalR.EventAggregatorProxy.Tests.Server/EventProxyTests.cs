@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SignalR.EventAggregatorProxy.Constraint;
-using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Tests.Server
 {
@@ -35,6 +33,7 @@ namespace SignalR.EventAggregatorProxy.Tests.Server
         [TestMethod]
         public void It_should_only_fire_event_if_all_allow_methods_allow_it()
         {
+
             Assert.AreEqual(results.Values.All(result => result) ? 1 : 0, events.Count);
         }
 

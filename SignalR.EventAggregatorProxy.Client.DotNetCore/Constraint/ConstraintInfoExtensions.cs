@@ -6,7 +6,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint
 {
     internal static class ConstraintInfoExtensions
     {
-        public static IConstraintInfo GetConstraintInfo(this IEnumerable<IConstraintInfo> constraintInfos, Type eventType)
+        public static IConstraintInfo? GetConstraintInfo(this IEnumerable<IConstraintInfo> constraintInfos, Type eventType)
         {
             return constraintInfos.FirstOrDefault(ci => ci.GetType().GetGenericArguments()[0] == eventType);
         }

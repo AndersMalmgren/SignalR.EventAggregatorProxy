@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Generic;
 using SignalR.EventAggregatorProxy.Client.DotNetCore.EventAggregation.ProxyEvents;
 
 namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint
@@ -79,7 +77,7 @@ namespace SignalR.EventAggregatorProxy.Client.DotNetCore.Constraint
 
         public object GetConstraint()
         {
-            return Constraint;
+            return Constraint!;
         }
 
         public int Id { get; internal set; }

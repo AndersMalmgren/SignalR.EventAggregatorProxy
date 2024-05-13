@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using SignalR.EventAggregatorProxy.Extensions;
 
 namespace SignalR.EventAggregatorProxy.Event
 {
@@ -8,7 +9,7 @@ namespace SignalR.EventAggregatorProxy.Event
     {
         public IEnumerable<Assembly> GetAssemblies()
         {
-            return Assembly.GetEntryAssembly().GetReferencedAssemblies().Select(Assembly.Load).Union(new [] {Assembly.GetEntryAssembly()});
+            return Assembly.GetEntryAssembly().NotNull().GetReferencedAssemblies().Select(Assembly.Load).Union([Assembly.GetEntryAssembly()]);
         }
     }
 }

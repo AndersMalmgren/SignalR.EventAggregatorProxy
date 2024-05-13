@@ -40,7 +40,7 @@
       <Output PropertyName="Version" TaskParameter="Version" />
     </VersionInfoTask>
 
-    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.JS">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.JS/signalR.eventAggregator.js">
       <Output PropertyName="CoreClientVersion" TaskParameter="Version" />
     </VersionInfoTask>
   </Target>
