@@ -1,6 +1,9 @@
 ﻿(function (signalR) {
     signalR.EventAggregator = function (enableProxy) {
         this.constraintId = 0;
+        this.contextSubscriptions = new Map();
+        this.eventSubscriptions = new Map();
+
         if (enableProxy) {
             this.proxy = new Proxy(this);
         }
@@ -10,11 +13,12 @@
         function getSubscribers(message, isInstance) {
             message = getConstructor(message);
             var constructor = isInstance ? message.constructor : message;
-            if (constructor.__subscribers === undefined) {
-                constructor.__subscribers = [];
+
+            if(!this.eventSubscriptions.has(constructor)) {
+                this.eventSubscriptions.set(constructor, []);
             }
 
-            return constructor.__subscribers;
+            return this.eventSubscriptions.get(constructor);
         }
 
         function checkConstraintId(subscriber, constraintId) {
@@ -45,19 +49,17 @@
         }
 
 
-        function prepareContext(context) {
-            if (context.__getSubscriptions === undefined) {
-                var subscriptions = [];
-
-                context.__getSubscriptions = function () {
-                    return subscriptions;
-                };
+        function getContextSubscriptions(context) {
+            if(!this.contextSubscriptions.has(context)) {
+                this.contextSubscriptions.set(context, []);
             }
-            return context.__getSubscriptions();
+
+            return this.contextSubscriptions.get(context);
+
         }
 
         function shouldProxySubscription(newSubscription) {
-            var subscribers = getSubscribers(newSubscription.type, false);
+            var subscribers = getSubscribers.call(this, newSubscription.type, false);
             if (getConstructor(newSubscription.type).proxyEvent !== true) return false;
 
             if (subscribers.length === 0) return true;
@@ -86,12 +88,13 @@
 
         return {
             unsubscribe: function (context) {
-                if (context.__getSubscriptions === undefined) return;
-                var subscriptions = context.__getSubscriptions();
-                var actualUnsubscriptions = [];
+                if(!this.contextSubscriptions.has(context)) return;                
+
+                var subscriptions = this.contextSubscriptions.get(context);
+                var actualUnsubscriptions = [];                
                 subscriptions.forEach(function (s) {
                     var index = -1;
-                    var subscribers = getConstructor(s.type).__subscribers;
+                    var subscribers = getSubscribers.call(this, s.type, false);
                     for (var i = 0; i < subscribers.length; i++) {
                         if (subscribers[i].context == context && compareSubscriptions(s, subscribers[i])) {
                             index = i;
@@ -113,16 +116,16 @@
                         }
                     }
 
-                });
+                }.bind(this));
 
                 if (this.proxy) {
                     this.proxy.unsubscribe(actualUnsubscriptions);
                 }
             },
             subscribe: function (type, handler, context, constraint) {
-                var subscriptions = prepareContext(context);
+                var subscriptions = getContextSubscriptions.call(this, context);
 
-                var subscribers = getSubscribers(type, false);
+                var subscribers = getSubscribers.call(this, type, false);
                 var subscription = { type: type, handler: handler, context: context, constraint: constraint };
                 var shouldProxy = shouldProxySubscription.call(this, subscription);
 

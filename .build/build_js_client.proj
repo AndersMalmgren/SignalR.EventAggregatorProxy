@@ -35,7 +35,7 @@
   </Target>
 
   <Target Name="GetGitVersion">
-    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.JS">
+    <VersionInfoTask RepoPath="..\" Path="SignalR.EventAggregatorProxy.Client.JS/signalR.eventAggregator.js">
       <Output PropertyName="Version" TaskParameter="Version" />
     </VersionInfoTask>
   </Target>

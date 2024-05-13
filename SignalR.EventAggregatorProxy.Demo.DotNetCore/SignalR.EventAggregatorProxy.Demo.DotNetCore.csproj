@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="3.2.0" />
-    <PackageReference Include="SignalR.EventAggregatorProxy.Client.DotNetCore" Version="5.2.273" />
+    <PackageReference Include="SignalR.EventAggregatorProxy.Client.DotNetCore" Version="8.0.288" />
   </ItemGroup>
 
   <ItemGroup>
