@@ -16,8 +16,15 @@ namespace SignalR.EventAggregatorProxy.AspNetCore.GlobalTool
 
             if(args.Length < 2) throw new ArgumentException("dotnet signalreventproxy [Path_to_event_type_finder_dll] [Path_to_output_js] [Event_type_finder_type(optional)]");
 
-            var starPath = Directory.GetCurrentDirectory();
-            var eventTypeFinderAssembly = AssemblyLoader.LoadFromAssemblyPath($"{starPath}\\{args[0]}");
+            var asmPath = $"{Directory.GetCurrentDirectory()}\\{args[0]}";
+            var eventTypeFinderAssembly = AssemblyLoader.LoadFromAssemblyPath(asmPath);
+            var assemblyFolder = Path.GetDirectoryName(asmPath) ?? throw new NullReferenceException();
+
+            AppDomain.CurrentDomain.AssemblyResolve += (_, e) =>
+            {
+                var asm = Assembly.LoadFile($"{assemblyFolder}\\{new AssemblyName(e.Name).Name}.dll");
+                return asm;
+            };
 
             var lookup = typeof(IEventTypeFinder);
             var typeFinderType = args.Length > 2 ? eventTypeFinderAssembly.GetType(args[2]) : eventTypeFinderAssembly.GetExportedTypes().First(t => !t.IsAbstract && lookup.IsAssignableFrom(t));
