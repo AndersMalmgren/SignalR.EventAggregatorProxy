@@ -14,7 +14,7 @@
     <PackageReference Include="JavaScriptEngineSwitcher.Extensions.MsDependencyInjection" Version="3.24.1" />
     <PackageReference Include="React.AspNet" Version="5.2.12" />
     <PackageReference Include="SignalR.EventAggregatorProxy.AspNetCore" Version="8.1.288" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.32" />
   </ItemGroup>
 
 
